@@ -1,5 +1,8 @@
 import React from 'react'
 
+import { Link } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleSideBar } from '../../../features/domstates/sidebarToggleSlice';
 
@@ -10,6 +13,11 @@ import { IconButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 
 const drawerWidth = 100;
+
+const NavItems = [
+  { title: 'About', link: '/' },
+  { title: 'Blog', link: '/blog/' },
+]
 
 function Sidebar(props) {
   const { window } = props;
@@ -28,9 +36,15 @@ function Sidebar(props) {
       }}
     >
       <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemText primary={text} />
+        {NavItems.map((item, index) => (
+          <ListItem button key={item.title + index}>
+            <Link
+              component={RouterLink}
+              to={item.link}
+              underline="none"
+            >
+              <ListItemText primary={item.title} />
+            </Link>
           </ListItem>
         ))}
         <ListItem button key={1} onClick={() => { dispatch(toggleSideBar()) }}>
@@ -80,8 +94,6 @@ function Sidebar(props) {
       >
         {drawer}
       </Drawer>
-
-
     </Box>
   )
 }
