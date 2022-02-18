@@ -1,8 +1,7 @@
 
-name: Checkos
+name: Checks
 on:
-  push:
-    branches: [ main ]
+  [pull_request]
 jobs:
   deploy:
     runs-on: ubuntu-latest
