@@ -7,18 +7,18 @@ class DotsBackground {
         this.growingDots = [];
         this.shrinkingDots = [];
         this.growthThresholds = [];
-        this.color1 = p5.color(52, 235, 232, p5.random(0.2,0.8)*255)
-        this.color2 = p5.color(52, 235, 76, p5.random(0.2,0.8)*255)
+        this.color1 = p5.color(52, 235, 232, p5.random(0.1,0.3)*255)
+        this.color2 = p5.color(52, 235, 76, p5.random(0.1,0.3)*255)
     }
 
     update() {
 
         //spawn a dot every 180 frames
-        if (this.p5.frameCount % 60 === 0 && this.growingDots.length < 100){
+        if (this.p5.frameCount % 30 === 0 && this.growingDots.length < 100){
             let gradient = this.p5.lerpColor(this.color1, this.color2, this.p5.random(1))
             let newDot = new Dot(this.p5, this.p5.random(this.p5.width), this.p5.random(this.p5.height), 1, true, 1, gradient)
             this.growingDots.push(newDot)
-            this.growthThresholds.push(this.p5.random(100))
+            this.growthThresholds.push(this.p5.random(80, 150))
         }
 
         // shrink dots
