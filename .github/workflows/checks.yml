@@ -3,7 +3,7 @@ name: Checks
 on:
   [pull_request]
 jobs:
-  deploy:
+  check:
     runs-on: ubuntu-latest
     strategy:
       matrix:
