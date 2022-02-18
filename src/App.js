@@ -23,7 +23,6 @@ function App() {
         < CssBaseline />
         <NavBar />
         <Sidebar />
-        
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/blog/' element = {<Blog />} />

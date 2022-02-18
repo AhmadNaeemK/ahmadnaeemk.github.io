@@ -1,15 +1,14 @@
 import { styled } from "@mui/system";
+import { Box } from "@mui/system";
 
 const OverlayedCanvasContainer = styled('div')`
 
-    position: relative
-
-    .react-p5 {
-        position: absolute;
-    };
+    position: relative;
 
     #overlay{
         position: absolute;
+        width: 100%;
+        height: 100%;
     }
 
 `
@@ -17,9 +16,9 @@ const OverlayedCanvasContainer = styled('div')`
 function OverlayedCanvas(props) {
     return (
         < OverlayedCanvasContainer>
-            <div id="overlay">
+            <Box id="overlay">
                 {props.overlayElement}
-            </div>
+            </Box>
             {props.canvas}
         </OverlayedCanvasContainer>
     )
