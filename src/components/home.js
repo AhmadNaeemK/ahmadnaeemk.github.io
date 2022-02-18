@@ -1,6 +1,6 @@
 import { Box } from "@mui/system"
 import { Toolbar, Typography } from "@mui/material";
-import CirclePacking from "./canvas/circlePackingCanvas";
+import CirclePacking from "./canvas/circlePacking";
 import OverlayedCanvas from "./canvas";
 
 function Home(props) {
@@ -13,7 +13,7 @@ function Home(props) {
                     canvas={<CirclePacking />}
                     overlayElement={
                         <h1 style={{color: "white"}}>
-                            Hello
+                            I AM
                         </h1>
                     }
                 />
