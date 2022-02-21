@@ -13,7 +13,7 @@ class DotsBackground {
 
     update() {
 
-        //spawn a dot every 180 frames
+        //spawn a dot every 30 frames
         if (this.p5.frameCount % 30 === 0 && this.growingDots.length < 100){
             let gradient = this.p5.lerpColor(this.color1, this.color2, this.p5.random(1))
             let newDot = new Dot(this.p5, this.p5.random(this.p5.width), this.p5.random(this.p5.height), 1, true, 1, gradient)
