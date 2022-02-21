@@ -38,7 +38,7 @@ class CirclePackingScene {
         let newPoint = this.textPoints[Math.floor(this.p5.random(this.textPoints.length))]
         if (newPoint) {
             let gradient = this.p5.lerpColor(this.color1, this.color2, this.p5.random(1,10)/10)
-            let newDot = new Dot(this.p5, newPoint.x, newPoint.y, 1 / 2, this.giveProbability(0.3), this.p5.width/20000, gradient)
+            let newDot = new Dot(this.p5, newPoint.x, newPoint.y, 1 / 2, this.giveProbability(0.3), this.p5.width/9000, gradient)
             if (!newDot.checkCanvasEdge() && !newDot.checkDotsEdge(this.dots)) {
                 this.dots.push(newDot);
                 this.attempts = 0;

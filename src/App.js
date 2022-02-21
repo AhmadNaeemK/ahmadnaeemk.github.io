@@ -1,9 +1,13 @@
 import './App.css';
 import { Box } from '@mui/system';
-import { CssBaseline} from '@mui/material';
+import { CssBaseline } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles'
+
+// theme
+import defaultTheme from './components/assets/themes/default'
 
 // react router
-import { Routes, Route} from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 
 // redux imports 
 import { Provider } from 'react-redux'
@@ -15,20 +19,20 @@ import NavBar from './components/layout/navbar';
 import Home from './components/home';
 import Blog from './components/blog';
 
-
 function App() {
   return (
     <Provider store={store}>
-      <Box sx={{ display: 'flex' }}>
-        < CssBaseline />
-        <NavBar />
-        <Sidebar />
-        <Routes>
-          <Route path='/' element={<Home />} />
-          <Route path='/blog/' element = {<Blog />} />
-        </Routes>
-
-      </Box>
+      <ThemeProvider theme={defaultTheme}>
+        <Box sx={{ display: 'flex' }}>
+          < CssBaseline />
+          <NavBar />
+          <Sidebar />
+          <Routes>
+            <Route path='/' element={<Home />} />
+            <Route path='/blog/' element={<Blog />} />
+          </Routes>
+        </Box>
+      </ThemeProvider>
     </Provider>
   );
 }

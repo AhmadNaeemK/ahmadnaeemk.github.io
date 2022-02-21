@@ -12,7 +12,12 @@ function NavBar(props) {
     return (
         <AppBar
             position="fixed"
-            sx={{ zIndex: (theme) => theme.zIndex.drawer}}
+            color = 'transparent'
+            sx={{ 
+                zIndex: (theme) => theme.zIndex.drawer,
+                color: "white",
+                boxShadow: 'none',
+            }}
         >
             <Toolbar>
                 <IconButton
@@ -20,7 +25,7 @@ function NavBar(props) {
                     aria-label="open drawer"
                     edge="end"
                     onClick={() => {dispatch(toggleSideBar())}}
-                    sx={{ mr: 2, display: { sm: 'none' } }}
+                    sx={{ mr: 2, display: { sm: 'none' }, color:"white",}}
                 >
                     <MenuIcon />
                 </IconButton>
