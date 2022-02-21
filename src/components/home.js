@@ -1,20 +1,19 @@
 import { Box } from "@mui/system"
 import { Toolbar, Typography } from "@mui/material";
-import CirclePacking from "./canvas/circlePackingCanvas";
+import CirclePacking from "./canvas/circlePacking";
 import OverlayedCanvas from "./canvas";
+import CirclePackingOverlay from "./canvas/circlePacking/overlay";
 
 function Home(props) {
 
     return (
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Box component="main" sx={{ flexGrow: 1, p: 0}}>
             <Toolbar />
             <div>
                 <OverlayedCanvas
                     canvas={<CirclePacking />}
                     overlayElement={
-                        <h1 style={{color: "white"}}>
-                            Hello
-                        </h1>
+                        <CirclePackingOverlay />
                     }
                 />
             </div>

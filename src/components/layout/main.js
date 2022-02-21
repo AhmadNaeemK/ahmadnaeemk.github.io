@@ -13,7 +13,7 @@ function mainLayout(props) {
             < CssBaseline />
             <NavBar />
             <Sidebar />
-            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+            <Box component="main" sx={{ flexGrow: 1, p: 0}}>
                 <Toolbar />
                 <Typography paragraph>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
