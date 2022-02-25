@@ -19,7 +19,9 @@ const AsyncImage = (props) => {
   }, [props.src]);
     if (loadedSrc === props.src) {
       return (
-          <MuiImage {...props} showLoading={true} style={{
+
+
+          <MuiImage {...props} style={{
               width: props.sx.width || '100%',
               height: props.sx.height || '100%',
           }}/>
