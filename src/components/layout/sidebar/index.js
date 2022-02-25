@@ -66,7 +66,7 @@ function Sidebar(props) {
   );
 
   const logo = (
-    <img src={logoImg} style={{
+    <img src={logoImg} alt="Logo-img" style={{
       width: '100px', height: '100px', marginTop: '10px'
     }} />
   );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Box, Grid, Typography, Container, Toolbar } from "@mui/material";
+import { Box, Grid, Typography, Container} from "@mui/material";
 
 import CirclePacking from "./canvas/circlePacking";
 import OverlayedCanvas from "./canvas";

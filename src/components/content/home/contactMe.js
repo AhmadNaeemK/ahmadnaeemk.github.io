@@ -1,11 +1,9 @@
-import { Link, Typography, Box, Container, Stack, } from "@mui/material"
+import { Link, Typography, Box, Stack, } from "@mui/material"
 import Seperator from "../../utils/seperator";
 
 import { ReactComponent as InstagramIcon } from '../../assets/svgs/instagram.svg'
 import { ReactComponent as GithubIcon } from '../../assets/svgs/github.svg'
 import { ReactComponent as LinkedinIcon } from '../../assets/svgs/linkedin.svg'
-
-import defaultTheme from "../../assets/themes/default";
 
 const ContactMe = (props) => {
 
