@@ -26,6 +26,10 @@ let defaultTheme = createTheme({
         background: {
             default: '#141414',
             paper: '#161616'
+        },
+
+        border: {
+            grey: "#232323"        
         }
     },
 })

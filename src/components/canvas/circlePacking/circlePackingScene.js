@@ -12,11 +12,11 @@ class CirclePackingScene {
 
         this.fontSize = this.getFontSize(p5.width);
 
-        this.textPoints = textFont.textToPoints(text, 100, 200, this.fontSize, {
+        this.textPoints = textFont.textToPoints(text, 100, this.fontSize, this.fontSize, {
             sampleFactor: 1,
             simplifyThreshold: 0,
         });
-        this.textBounds = textFont.textBounds(text, 100, 200, this.fontSize);
+        this.textBounds = textFont.textBounds(text, 100, this.fontSize, this.fontSize);
 
         this.color1 = p5.color(52, 235, 232)
         this.color2 = p5.color(52, 235, 76)
@@ -38,7 +38,7 @@ class CirclePackingScene {
         let newPoint = this.textPoints[Math.floor(this.p5.random(this.textPoints.length))]
         if (newPoint) {
             let gradient = this.p5.lerpColor(this.color1, this.color2, this.p5.random(1,10)/10)
-            let newDot = new Dot(this.p5, newPoint.x, newPoint.y, 1 / 2, this.giveProbability(0.3), this.p5.width/9000, gradient)
+            let newDot = new Dot(this.p5, newPoint.x, newPoint.y, 1 / 2, this.giveProbability(0.3), this.p5.width/15000, gradient)
             if (!newDot.checkCanvasEdge() && !newDot.checkDotsEdge(this.dots)) {
                 this.dots.push(newDot);
                 this.attempts = 0;

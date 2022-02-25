@@ -3,13 +3,15 @@ import Sketch from 'react-p5'
 import DotsBackground from './background';
 import CirclePackingScene from './circlePackingScene';
 
+import { Box } from '@mui/material'
+
 function CirclePacking(props) {
 
     const fontPath = './fonts/MontserratBold.otf'
 
     let canvasDiv;
     let textFont;
-    
+
     let scene, background;
 
     const preload = (p5) => {
@@ -19,7 +21,7 @@ function CirclePacking(props) {
     const setup = (p5, canvasParentRef) => {
 
         canvasDiv = document.getElementById('circlePackingCanvas');
-        p5.createCanvas(canvasDiv.offsetWidth, 500).parent(canvasParentRef);
+        p5.createCanvas(canvasDiv.offsetWidth, Math.max(canvasDiv.offsetHeight, canvasDiv.offsetWidth/2)).parent(canvasParentRef);
 
         background = new DotsBackground(p5);
         scene = new CirclePackingScene(p5, textFont, "ahmad");
@@ -37,14 +39,17 @@ function CirclePacking(props) {
 
     const windowResized = (p5) => {
         canvasDiv = document.getElementById('circlePackingCanvas')
-        p5.resizeCanvas(canvasDiv.offsetWidth, 500)
+        p5.resizeCanvas(canvasDiv.offsetWidth, canvasDiv.offsetHeight)
         scene = new CirclePackingScene(p5, textFont, "ahmad")
     }
 
     return (
-        <div id='circlePackingCanvas'>
+        <Box component='div' id='circlePackingCanvas' sx={{
+            width: '100%',
+            minHeight: '500px'
+        }}>
             <Sketch setup={setup} draw={draw} windowResized={windowResized} preload={preload} />
-        </div>
+        </Box>
     );
 }
 

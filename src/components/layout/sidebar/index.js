@@ -1,6 +1,6 @@
 import React from 'react'
 
-import logoImg from '../../../logo.png'
+import logoImg from '../../assets/images/logo.png'
 
 import { Link } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';

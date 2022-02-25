@@ -1,71 +1,135 @@
-import { Box, Container, Grid } from "@mui/material";
+import { Box, Grid, Typography, Container, Toolbar } from "@mui/material";
 
-import { Toolbar, Typography } from "@mui/material";
 import CirclePacking from "./canvas/circlePacking";
 import OverlayedCanvas from "./canvas";
 import CirclePackingOverlay from "./canvas/circlePacking/overlay";
 
-import defaultTheme from "./assets/themes/default";
+import AsyncImage from "./utils/AsyncImage";
+
+// content
+import AboutMe from "./content/home/aboutMe";
+import FakeBigText from "./utils/FakeBigText";
+import Seperator from "./utils/seperator";
+import Technologies from "./content/home/technologies";
+import ContactMe from "./content/home/contactMe";
 
 function Home(props) {
 
     return (
         <Box component="main" sx={{ flexGrow: 1, p: 0 }}>
-            {/* <Toolbar /> */}
-            <div>
-                <OverlayedCanvas
-                    canvas={<CirclePacking />}
-                    overlayElement={
-                        <CirclePackingOverlay />
-                    }
-                />
-            </div>
+            <OverlayedCanvas
+                canvas={<CirclePacking />}
+                overlayElement={
+                    <CirclePackingOverlay />
+                }
+            />
 
-            <Box sx={{
+            <Box component='section' sx={{
                 p: 4,
             }}>
-                <Grid container spacing={4}>
+                <Grid container rowSpacing={1} columnSpacing={4} sx={{
+                    overflowX: 'hidden'
+                }}>
                     <Grid item xs={12} md={5}>
-                        <Typography variant='h2' color="secondary">
-                            Me, Myself & Ahmad
-                        </Typography>
-                        <Container
-                            sx={{
-                                p: 4
-                            }}
-                        >
-                        <Typography color="primary" paragraph justifyContent='center'>
-                            Ahmad is an enthusiast student for life, with an artistic mind that is always looking 
-                            to understand and solve problems using visualization techniques.
-                            He likes to learn, read books and make sketches of people and sometimes Urdu poetry.
-                        </Typography>
-                        <Typography color="primary" paragraph justifyContent='center'>
-                            Software Engineer by profession and Problem Solver by heart, 
-                            Ahmad is currently employed at Arbisoft, creating web apps with Python-Django and React.
-                        </Typography>
-                        <Typography color="primary" paragraph justifyContent='center'>
-                            Talk to me about spirituality, life or tell me a story.
-                        </Typography>
-                        </Container>
+                        <AboutMe />
                     </Grid>
                     <Grid item xs={12} md={7}>
-                        <Typography color={defaultTheme.palette.tertiary.main} paragraph>
-                            Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
-                            eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
-                            neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
-                            tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
-                            sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
-                            tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
-                            gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
-                            et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
-                            tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-                            eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-                            posuere sollicitudin aliquam ultrices sagittis orci a.
-                        </Typography>
+                        <Box component='div'
+                            sx={{
+                                transform: { xs: 'none', md: 'skewX(-20deg)' },
+                                overflow: 'hidden',
+                                borderRadius: '8px',
+                            }}
+                        >
+                            <AsyncImage
+                                src="https://drive.google.com/uc?export=view&id=1vWjUmtxt6z_X_oSoP-u_eo3U-nNSmZCi"
+                                alt="ahmad"
+                                sx={{
+                                    WebkitBoxReflect: 'below -0px linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.05))',
+                                    transform: { xs: 'scaleX(-1) scale(1.25)', md: 'skewX(20deg) scaleX(-1) scale(1.25)' },
+                                    objectPosition: '10% 22%',
+                                    filter: 'grayscale(50%)'
+                                }}
+                            />
+                        </Box>
                     </Grid>
                 </Grid>
             </Box>
-        </Box>
+
+            <Seperator />
+
+            <Box component='section' sx={{
+                p: { xs: 4, md: 6 },
+                position: 'relative'
+            }}>
+                <FakeBigText sx={{
+                    top: { xs: '-10%', md: '-30%' },
+                    left: '-5%',
+                }}>
+                    Tech
+                </FakeBigText>
+                <Box component='div'>
+                    <Container
+                        maxWidth='xlg'
+                        sx={{
+                            textAlign: 'right',
+                        }}
+                    >
+                        <Typography variant="h2" color="secondary">Technologies I Work With</Typography>
+                    </Container>
+                    <Container
+                        maxWidth='xlg'
+                        sx={{
+                            marginY: '50px',
+                        }}
+                    >
+                        <Grid container rowSpacing={1} columnSpacing={4}>
+                            <Technologies />
+                        </Grid>
+                    </Container>
+                </Box>
+            </Box>
+
+            <Seperator />
+
+            <Box component='section' sx={{
+                p: { xs: 4, md: 6 },
+            }}>
+
+                <Grid container >
+                    <Grid item xs={12} md={4} textAlign='center'>
+                        <Box component='div'>
+                            <Typography variant='h2' color='secondary' >
+                                Contact Me
+                            </Typography>
+                        </Box>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <AsyncImage
+                            src="https://drive.google.com/uc?export=view&id=16Ik3OWD8XXYJ4GiB8JAN8qTEOxzcQw5P"
+                            alt="ahmad"
+                            sx={{
+                                width: { xs: '200px', md: 'min-content' }
+                            }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} md={4} sx={{
+                        position:'relative'
+                    }}>
+                        <Box component='div' sx={{
+                            bottom: '0px',
+                            left: '10%',
+                            position: { xs:'initial', md:'absolute'},
+                        }}>
+                            <ContactMe />
+                        </Box>
+                    </Grid>
+                    <Grid item xs={1}> </Grid>
+                </Grid>
+            </Box>
+
+        </Box >
     )
 }
 
