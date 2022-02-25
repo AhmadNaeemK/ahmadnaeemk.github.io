@@ -18,7 +18,7 @@ const drawerWidth = 120;
 
 const NavItems = [
   { title: 'About', link: '/' },
-  { title: 'Blog', link: '/blog/' },
+  // { title: 'Blog', link: '/blog/' },
 ]
 
 const DrawerDiv = styled('div')`

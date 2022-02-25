@@ -5,50 +5,43 @@ import CirclePackingScene from './circlePackingScene';
 
 import { Box } from '@mui/material'
 
-function CirclePacking(props) {
+const CirclePacking = (props) => {
 
     const fontPath = './fonts/MontserratBold.otf'
 
     let canvasDiv;
-    let textFont;
 
-    let scene, background;
+    const [scene, setScene] = React.useState(null)
+    const [background, setBackground] = React.useState(null)
+    const [textFont, setTextFont] = React.useState(null)
 
     const preload = (p5) => {
-        textFont = p5.loadFont(fontPath);
+        setTextFont(p5.loadFont(fontPath));
     }
 
     const setup = (p5, canvasParentRef) => {
-
         canvasDiv = document.getElementById('circlePackingCanvas');
-        p5.createCanvas(canvasDiv.offsetWidth, Math.max(canvasDiv.offsetHeight, canvasDiv.offsetWidth/2)).parent(canvasParentRef);
-
-        background = new DotsBackground(p5);
-        scene = new CirclePackingScene(p5, textFont, "ahmad");
+        p5.createCanvas(canvasDiv.offsetWidth, Math.max(canvasDiv.offsetHeight, canvasDiv.offsetWidth / 2)).parent(canvasParentRef);
+        setBackground(new DotsBackground(p5));
+        setScene( new CirclePackingScene(p5, textFont, "ahmad") );
     };
 
     const draw = (p5) => {
         p5.background(20);
 
-        scene.show();
-        scene.update();
-
         background.show();
         background.update();
-    };
 
-    const windowResized = (p5) => {
-        canvasDiv = document.getElementById('circlePackingCanvas')
-        p5.resizeCanvas(canvasDiv.offsetWidth, canvasDiv.offsetHeight)
-        scene = new CirclePackingScene(p5, textFont, "ahmad")
-    }
+        scene.show();
+        scene.update();
+    };
 
     return (
         <Box component='div' id='circlePackingCanvas' sx={{
             width: '100%',
             minHeight: '500px'
         }}>
-            <Sketch setup={setup} draw={draw} windowResized={windowResized} preload={preload} />
+            <Sketch setup={setup} draw={draw} preload={preload} />
         </Box>
     );
 }
