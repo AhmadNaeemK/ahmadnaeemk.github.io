@@ -18,8 +18,3 @@ jobs:
       run: npm install
     - name: Build page
       run: npm run build
-<<<<<<< HEAD
-    # - name: Test
-    #   run: npm run test
-=======
->>>>>>> parent of 52e4fd2... Updates
