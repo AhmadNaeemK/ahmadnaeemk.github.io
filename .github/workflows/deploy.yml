@@ -20,7 +20,6 @@ jobs:
     - name: Build page
       run: npm run build
     - name: Deploy to gh-pages
-      if: ${{ github.ref == 'refs/heads/gh-pages' }}
       uses: peaceiris/actions-gh-pages@v3
       with:
         deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
