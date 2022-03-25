@@ -8,9 +8,9 @@ import { ReactComponent as LinkedinIcon } from '../../assets/svgs/linkedin.svg'
 const ContactMe = (props) => {
 
     const socialLinks = [
-        { title: 'github', icon: <GithubIcon style={{ width: '50px', height: '50px' }} />, link: 'https://github.com/AhmadNaeemK' },
-        { title: 'instagram', icon: <InstagramIcon style={{ width: '50px', height: '50px' }} />, link: 'https://www.instagram.com/ahm3dnaeem/' },
-        { title: 'linkedIn', icon: <LinkedinIcon style={{ width: '50px', height: '50px' }} />, link: 'https://www.linkedin.com/in/muhammad-ahmad-naeem-aa2614185' },
+        { title: 'github', icon: <GithubIcon className="ContactIcons" />, link: 'https://github.com/AhmadNaeemK' },
+        { title: 'instagram', icon: <InstagramIcon className="ContactIcons" />, link: 'https://www.instagram.com/ahm3dnaeem/' },
+        { title: 'linkedIn', icon: <LinkedinIcon className="ContactIcons" />, link: 'https://www.linkedin.com/in/muhammad-ahmad-naeem-aa2614185' },
     ]
 
     return (

@@ -130,25 +130,26 @@ function Home(props) {
                 }}>
 
                     <Grid container >
-                        <Grid item xs={12} md={4} textAlign='center'>
+                        <Grid item xs={12} md={4} paddingX={4} >
                             <Box component='div'>
-                                <Typography variant='h2' color='secondary' >
+                                <Typography variant='h2' color='secondary' textAlign='right'>
                                     Contact Me
                                 </Typography>
                             </Box>
                         </Grid>
-                        <Grid item xs={12} md={4}>
+                        <Grid item xs={12} md={4} alignItems='center' justifyContent={'center'}>
                             <AsyncImage
                                 src={imgUrls[1]}
                                 alt="ahmad"
                                 sx={{
-                                    width: { xs: '200px', md: 'min-content' }
+                                    width: { xs: '200px', md: '400px' }
                                 }}
                             />
                         </Grid>
 
                         <Grid item xs={12} md={4} sx={{
-                            position: 'relative'
+                            position: 'relative',
+                            paddingX: 4
                         }}>
                             <Box component='div' sx={{
                                 bottom: '0px',
