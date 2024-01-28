@@ -23,8 +23,10 @@ function Home(props) {
 
     const [loadedImages, setLoadedImages] = useState(0);
 
-    const imgUrls = ["https://drive.google.com/uc?export=view&id=1vWjUmtxt6z_X_oSoP-u_eo3U-nNSmZCi",
-        "https://drive.google.com/uc?export=view&id=16Ik3OWD8XXYJ4GiB8JAN8qTEOxzcQw5P"]
+    const imgUrls = [
+        "https://lh3.google.com/u/0/d/1xvSlxllubYo-h2qHLJLBQvfDgXaG62I_",
+        "https://lh3.google.com/u/0/d/1Vtrp2NK1vV3KWdo0plR4CvT6hHw1craL",
+    ]
 
     React.useEffect(() => {
         for (let url of imgUrls) {
