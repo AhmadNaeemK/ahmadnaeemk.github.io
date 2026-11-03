@@ -35,11 +35,11 @@ Elsewhere in the workflow, `<test>`, `<lint>`, `<base-branch>`, and similar plac
 | `<typecheck>`    | `npm run typecheck`         | `astro check`; does not cover `design/`                               |
 | `<format-check>` | `npm run format:check`      | Skips `design/` and `.claude/`. Fix with `npm run format`             |
 | `<build>`        | `npm run build`             | Writes the static site to `dist/`                                     |
-| `<e2e>`          | `npm run test:e2e`          | Serves `dist/` through `astro preview`, so run `<build>` first        |
+| `<e2e>`          | `npm run test:e2e`          | Builds, then serves through `astro preview`. In CI it serves the `dist/` the workflow built |
 | `<e2e-setup>`    | `npm run test:e2e:install`  | Downloads the Chromium and WebKit browsers                            |
 
 - **CI-parity checks** (run before opening a PR): `<lint>`, `<format-check>`, `<typecheck>`, `npm run test:coverage`, `<build>`, `<e2e>`. `.github/workflows/checks.yml` runs them in that order, on every pull request and on pushes to `main`.
-- **Node version:** local commands need Node 24 from `.nvmrc`, so run `nvm use` first. nvm's default alias on this machine is still 22.
+- **Node version:** local commands need Node 24 from `.nvmrc`, so run `nvm use` first.
 - **Background servers:** Astro detaches `npm run dev` and `astro preview` when it detects a coding agent. Stop them with `npx astro dev stop` or `npx astro preview stop`.
 - **Pre-commit checks:** no git hooks are installed, so whoever is about to commit runs `<lint>`, `<format-check>` and targeted `<test>` first.
 

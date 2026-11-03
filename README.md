@@ -24,6 +24,6 @@ npm run test:e2e:install # only needed for the e2e tests
 | `npm run typecheck`     | Runs `astro check`                              |
 | `npm test`              | Runs the Vitest unit tests                      |
 | `npm run test:coverage` | Runs the unit tests with coverage               |
-| `npm run test:e2e`      | Runs Playwright against `dist/`, so build first |
+| `npm run test:e2e`      | Rebuilds, then runs Playwright against the site |
 
 `design/` holds the visual prototypes the site is built from. It is reference material and is not part of the build.

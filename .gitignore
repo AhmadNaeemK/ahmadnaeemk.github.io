@@ -17,6 +17,9 @@
 # astro
 /.astro
 
+# design prototypes
+/design/train-concepts/dist/
+
 # misc
 .DS_Store
 .env.local
