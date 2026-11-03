@@ -1,0 +1,145 @@
+<header class="top">
+  <div class="top__in">
+    <a class="mark" href="#{{ px }}top" aria-label="Ahmad Naeem, back to top"><span class="mark__dot" aria-hidden="true">a</span><span class="mark__name">Ahmad Naeem</span></a>
+    <nav class="nav" aria-label="Sections">
+      {% for id, label in c.NAV %}<a href="#{{ px }}{{ id }}">{{ label }}</a>{% endfor %}
+    </nav>
+    <div class="top__actions">
+      {% include "switcher.html" %}
+      <button class="icon-btn" type="button" data-theme-toggle aria-pressed="false" aria-label="Switch theme">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="currentColor"/><path d="M12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <a class="btn btn--solid" href="{{ c.PERSON.cv }}" download data-cv>Download CV</a>
+    </div>
+  </div>
+</header>
+
+<main id="{{ px }}top">
+  <section class="hero" data-rail-hero tabindex="-1" aria-label="Introduction">
+    <div class="wrap">
+      <div class="map">
+        <canvas class="map__canvas" aria-label="A train runs along tracks shaped like the word ahmad, stopping at small stations where people get on and off." role="img"></canvas>
+        <div class="service" aria-label="Train controls">
+          <button type="button" class="service__signal" data-rail-toggle aria-pressed="false"><span class="lamp" aria-hidden="true"></span><span data-rail-label>Stop the train</span></button>
+          <div class="service__group" role="group" aria-label="Speed"><span class="service__k" aria-hidden="true">Speed</span>
+            {% for i in range(4) %}<button type="button" class="tick" data-rail-speed="{{ i }}" aria-label="Speed {{ i + 1 }} of 4" style="--h: {{ 5 + i * 3 }}px"></button>{% endfor %}
+          </div>
+          <div class="service__group" role="group" aria-label="Choose a train"><span class="service__k" aria-hidden="true">Train</span>
+            {% for id in c.LIVERY_ORDER %}<button type="button" class="liv liv--{{ id }}" data-rail-livery="{{ id }}" aria-label="{{ c.LIVERY_NAMES[id] }}" title="{{ c.LIVERY_NAMES[id] }}"></button>{% endfor %}
+          </div>
+        </div>
+        {% include "now.html" %}
+      </div>
+
+      <div class="intro">
+        <h1 class="intro__name">Ahmad Naeem</h1>
+        <p class="intro__role">{{ c.PERSON.role }}. {{ c.PERSON.focus }}.</p>
+        <p class="intro__text">{{ c.PERSON.intro }}</p>
+        <div class="intro__cta">
+          <a class="btn btn--solid" href="{{ c.PERSON.cv }}" download data-cv>Download CV</a>
+          <a class="btn" href="#{{ px }}contact">Get in touch</a>
+          <span class="intro__where">{{ c.PERSON.location }}</span>
+        </div>
+        <p class="hint">Tap the train to stop it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="{{ px }}about" class="sec">
+    <div class="wrap about">
+      <div class="about__text">
+        <h2 class="h2"><span class="bullet bullet--marigold" aria-hidden="true">a</span>About</h2>
+        {% for p in c.ABOUT %}<p>{{ p }}</p>{% endfor %}
+      </div>
+      <aside class="about__side">
+        <figure class="sign">
+          <div class="sign__lines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+          <img class="sign__photo" src="{{ photo('portrait.jpg') }}" alt="Ahmad Naeem at an evening event, smiling, in a cap and a white T-shirt" width="480" height="600">
+          <figcaption>
+            <p class="sign__name">Ahmad Naeem</p>
+            <p class="sign__sub">Lahore</p>
+            <p class="sign__bullets" aria-hidden="true"><span>a</span><span>h</span><span>m</span><span>a</span><span>d</span></p>
+          </figcaption>
+        </figure>
+      </aside>
+    </div>
+  </section>
+
+  <section id="{{ px }}work" class="sec">
+    <div class="wrap">
+      <h2 class="h2"><span class="bullet bullet--tomato" aria-hidden="true">h</span>Work</h2>
+      <ol class="line">
+        {% for job in c.EXPERIENCE %}
+        <li class="stop">
+          <div class="stop__time"><span>{{ job.start }}</span><span>{{ job.end }}</span></div>
+          <div class="stop__body">
+            <h3>{{ job.title }}<span class="stop__org">{{ job.org }}</span></h3>
+            <ul>{% for pt in job.points %}<li>{{ pt }}</li>{% endfor %}</ul>
+          </div>
+        </li>
+        {% endfor %}
+        <li class="stop stop--end">
+          <div class="stop__time"><span>{{ c.EDUCATION.start }}</span><span>{{ c.EDUCATION.end }}</span></div>
+          <div class="stop__body">
+            <h3>{{ c.EDUCATION.degree }}</h3>
+            <p class="stop__meta">{{ c.EDUCATION.school }}, {{ c.EDUCATION.place }}</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="{{ px }}projects" class="sec">
+    <div class="wrap">
+      <h2 class="h2"><span class="bullet bullet--teal" aria-hidden="true">m</span>Projects</h2>
+      <p class="lede">Products I built at Arbisoft for US startups.</p>
+      <div class="routes">
+        {% for p in c.PROJECTS %}
+        <article class="route route--{{ p.color }}">
+          <header class="route__head">
+            {% if logo(p.id) %}<img class="route__logo" src="{{ logo(p.id) }}" alt="{{ p.name }} logo" width="52" height="52">{% else %}<span class="route__bullet" aria-hidden="true">{{ p.mono }}</span>{% endif %}
+            <div>
+              <h3>{{ p.name }}</h3>
+              <p class="route__blurb">{{ p.blurb }}</p>
+            </div>
+          </header>
+          <p class="route__meta"><span>{{ p.role }}</span><span>{{ p.dates }}</span></p>
+          <ol class="route__pts">{% for pt in p.points %}<li>{{ pt }}</li>{% endfor %}<li class="route__end">{{ p.tech|join(", ") }}</li></ol>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section id="{{ px }}skills" class="sec">
+    <div class="wrap">
+      <h2 class="h2"><span class="bullet bullet--plum" aria-hidden="true">a</span>Skills</h2>
+      <div class="skills">
+        {% for group, items in c.SKILLS %}
+        <div class="skills__row">
+          <h3>{{ group }}</h3>
+          <ul>{% for s in items %}<li>{{ s }}</li>{% endfor %}</ul>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section id="{{ px }}contact" class="sec sec--end">
+    <div class="wrap contact">
+      <h2 class="h2"><span class="bullet bullet--cobalt" aria-hidden="true">d</span>Contact</h2>
+      <p class="contact__lead">The fastest way to reach me is email. I'm happy to talk about a product, a role, or a good story.</p>
+      <div class="contact__mail">
+        <img class="contact__photo" src="{{ photo('contact.jpg') }}" alt="" width="88" height="88">
+        <span class="contact__addr" data-copy-target>{{ c.PERSON.email }}</span>
+        <button class="btn" type="button" data-copy="{{ c.PERSON.email }}"><span data-copy-label>Copy email</span></button>
+      </div>
+      <ul class="contact__links">
+        <li><a href="{{ c.PERSON.linkedin }}" target="_blank" rel="noopener">LinkedIn</a><span>{{ c.PERSON.linkedin_label }}</span></li>
+        <li><a href="{{ c.PERSON.github }}" target="_blank" rel="noopener">GitHub</a><span>{{ c.PERSON.github_label }}</span></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="foot"><div class="wrap">© <span data-year>2026</span> Ahmad Naeem</div></footer>

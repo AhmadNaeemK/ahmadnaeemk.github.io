@@ -1,0 +1,9 @@
+/* "Right now": the scene shows it as a billboard; this HTML line is the phone and reduced-motion version,
+   and is always there for screen readers. */
+.now { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.now__label { flex: none; white-space: nowrap; }
+.now__list { display: flex; flex-wrap: wrap; gap: 4px 18px; list-style: none; margin: 0; padding: 0; }
+.now__list[aria-hidden="true"], .now__list li[aria-hidden="true"] { display: none; }
+.now__list li { display: flex; gap: .4em; align-items: baseline; }
+/* the scene sets data-now="board" (billboard drawn) or "html" (phone layout: this line shows) */
+[data-now="board"] .now { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

@@ -1,0 +1,152 @@
+<header class="top">
+  <div class="top__in">
+    <a class="mark" href="#{{ px }}top"><span class="mark__px" aria-hidden="true"></span>Ahmad Naeem</a>
+    <nav class="menu" aria-label="Sections">
+      {% for id, label in c.NAV %}<a href="#{{ px }}{{ id }}">{{ label }}</a>{% endfor %}
+    </nav>
+    {% include "switcher.html" %}
+    <button class="px-btn px-btn--ghost theme" type="button" data-theme-toggle aria-pressed="false" aria-label="Switch theme"><span class="theme__icon" aria-hidden="true"></span></button>
+    <a class="px-btn" href="{{ c.PERSON.cv }}" download data-cv>Download CV</a>
+  </div>
+</header>
+
+<main id="{{ px }}top">
+  <section class="hero" data-rail-hero tabindex="-1" aria-label="Introduction">
+    <div class="wrap">
+      <div class="screen">
+        <div class="screen__view"><canvas class="screen__canvas" role="img" aria-label="A pixel-art town where the railway track spells ahmad. A small train runs over a stone bridge and through tunnels, and tiny people get on and off at the stations."></canvas></div>
+        {% include "now.html" %}
+        <div class="hud" aria-label="Train controls">
+          <button type="button" class="hud__btn" data-rail-toggle aria-pressed="false"><span class="hud__icon" aria-hidden="true"></span><span data-rail-label>Stop the train</span></button>
+          <div class="hud__speed" role="group" aria-label="Speed">
+            <span aria-hidden="true">Speed</span>
+            {% for i in range(4) %}<button type="button" data-rail-speed="{{ i }}" aria-label="Speed {{ i + 1 }} of 4"></button>{% endfor %}
+          </div>
+          <div class="hud__trains" role="group" aria-label="Choose a train"><span aria-hidden="true">Train</span>
+            {% for id in c.LIVERY_ORDER %}<button type="button" data-rail-livery="{{ id }}" class="chip chip--{{ id }}" title="{{ c.LIVERY_NAMES[id] }}" aria-label="{{ c.LIVERY_NAMES[id] }}"></button>{% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="intro">
+        <div class="intro__main">
+          <h1 class="intro__name">Ahmad Naeem</h1>
+          <p class="intro__role">{{ c.PERSON.role }}. {{ c.PERSON.focus }}.</p>
+          <p class="intro__text">{{ c.PERSON.intro }}</p>
+        </div>
+        <div class="intro__cta">
+          <a class="px-btn px-btn--big" href="{{ c.PERSON.cv }}" download data-cv>Download CV</a>
+          <a class="px-btn px-btn--ghost px-btn--big" href="#{{ px }}contact">Get in touch</a>
+          <p class="intro__where">{{ c.PERSON.location }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="{{ px }}about" class="sec">
+    <div class="wrap">
+      <h2 class="h2">Character <span class="h2__sub">About</span></h2>
+      <div class="char">
+        <div class="panel char__card">
+          <div class="portrait" tabindex="0" role="img" aria-label="Ahmad Naeem at an evening event, smiling, in a cap and a white T-shirt. Hover to sharpen.">
+            <img class="portrait__px" src="{{ photo('portrait-px.png') }}" alt="" width="40" height="50">
+            <img class="portrait__full" src="{{ photo('portrait.jpg') }}" alt="" width="480" height="600">
+          </div>
+          <p class="char__name">Ahmad Naeem</p>
+          <p class="char__class">Senior software engineer</p>
+        </div>
+        <div class="char__text">
+          {% for p in c.ABOUT %}<p>{{ p }}</p>{% endfor %}
+          <aside class="panel item">
+            <span class="item__icon" aria-hidden="true"></span>
+            <div>
+              <p class="item__label">Favourite game</p>
+              <p class="item__name">Sekiro: Shadows Die Twice</p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="{{ px }}work" class="sec">
+    <div class="wrap">
+      <h2 class="h2">Quest log <span class="h2__sub">Work</span></h2>
+      <ol class="quests">
+        {% for job in c.EXPERIENCE %}
+        <li class="panel quest{% if job.end == 'Present' %} quest--active{% endif %}">
+          <div class="quest__head">
+            <h3>{{ job.title }} <span>at {{ job.org }}</span></h3>
+            <p class="quest__time">{{ job.start }} to {{ job.end }}</p>
+            <p class="quest__state">{% if job.end == 'Present' %}In progress{% else %}Complete{% endif %}</p>
+          </div>
+          <ul>{% for pt in job.points %}<li>{{ pt }}</li>{% endfor %}</ul>
+        </li>
+        {% endfor %}
+        <li class="panel quest">
+          <div class="quest__head">
+            <h3>{{ c.EDUCATION.degree }}</h3>
+            <p class="quest__time">{{ c.EDUCATION.start }} to {{ c.EDUCATION.end }}</p>
+            <p class="quest__state">Complete</p>
+          </div>
+          <p class="quest__meta">{{ c.EDUCATION.school }}, {{ c.EDUCATION.place }}</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="{{ px }}projects" class="sec">
+    <div class="wrap">
+      <h2 class="h2">Inventory <span class="h2__sub">Projects</span></h2>
+      <p class="lede">Products I built at Arbisoft for US startups.</p>
+      <div class="inv">
+        {% for p in c.PROJECTS %}
+        <article class="panel slot slot--{{ p.color }}">
+          <div class="slot__head">
+            {% if logo(p.id) %}<img class="slot__logo" src="{{ logo(p.id) }}" alt="{{ p.name }} logo" width="52" height="52">{% else %}<span class="slot__tile" aria-hidden="true">{{ p.mono }}</span>{% endif %}
+            <div><h3>{{ p.name }}</h3><p>{{ p.blurb }}</p></div>
+          </div>
+          <p class="slot__meta"><span>{{ p.role }}</span><span>{{ p.dates }}</span></p>
+          <ul>{% for pt in p.points %}<li>{{ pt }}</li>{% endfor %}</ul>
+          <p class="slot__tech">{% for t in p.tech %}<span>{{ t }}</span>{% endfor %}</p>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section id="{{ px }}skills" class="sec">
+    <div class="wrap">
+      <h2 class="h2">Skill tree <span class="h2__sub">Skills</span></h2>
+      <div class="tree">
+        {% for group, items in c.SKILLS %}
+        <div class="tree__branch">
+          <h3>{{ group }}</h3>
+          <ul>{% for s in items %}<li>{{ s }}</li>{% endfor %}</ul>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section id="{{ px }}contact" class="sec">
+    <div class="wrap">
+      <h2 class="h2">Save point <span class="h2__sub">Contact</span></h2>
+      <div class="panel save">
+        <div class="save__main">
+          <img class="save__photo" src="{{ photo('contact.jpg') }}" alt="" width="72" height="72">
+          <p class="save__text">Email is the fastest way to reach me. Happy to talk about a product, a role, or a good story.</p>
+          <p class="save__mail" data-copy-target>{{ c.PERSON.email }}</p>
+          <div class="save__cta">
+            <button class="px-btn" type="button" data-copy="{{ c.PERSON.email }}"><span data-copy-label>Copy email</span></button>
+          </div>
+        </div>
+        <ul class="save__links">
+          <li><span>LinkedIn</span><a href="{{ c.PERSON.linkedin }}" target="_blank" rel="noopener">{{ c.PERSON.linkedin_label }}</a></li>
+          <li><span>GitHub</span><a href="{{ c.PERSON.github }}" target="_blank" rel="noopener">{{ c.PERSON.github_label }}</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="foot"><div class="wrap">© <span data-year>2026</span> Ahmad Naeem</div></footer>
