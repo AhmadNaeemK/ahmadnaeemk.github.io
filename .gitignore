@@ -7,9 +7,15 @@
 
 # testing
 /coverage
+/playwright-report
+/test-results
+/blob-report
 
 # production
-/build
+/dist
+
+# astro
+/.astro
 
 # misc
 .DS_Store

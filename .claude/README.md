@@ -6,7 +6,7 @@ A project-agnostic Claude Code setup: **agents**, **commands**, **skills**, and 
 
 1. Copy `.claude/` and `CLAUDE.md` into the repository, leaving out `.claude/plans/`.
 2. Rewrite **`.claude/rules/project.md`**: stack, commands, base branch, layout, tracker. Use `none` for anything the project lacks, and the workflow skips the steps that need it.
-3. In `project.md` and `CLAUDE.md`, keep `.claude/rules/react.md` only for React projects. Add your own stack add-on the same way for other stacks.
+3. If your stack needs its own rules, add them as a stack add-on under `.claude/rules/`, and list it in `project.md` and `CLAUDE.md`.
 4. Add `/.claude/plans/` to `.gitignore`.
 
 Everything else reads its project-specific values from `project.md`. The placeholders `<test>`, `<lint>`, `<typecheck>`, `<build>`, `<e2e>`, and `<base-branch>` throughout the files refer to it.
@@ -155,7 +155,6 @@ After **all** plan tasks are done, run the **Final build gate** once (`<build>`)
 | -------------------------------------- | ---------------------------------------------------------------------------------------- |
 | Project specifics                      | [rules/project.md](rules/project.md)                                                     |
 | Code standards                         | [rules/code-standards.md](rules/code-standards.md)                                       |
-| React add-on                           | [rules/react.md](rules/react.md)                                                         |
 | Design system and tokens               | [rules/design-system.md](rules/design-system.md)                                         |
 | Testing principles                     | [rules/tests.md](rules/tests.md)                                                         |
 | Commit conventions                     | [rules/commit-conventions.md](rules/commit-conventions.md)                               |
