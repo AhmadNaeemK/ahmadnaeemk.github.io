@@ -1,0 +1,97 @@
+# The key is the project id and "order" sets the display position. Every project needs a logo.
+gumdrop:
+  order: 1
+  name: Gumdrop
+  monogram: G
+  color: tomato
+  logo: ./assets/logos/gumdrop.png
+  blurb: AI-powered meeting scheduling and analytics platform.
+  role: Full-stack engineer
+  start: 2025-06
+  end: present
+  points:
+    - Internal LLM prompt-testing tool for models, agents, prompts and transcripts, with live WebSocket results.
+    - Stripe subscription billing end to end, with webhooks made safe against duplicate and out-of-order delivery.
+    - Group scheduling polls, from voting grids to booking the chosen time.
+    - Cut CI from 30 to 6 minutes with sharding, added Playwright E2E tests, and removed 51K lines of dead code.
+  tech:
+    - Next.js
+    - TypeScript
+    - TanStack Query
+    - MUI
+    - Django
+    - Celery
+    - Stripe
+    - AWS
+lola:
+  order: 2
+  name: Lola
+  monogram: L
+  color: plum
+  logo: ./assets/logos/lola.png
+  blurb: Dating app built around post-date feedback.
+  role: Frontend lead, team of four
+  start: 2023-04
+  end: 2025-04
+  points:
+    - App foundation on Redux Toolkit and React Navigation, with an Axios layer that refreshes an expired CSRF token, replays the request and coalesces duplicates.
+    - Real-time chat over Server-Sent Events with typing indicators, plus push notifications.
+    - CodePush over-the-air updates with a forced-update check; analytics through Segment, Amplitude and Branch.io.
+    - Audit-logged admin tools in the Go and gRPC backend so support could fix user details without engineers.
+  tech:
+    - React Native
+    - TypeScript
+    - Redux Toolkit
+    - Firebase
+    - Go
+    - gRPC
+    - Vue
+crush:
+  order: 3
+  name: Crush
+  monogram: C
+  color: marigold
+  logo: ./assets/logos/crush.png
+  blurb: Anonymous matching with people in your phone contacts.
+  role: Sole developer
+  start: 2023-10
+  end: 2024-07
+  points:
+    - Built the core iOS and Android product in two months and shipped three releases.
+    - "Matching logic in Firebase Cloud Functions: a Firestore trigger detects mutual likes and notifies both people."
+    - Contact syncing with phone-number normalization, so people match however a number is saved.
+  tech:
+    - React Native
+    - TypeScript
+    - Firebase Cloud Functions
+    - Node.js
+funcontact:
+  order: 4
+  name: FunContact
+  monogram: F
+  color: teal
+  logo: ./assets/logos/funcontact.png
+  blurb: QR codes for sharing your contact details.
+  role: Main developer
+  start: 2022-03
+  end: 2025-03
+  points:
+    - QR code creation for name, email, phone, address and social profiles, from the first project setup.
+    - Maintained and released the app on the App Store and Google Play.
+  tech:
+    - React Native
+reki:
+  order: 5
+  name: Reki TV
+  monogram: R
+  color: cobalt
+  logo: ./assets/logos/reki.png
+  blurb: Social recommendations for movies and shows.
+  role: Mobile developer
+  start: 2022-05
+  end: 2024-12
+  points:
+    - Friends' recommendation lists with comments, sharing and saving to your own list.
+    - Screen animations, and large screens split into smaller components to cut re-renders.
+  tech:
+    - React Native

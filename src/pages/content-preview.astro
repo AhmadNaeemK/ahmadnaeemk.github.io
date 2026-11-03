@@ -1,0 +1,140 @@
+---
+// Plain rendering of all site content, for checking it against the source. Task 13 removes this route.
+import { getSiteContent } from "../content/site";
+
+const { profile, experience, education, projects, skills, now } =
+  await getSiteContent();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Content preview</title>
+  </head>
+  <body>
+    <h1>{profile.name}</h1>
+    <p>{profile.handle}</p>
+    <p>{profile.role}</p>
+    <p>{profile.focus}</p>
+    <p>{profile.location}</p>
+    <p>{profile.intro}</p>
+    <ul>
+      <li>
+        <a href={`mailto:${profile.email}`}>{profile.email}</a>
+      </li>
+      <li>
+        <a href={profile.linkedin}>{profile.linkedinLabel}</a>
+      </li>
+      <li>
+        <a href={profile.github}>{profile.githubLabel}</a>
+      </li>
+      <li>
+        <a href={profile.cv} download>
+          Download CV
+        </a>
+      </li>
+    </ul>
+
+    <img
+      src={profile.portrait.src}
+      alt={profile.portraitAlt}
+      width={profile.portrait.width}
+      height={profile.portrait.height}
+    />
+    <img
+      src={profile.contactPhoto.src}
+      alt=""
+      width={profile.contactPhoto.width}
+      height={profile.contactPhoto.height}
+    />
+    <img
+      class="pixels"
+      src={profile.portraitPixels.url}
+      alt=""
+      width={profile.portraitPixels.width}
+      height={profile.portraitPixels.height}
+    />
+
+    <h2>Right now</h2>
+    <ul>
+      {now.map((item) => (
+        <li>
+          {item.label} {item.value}
+        </li>
+      ))}
+    </ul>
+
+    <h2>About</h2>
+    {profile.about.map((paragraph) => (
+      <p>{paragraph}</p>
+    ))}
+    <ul>
+      {profile.facts.map((fact) => (
+        <li>
+          {fact.value} {fact.label}
+        </li>
+      ))}
+    </ul>
+
+    <h2>Work</h2>
+    {experience.map((job) => (
+      <article>
+        <h3>{job.title}</h3>
+        <p>{job.org}</p>
+        <p>{job.dates}</p>
+        <ul>
+          {job.points.map((point) => (
+            <li>{point}</li>
+          ))}
+        </ul>
+      </article>
+    ))}
+    {education.map((degree) => (
+      <article>
+        <h3>{degree.degree}</h3>
+        <p>{degree.school}</p>
+        <p>{degree.place}</p>
+        <p>{degree.dates}</p>
+      </article>
+    ))}
+
+    <h2>Projects</h2>
+    {projects.map((project) => (
+      <article id={project.id}>
+        <img
+          src={project.logo.src}
+          alt={`${project.name} logo`}
+          width="52"
+          height="52"
+        />
+        <h3>{project.name}</h3>
+        <p>{project.blurb}</p>
+        <p>{project.role}</p>
+        <p>{project.dates}</p>
+        <ul>
+          {project.points.map((point) => (
+            <li>{point}</li>
+          ))}
+        </ul>
+        <p>{project.tech.join(", ")}</p>
+      </article>
+    ))}
+
+    <h2>Skills</h2>
+    {skills.map((skillGroup) => (
+      <section>
+        <h3>{skillGroup.group}</h3>
+        <p>{skillGroup.items.join(", ")}</p>
+      </section>
+    ))}
+  </body>
+</html>
+
+<style>
+  .pixels {
+    image-rendering: pixelated;
+  }
+</style>

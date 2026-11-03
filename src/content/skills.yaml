@@ -1,0 +1,60 @@
+# "order" sets the display position.
+languages:
+  order: 1
+  group: Languages
+  items:
+    - TypeScript
+    - JavaScript
+    - Python
+    - Go
+    - SQL
+mobile-and-web:
+  order: 2
+  group: Mobile and web
+  items:
+    - React Native
+    - Expo
+    - React
+    - Next.js
+    - Redux Toolkit
+    - TanStack Query
+    - Tailwind CSS
+    - Vue
+backend:
+  order: 3
+  group: Backend
+  items:
+    - Node.js
+    - Django
+    - Django REST Framework
+    - Celery
+    - PostgreSQL
+    - Redis
+    - gRPC
+integrations:
+  order: 4
+  group: Integrations
+  items:
+    - Stripe
+    - WebSockets
+    - Server-Sent Events
+    - Firebase
+    - Segment
+    - Amplitude
+testing-and-delivery:
+  order: 5
+  group: Testing and delivery
+  items:
+    - Jest
+    - React Testing Library
+    - Playwright
+    - pytest
+    - GitHub Actions
+    - AWS
+    - App Store Connect
+ai-tools:
+  order: 6
+  group: AI tools
+  items:
+    - Claude Code
+    - Cursor
