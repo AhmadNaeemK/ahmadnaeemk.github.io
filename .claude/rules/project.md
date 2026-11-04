@@ -60,6 +60,7 @@ Elsewhere in the workflow, `<test>`, `<lint>`, `<base-branch>`, and similar plac
 | Content collections                            | `src/content/`    |
 | Train simulation (framework-free)              | `src/rail/`       |
 | Scene lifecycle shared by the themes           | `src/scene/`      |
+| Bundling rule for scene chunks                 | `scene-chunks.mjs` |
 | Themes                                         | `src/themes/`     |
 | Shared components                              | `src/components/` |
 | Page layouts                                   | `src/layouts/`    |
