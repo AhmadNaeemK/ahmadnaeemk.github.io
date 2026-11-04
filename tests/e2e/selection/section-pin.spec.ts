@@ -40,17 +40,34 @@ const LATE_FONT = "test-late-font";
 
 test.describe.configure({ mode: "parallel" });
 
-/** A switch that has finished, with the pin still holding. */
-async function switchedAndSettled(page: Page): Promise<void> {
+const pageClockNow = (page: Page): Promise<number> =>
+  page.evaluate(() => Date.now());
+
+/**
+ * A switch that has finished, with the pin still holding. Returns the page clock
+ * just after the switch's click, which the pin cannot have started later than.
+ */
+async function switchedAndSettled(page: Page): Promise<number> {
   await serveWithCss(page, tallSectionsCss());
   await page.goto(`/${themeHash(FROM)}`);
   await sceneSettled(page, FROM);
   await scrollToSection(page, FROM, KEY);
   await pickThemeInPlace(page, TO);
+  const switchedBy = await pageClockNow(page);
   await expectShowing(page, TO);
   await sceneSettled(page, TO);
   await pastPinSettling(page);
   await expectSectionAtTop(page, TO, KEY);
+  return switchedBy;
+}
+
+/** Counts from the switch, as an installed clock keeps moving with real time too. */
+async function fastForwardPastSwitch(
+  page: Page,
+  { switchedBy, msAfterSwitch }: { switchedBy: number; msAfterSwitch: number },
+): Promise<void> {
+  const elapsedMs = (await pageClockNow(page)) - switchedBy;
+  await page.clock.fastForward(Math.max(0, msAfterSwitch - elapsedMs));
 }
 
 /** Moves away the way a visitor's scroll would, and lets its scroll event fire. */
@@ -243,17 +260,27 @@ test.describe("what ends a pin", () => {
 });
 
 test.describe("the time limit on a pin", () => {
-  test("it holds up to 10 seconds with no input, and not beyond", async ({
+  // Well past settling, and with seconds to spare for a slow machine's checks.
+  const HELD_CHECK_MS = 6_000;
+  const PIN_TIME_LIMIT_MS = 10_000;
+
+  test("it holds well past settling with no input, and ends at 10 seconds", async ({
     page,
   }) => {
     await page.clock.install();
-    await switchedAndSettled(page);
+    const switchedBy = await switchedAndSettled(page);
 
-    await page.clock.fastForward(9_000);
+    await fastForwardPastSwitch(page, {
+      switchedBy,
+      msAfterSwitch: HELD_CHECK_MS,
+    });
     await scrollOffTarget(page);
     await expectPinHeld(page);
 
-    await page.clock.fastForward(2_000);
+    await fastForwardPastSwitch(page, {
+      switchedBy,
+      msAfterSwitch: PIN_TIME_LIMIT_MS,
+    });
     await scrollOffTarget(page);
     await expectPinEnded(page);
   });
