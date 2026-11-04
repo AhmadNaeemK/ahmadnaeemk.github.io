@@ -35,7 +35,7 @@ Elsewhere in the workflow, `<test>`, `<lint>`, `<base-branch>`, and similar plac
 | `<typecheck>`    | `npm run typecheck`         | `astro check`; does not cover `design/`                               |
 | `<format-check>` | `npm run format:check`      | Skips `design/` and `.claude/`. Fix with `npm run format`             |
 | `<build>`        | `npm run build`             | Writes the static site to `dist/`                                     |
-| `<e2e>`          | `npm run test:e2e`          | Builds, then serves through `astro preview`. In CI it serves the `dist/` the workflow built |
+| `<e2e>`          | `npm run test:e2e`          | Builds, then serves through `astro preview` on a port derived from the checkout's path (override with `E2E_PORT`). In CI it serves the `dist/` the workflow built |
 | `<e2e-setup>`    | `npm run test:e2e:install`  | Downloads the Chromium and WebKit browsers                            |
 
 - **CI-parity checks** (run before opening a PR): `<lint>`, `<format-check>`, `<typecheck>`, `npm run test:coverage`, `<build>`, `<e2e>`. `.github/workflows/checks.yml` runs them in that order, on every pull request and on pushes to `main`.

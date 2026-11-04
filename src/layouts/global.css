@@ -1,0 +1,65 @@
+/* The shell's rules for every theme. Theme tokens live under each theme's root. */
+body {
+  margin: 0;
+}
+
+/* Visibility hangs off one attribute on <html>, with Interchange as the default
+   for no attribute, no JavaScript and any unknown name. */
+[data-rail-theme-root] {
+  display: none;
+  min-height: 100vh;
+}
+html:not([data-rail-theme="diorama"], [data-rail-theme="pixel-depot"])
+  [data-rail-theme-root="interchange"],
+html[data-rail-theme="diorama"] [data-rail-theme-root="diorama"],
+html[data-rail-theme="pixel-depot"] [data-rail-theme-root="pixel-depot"] {
+  display: block;
+}
+
+/* The canvas and controls appear only once a scene runs, so no JavaScript and a
+   failed load both land on the static hero. !important so a theme can set its
+   own display on these elements without undoing this. */
+[data-rail-theme-root]:not(
+    [data-scene-state="running"],
+    [data-scene-state="paused"]
+  )
+  :is([data-rail-canvas], [data-rail-controls]),
+[data-scene-state="running"] [data-rail-static],
+[data-scene-state="paused"] [data-rail-static] {
+  display: none !important;
+}
+
+.now {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.now__label {
+  flex: none;
+  white-space: nowrap;
+}
+.now__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.now__list li {
+  display: flex;
+  gap: 0.4em;
+  align-items: baseline;
+}
+/* The billboard is drawn, so the line stays for screen readers only. */
+[data-now="board"] .now {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

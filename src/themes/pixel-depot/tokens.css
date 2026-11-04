@@ -1,0 +1,42 @@
+/* STUB, replaced with the theme. Custom properties and color-scheme only. */
+[data-rail-theme-root="pixel-depot"] {
+  --bg: #e9dfc2;
+  --surface: #f6efd9;
+  --ink: #2b1d1a;
+  --muted: #5c4a38;
+  --rule: #c7b27a;
+  --ground: #f6efd9;
+  --track: #5e5a62;
+  --train: #e0452b;
+  --board: #2b1d1a;
+  --board-ink: #ffc94a;
+  --dd-bg: var(--surface);
+  --dd-fg: var(--ink);
+  --dd-muted: var(--muted);
+  --dd-line: var(--rule);
+  color-scheme: light;
+
+  :root[data-theme="dark"] & {
+    --bg: #1b1a2b;
+    --surface: #27263a;
+    --ink: #f2ead3;
+    --muted: #c4bca8;
+    --rule: #4a4860;
+    --ground: #27263a;
+    --track: #8e8aa0;
+    color-scheme: dark;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) & {
+      --bg: #1b1a2b;
+      --surface: #27263a;
+      --ink: #f2ead3;
+      --muted: #c4bca8;
+      --rule: #4a4860;
+      --ground: #27263a;
+      --track: #8e8aa0;
+      color-scheme: dark;
+    }
+  }
+}

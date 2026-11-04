@@ -1,0 +1,43 @@
+---
+/**
+ * PLACEHOLDER. Task 10 replaces this with the dropdown behind the same props,
+ * so themes keep it without changing their own files. Until Task 5 reads the
+ * hash, these links change nothing.
+ */
+import { THEME_NAMES, themeHash, type ThemeName } from "../scene/contract";
+import { THEME_META } from "../themes/registry";
+
+interface Props {
+  current: ThemeName;
+}
+
+const { current } = Astro.props;
+---
+
+<nav class="theme-switcher" aria-label="Design theme">
+  {THEME_NAMES.map((name) => (
+    <a
+      href={themeHash(name)}
+      aria-current={name === current ? "true" : undefined}
+    >
+      {THEME_META[name].label}
+    </a>
+  ))}
+</nav>
+
+<style>
+  .theme-switcher {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 4px 8px;
+    border: 1px solid var(--dd-line);
+    background: var(--dd-bg);
+  }
+  a {
+    color: var(--dd-fg);
+  }
+  a:not([aria-current]) {
+    color: var(--dd-muted);
+  }
+</style>
