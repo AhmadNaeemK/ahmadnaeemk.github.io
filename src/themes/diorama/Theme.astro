@@ -1,101 +1,297 @@
 ---
-/** STUB, replaced by Task 8. Carries every hook the contract asks of a theme. */
+import { Image } from "astro:assets";
 import RightNow from "../../components/RightNow.astro";
 import ThemeSwitcher from "../../components/ThemeSwitcher.astro";
+import { getSiteContent } from "../../content/site";
 import { LIVERY_LABELS, LIVERY_ORDER, SPEEDS } from "../../rail";
-import {
-  NAV_SECTIONS,
-  sectionId,
-  type NowItem,
-  type ThemeName,
-} from "../../scene/contract";
+import { NAV_SECTIONS, sectionId, type ThemeName } from "../../scene/contract";
 import "./tokens.css";
 import "./theme.css";
 
 const theme: ThemeName = "diorama";
-// Real themes read this and everything else from getSiteContent().
-const stubNow: NowItem[] = [
-  { label: "Stub", value: "Diorama first item" },
-  { label: "Also", value: "Diorama second item" },
-];
+const { profile, experience, education, projects, skills } =
+  await getSiteContent();
+const [city] = profile.location.split(",");
 ---
 
 <div data-rail-theme-root={theme}>
   <header class="top">
-    <a class="mark" href={`#${sectionId(theme, "top")}`}>
-      Ahmad Naeem
-    </a>
-    <nav aria-label="Sections">
-      {NAV_SECTIONS.map(({ key, label }) => (
-        <a href={`#${sectionId(theme, key)}`}>{label}</a>
-      ))}
-    </nav>
-    <ThemeSwitcher current={theme} />
-    <button type="button" data-theme-toggle aria-label="Switch to dark theme">
-      <span aria-hidden="true">&#9680;</span>
-    </button>
-    <a href="/Ahmad_Naeem_CV.pdf" download data-cv>
-      Download CV
-    </a>
+    <div class="top__in">
+      <a class="mark" href={`#${sectionId(theme, "top")}`}>
+        {profile.name}
+      </a>
+      <nav class="nav" aria-label="Sections">
+        {NAV_SECTIONS.map(({ key, label }) => (
+          <a href={`#${sectionId(theme, key)}`}>{label}</a>
+        ))}
+      </nav>
+      <ThemeSwitcher current={theme} />
+      <button
+        class="theme"
+        type="button"
+        data-theme-toggle
+        aria-pressed="false"
+        aria-label="Switch to dark theme"
+      >
+        <span class="theme__sun" aria-hidden="true"></span>
+        <span class="theme__txt">
+          <span class="theme__to-dark">Dark theme</span>
+          <span class="theme__to-light">Light theme</span>
+        </span>
+      </button>
+      <a class="btn btn--red" href={profile.cv} download data-cv>
+        Download CV
+      </a>
+    </div>
   </header>
 
   <main id={sectionId(theme, "top")}>
-    <section data-rail-hero tabindex="-1" aria-label="Introduction">
-      <div data-rail-scene-frame>
-        <div class="scene">
-          <canvas
-            data-rail-canvas
-            role="img"
-            aria-label="A train runs around a ring of track. Diorama stub scene."
-          ></canvas>
-          <p data-rail-static>Diorama stub: the static hero.</p>
-        </div>
-        <div data-rail-controls role="group" aria-label="Train controls">
-          <button type="button" data-rail-toggle aria-pressed="false">
-            <span data-rail-label>Stop the train</span>
-          </button>
-          <div role="group" aria-label="Speed">
-            {SPEEDS.map((_, index) => (
-              <button
-                type="button"
-                data-rail-speed={index}
-                aria-label={`Speed ${index + 1} of ${SPEEDS.length}`}
-                aria-pressed="false"
-              >
-                {index + 1}
-              </button>
-            ))}
+    <section
+      class="hero"
+      data-rail-hero
+      tabindex="-1"
+      aria-label="Introduction"
+    >
+      <div class="wrap">
+        <div class="layout" data-rail-scene-frame>
+          <div class="layout__view">
+            <canvas
+              class="layout__canvas"
+              data-rail-canvas
+              role="img"
+              aria-label="A model railway on a wooden baseboard. Its track spells ahmad, with a bridge from the top of the h to the top of the d, tunnels at the ends of the letters, and small stations where people get on and off."
+            ></canvas>
+            <div class="layout__static" data-rail-static>
+              <p class="layout__sign">
+                <strong>The Ahmad line</strong>
+                <span>A model railway on a wooden baseboard</span>
+              </p>
+            </div>
           </div>
-          <div role="group" aria-label="Choose a train">
-            {LIVERY_ORDER.map((id) => (
-              <button type="button" data-rail-livery={id} aria-pressed="false">
-                {LIVERY_LABELS[id]}
-              </button>
-            ))}
+          <RightNow />
+          <div
+            class="desk"
+            data-rail-controls
+            role="group"
+            aria-label="Train controls"
+          >
+            <button
+              type="button"
+              class="desk__lever"
+              data-rail-toggle
+              aria-pressed="false"
+            >
+              <span class="knob" aria-hidden="true"></span>
+              <span data-rail-label>Stop the train</span>
+            </button>
+            <div class="desk__speed" role="group" aria-label="Speed">
+              <span class="desk__k" aria-hidden="true">
+                Speed
+              </span>
+              {SPEEDS.map((_, index) => (
+                <button
+                  type="button"
+                  data-rail-speed={index}
+                  aria-label={`Speed ${index + 1} of ${SPEEDS.length}`}
+                  aria-pressed="false"
+                ></button>
+              ))}
+            </div>
+            <div class="desk__trains" role="group" aria-label="Choose a train">
+              <span class="desk__k" aria-hidden="true">
+                Train
+              </span>
+              {LIVERY_ORDER.map((id) => (
+                <button
+                  type="button"
+                  data-rail-livery={id}
+                  aria-pressed="false"
+                  title={LIVERY_LABELS[id]}
+                >
+                  {LIVERY_LABELS[id]}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-        <RightNow items={stubNow} />
+        <div class="intro">
+          <h1 class="intro__name">{profile.name}</h1>
+          <div class="intro__side">
+            <p class="intro__role">
+              {profile.role}. {profile.focus}. Based in {profile.location}.
+            </p>
+            <p class="intro__text">{profile.intro}</p>
+            <div class="intro__cta">
+              <a class="btn btn--red" href={profile.cv} download data-cv>
+                Download CV
+              </a>
+              <a class="btn btn--line" href={`#${sectionId(theme, "contact")}`}>
+                Get in touch
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
-      <h1>Ahmad Naeem</h1>
     </section>
 
-    {NAV_SECTIONS.map(({ key, label }) => (
-      <section id={sectionId(theme, key)}>
-        <h2>{label}</h2>
-        <p>Diorama stub section.</p>
-        {key === "contact" && (
-          <p>
-            <span data-copy-target>stub@example.com</span>
-            <button type="button" data-copy="stub@example.com">
-              <span data-copy-label>Copy email</span>
-            </button>
-          </p>
-        )}
-      </section>
-    ))}
+    <section id={sectionId(theme, "about")} class="sec">
+      <div class="wrap about">
+        <figure class="postcard">
+          <Image
+            class="postcard__art"
+            src={profile.portrait}
+            alt={profile.portraitAlt}
+          />
+          <figcaption>Greetings from {city}</figcaption>
+        </figure>
+        <div class="about__text">
+          <h2 class="h2">About</h2>
+          {profile.about.map((paragraph) => (
+            <p>{paragraph}</p>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section id={sectionId(theme, "work")} class="sec">
+      <div class="wrap">
+        <h2 class="h2">Work</h2>
+        <div class="board">
+          {experience.map((job) => (
+            <article class="board__row">
+              <span class="board__t">{job.startLabel}</span>
+              <span class="board__t">{job.endLabel}</span>
+              <div class="board__role">
+                <h3>
+                  {job.title} <span>at {job.org}</span>
+                </h3>
+                <ul>
+                  {job.points.map((point) => (
+                    <li>{point}</li>
+                  ))}
+                </ul>
+              </div>
+            </article>
+          ))}
+          {education.map((course) => (
+            <article class="board__row">
+              <span class="board__t">{course.startLabel}</span>
+              <span class="board__t">{course.endLabel}</span>
+              <div class="board__role">
+                <h3>{course.degree}</h3>
+                <p>
+                  {course.school}, {course.place}
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section id={sectionId(theme, "projects")} class="sec">
+      <div class="wrap">
+        <h2 class="h2">Projects</h2>
+        <p class="lede">Products I built at Arbisoft for US startups.</p>
+        <div class="sets">
+          {projects.map((project) => (
+            <article class:list={["set", `set--${project.color}`]}>
+              <div class="set__lid">
+                <Image
+                  class="set__logo"
+                  src={project.logo}
+                  alt={`${project.name} logo`}
+                />
+                <div>
+                  <h3>{project.name}</h3>
+                  <p>{project.blurb}</p>
+                </div>
+              </div>
+              <div class="set__body">
+                <p class="set__meta">
+                  {project.role}
+                  <span>{project.dates}</span>
+                </p>
+                <ul>
+                  {project.points.map((point) => (
+                    <li>{point}</li>
+                  ))}
+                </ul>
+                <p class="set__tech">
+                  {project.tech.map((name) => (
+                    <span>{name}</span>
+                  ))}
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section id={sectionId(theme, "skills")} class="sec">
+      <div class="wrap">
+        <h2 class="h2">Skills</h2>
+        <div class="parts">
+          {skills.map(({ group, items }) => (
+            <div class="parts__col">
+              <h3>{group}</h3>
+              <ul>
+                {items.map((skill) => (
+                  <li>{skill}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section id={sectionId(theme, "contact")} class="sec">
+      <div class="wrap">
+        <h2 class="h2">Contact</h2>
+        <div class="ticket">
+          <div class="ticket__main">
+            <Image class="ticket__photo" src={profile.contactPhoto} alt="" />
+            <p class="ticket__mail" data-copy-target>
+              {profile.email}
+            </p>
+            <p class="ticket__note">
+              Email is the fastest way to reach me. Happy to talk about a
+              product, a role, or a good story.
+            </p>
+            <div class="ticket__cta">
+              <button
+                class="btn btn--red"
+                type="button"
+                data-copy={profile.email}
+              >
+                <span data-copy-label>Copy email</span>
+              </button>
+            </div>
+          </div>
+          <ul class="ticket__stub">
+            <li>
+              <span>LinkedIn</span>
+              <a href={profile.linkedin} target="_blank" rel="noopener">
+                {profile.linkedinLabel}
+              </a>
+            </li>
+            <li>
+              <span>GitHub</span>
+              <a href={profile.github} target="_blank" rel="noopener">
+                {profile.githubLabel}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <footer>
-    &copy; <span data-year>2026</span> Ahmad Naeem
+  <footer class="foot">
+    <div class="wrap">
+      &copy; <span data-year>{new Date().getFullYear()}</span> {profile.name}
+    </div>
   </footer>
 </div>
