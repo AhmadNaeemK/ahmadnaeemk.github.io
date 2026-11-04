@@ -1,0 +1,253 @@
+/* The hero: the scene frame, the service bar under it, and the intro. */
+[data-rail-theme-root="interchange"] {
+  & .hero {
+    padding-block: 28px 56px;
+    outline: none;
+  }
+
+  /* Reserves the height the scene draws at before it loads. 600px repeats
+     COMPACT_SCENE_WIDTH, and the ratios are the two views in scene.ts. */
+  & .map__scene {
+    aspect-ratio: 768 / 300;
+    @container rail-scene (width < 600px) {
+      aspect-ratio: 768 / 262;
+    }
+  }
+  & .map__canvas {
+    display: block;
+    touch-action: manipulation;
+  }
+  & .map__static {
+    height: 100%;
+  }
+  & .map__static svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  & .service {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 22px;
+    margin-top: 6px;
+    padding: 8px 14px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    font-size: var(--step-1);
+    color: var(--ink);
+  }
+  & .service__k {
+    color: var(--muted);
+    margin-right: 6px;
+    align-self: center;
+  }
+  & .service button {
+    font-family: var(--f);
+    cursor: pointer;
+  }
+  /* A 44px touch target, with the negative margin keeping the bar at the height
+     the toggle's text gives it. On a phone this is the real way to stop the train. */
+  & .service__signal {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-block-size: 44px;
+    margin-block: calc((1lh + 8px - 44px) / 2);
+    background: none;
+    border: 0;
+    color: inherit;
+    padding: 4px 2px;
+    font-size: inherit;
+  }
+  /* Holds the widest of its three strings, so writing it cannot rewrap the controls. */
+  & [data-rail-label] {
+    display: inline-block;
+    min-inline-size: 12ch;
+    text-align: start;
+  }
+  & .lamp {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--teal);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 25%, transparent);
+  }
+  & .service__signal[data-state="stop"] .lamp {
+    background: var(--tomato);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tomato) 25%, transparent);
+  }
+  & .service__group {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  /* The speed and train buttons keep their small look. These pads reach into the
+     gaps and the bar's padding, so a finger has more than the drawn mark to hit. */
+  & .tick,
+  & .liv {
+    position: relative;
+  }
+  & .tick::before,
+  & .liv::before {
+    content: "";
+    position: absolute;
+  }
+  & .tick::before {
+    inset: auto -2px -6px;
+    height: 28px;
+  }
+  & .liv::before {
+    inset: -8px -2px;
+  }
+  & .tick {
+    width: 6px;
+    height: var(--h);
+    border-radius: 2px;
+    border: 0;
+    padding: 0;
+    background: var(--rule);
+  }
+  & .tick[aria-pressed="true"] {
+    background: var(--ink);
+  }
+  /* Only on a real hover, because a tap leaves hover stuck on the pressed mark. */
+  @media (hover: hover) {
+    & .tick:not([aria-pressed="true"]):hover {
+      background: var(--muted);
+    }
+  }
+  & .liv {
+    width: 22px;
+    height: 10px;
+    border-radius: 6px;
+    border: 1.5px solid transparent;
+    padding: 0;
+  }
+  & .liv[aria-pressed="true"] {
+    border-color: var(--ink);
+    outline: 2px solid var(--bg);
+    outline-offset: -3px;
+  }
+  /* Otherwise the pressed swatch's own outline hides the keyboard focus ring. */
+  & .liv[aria-pressed="true"]:focus-visible {
+    outline: 3px solid var(--cobalt);
+    outline-offset: 3px;
+  }
+  & .liv--metro {
+    background: var(--swatch-metro);
+  }
+  & .liv--bullet {
+    background: var(--swatch-bullet);
+    border-radius: 10px 3px 3px 10px;
+  }
+  & .liv--steam {
+    background: var(--swatch-steam);
+  }
+  & .liv--heritage {
+    background: var(--swatch-heritage);
+    box-shadow: inset 0 -2px 0 var(--swatch-heritage-trim);
+  }
+  & .liv--toy {
+    background: var(--swatch-toy);
+  }
+
+  /* The HTML "Right now" line: where it sits is the shell's, how it looks is ours. */
+  & .now {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--now-bg);
+    color: var(--now-ink);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  & .now__label {
+    background: var(--now-label-bg);
+    color: var(--now-label-ink);
+    padding: 1px 8px;
+    border-radius: 4px;
+    font-weight: 800;
+  }
+  & .now__k {
+    color: var(--now-key);
+    font-weight: 500;
+  }
+
+  & .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 8px 48px;
+    margin-top: 28px;
+    align-items: end;
+  }
+  & .intro__name {
+    font-size: var(--step3);
+    line-height: 0.95;
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  & .intro__role {
+    grid-column: 1;
+    font-size: var(--step1);
+    font-weight: 700;
+    margin: 12px 0 0;
+    color: var(--muted);
+  }
+  & .intro__text {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin: 0;
+    max-width: 46ch;
+    font-size: var(--step1);
+    line-height: 1.45;
+  }
+  & .intro__cta {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-top: 22px;
+  }
+  & .intro__where {
+    color: var(--muted);
+    font-weight: 600;
+    margin-left: 6px;
+  }
+  & .hint {
+    grid-column: 1 / -1;
+    color: var(--muted);
+    font-size: var(--step-1);
+    margin: 6px 0 0;
+  }
+  /* No train to tap until a scene runs. It keeps its line while one is coming, so
+     the hero holds its height, and leaves when none is. */
+  &:not([data-scene-state="running"], [data-scene-state="paused"]) .hint {
+    visibility: hidden;
+  }
+  &[data-scene-state="failed"] .hint {
+    display: none;
+  }
+  @media (scripting: none) {
+    & .hint {
+      display: none;
+    }
+  }
+
+  @media (max-width: 760px) {
+    & .intro {
+      grid-template-columns: 1fr;
+    }
+    & .intro__text {
+      grid-column: 1;
+      grid-row: auto;
+      margin-top: 12px;
+    }
+  }
+}
