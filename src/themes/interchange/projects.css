@@ -1,0 +1,98 @@
+/* Projects: each is a short line, its highlights the stops, its stack the terminus. */
+[data-rail-theme-root="interchange"] {
+  & .routes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 44px 56px;
+  }
+  & .route {
+    min-width: 0;
+  }
+  & .route__head {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  & .route__logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    flex: none;
+    box-shadow: 0 0 0 3px var(--c);
+  }
+  & .route h3 {
+    margin: 0;
+    font-size: var(--step1);
+    line-height: 1.2;
+  }
+  & .route__blurb {
+    margin: 2px 0 0;
+    color: var(--muted);
+  }
+  & .route__meta {
+    margin: 14px 0 0 23px;
+    padding: 0 0 4px 27px;
+    border-left: 6px solid var(--c);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 14px;
+    font-weight: 700;
+    font-size: var(--step-1);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  & .route__meta span:first-child {
+    color: var(--ink);
+  }
+  & .route__pts {
+    list-style: none;
+    margin: 0 0 0 23px;
+    padding: 0;
+    border-left: 6px solid var(--c);
+  }
+  & .route__pts li {
+    position: relative;
+    padding: 7px 0 7px 27px;
+  }
+  & .route__pts li::before {
+    content: "";
+    position: absolute;
+    left: -12px;
+    top: 13px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 4px solid var(--c);
+    box-sizing: border-box;
+  }
+  & .route__pts .route__end {
+    color: var(--muted);
+    font-size: var(--step-1);
+    font-weight: 600;
+    padding-top: 12px;
+  }
+  & .route__pts .route__end::before {
+    width: 22px;
+    height: 22px;
+    left: -14px;
+    top: 11px;
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  /* Covers the line below the terminus, so it ends there. */
+  & .route__pts .route__end::after {
+    content: "";
+    position: absolute;
+    left: -6px;
+    top: 33px;
+    bottom: 0;
+    width: 6px;
+    background: var(--bg);
+  }
+  @media (max-width: 860px) {
+    & .routes {
+      grid-template-columns: 1fr;
+    }
+  }
+}

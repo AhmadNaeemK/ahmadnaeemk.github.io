@@ -1,0 +1,62 @@
+/* Contact: the email and the links. */
+[data-rail-theme-root="interchange"] {
+  & .sec--end {
+    padding-bottom: 80px;
+  }
+  & .contact__lead {
+    max-width: 55ch;
+    margin: -10px 0 24px;
+    color: var(--muted);
+  }
+  & .contact__mail {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+  }
+  & .contact__photo {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow:
+      0 0 0 3px var(--bg),
+      0 0 0 6px var(--cobalt);
+  }
+  & .contact__addr {
+    font-size: clamp(1.4rem, 4.2vw, 2.6rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--cobalt);
+    overflow-wrap: anywhere;
+  }
+  & .contact__links {
+    list-style: none;
+    padding: 0;
+    margin: 32px 0 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+  & .contact__links li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-top: 12px;
+    border-top: 4px solid var(--cobalt);
+  }
+  & .contact__links a {
+    font-weight: 800;
+    font-size: var(--step1);
+  }
+  & .contact__links span {
+    color: var(--muted);
+    font-size: var(--step-1);
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 640px) {
+    & .contact__links {
+      grid-template-columns: 1fr;
+    }
+  }
+}

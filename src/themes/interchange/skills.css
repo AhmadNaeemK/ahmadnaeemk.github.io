@@ -1,0 +1,51 @@
+/* Skills: one row per group. */
+[data-rail-theme-root="interchange"] {
+  & .skills {
+    display: grid;
+    gap: 0;
+  }
+  & .skills__row {
+    display: grid;
+    grid-template-columns: 11rem 1fr;
+    gap: 16px;
+    padding-block: 10px;
+    border-bottom: 1px solid var(--rule);
+    align-items: baseline;
+  }
+  & .skills__row h3 {
+    margin: 0;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  & .skills__row h3::before {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 3px solid var(--plum);
+    background: var(--surface);
+  }
+  & .skills ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  & .skills li {
+    padding: 2px 9px 0;
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  @media (max-width: 640px) {
+    & .skills__row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+  }
+}

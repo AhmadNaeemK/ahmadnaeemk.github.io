@@ -1,41 +1,108 @@
-/* STUB, replaced with the theme. Custom properties and color-scheme only. */
+/* Interchange's tokens. Custom properties and color-scheme only: the 404 page takes
+   this file without the theme's layout. */
 [data-rail-theme-root="interchange"] {
   --bg: #efe8de;
   --surface: #fbf7f1;
   --ink: #2b1a12;
   --muted: #6a5246;
   --rule: #dccfbf;
-  --ground: #fbf7f1;
-  --track: #1c7d70;
-  --train: #d2432a;
+  --tomato-ink: #a8361f;
+  --marigold: #de9420;
+  --tomato: #d2432a;
+  --teal: #1c7d70;
+  --plum: #7e3b6f;
+  --cobalt: #2d5da7;
+  --track-under: rgba(110, 84, 70, 0.32);
+  --platform: #fffcf7;
+  --shadow: rgba(80, 40, 20, 0.28);
+  --lit: #fff1cc;
+  --puff: #ffffff;
+
+  /* Text on the five line colours. */
+  --on-line: #ffffff;
+  --on-marigold: #2b1a12;
+
+  /* The "Right now" line and the billboard stay dark in both schemes. --now-label-bg
+     is separate from --tomato because white text needs 4.5:1 on it, which the dark
+     scheme's brighter tomato does not reach. The solid button's hover uses it too. */
+  --now-bg: #2b1a12;
+  --now-ink: #ffb648;
+  --now-key: #e9d8c4;
+  --now-label-bg: #d2432a;
+  --now-label-ink: #ffffff;
   --board: #21140e;
-  --board-ink: #ffb648;
+  --board-separator: #8c6a50;
+  --board-glow: rgba(255, 182, 72, 0.5);
+  --board-scanline: rgba(0, 0, 0, 0.28);
+
+  --coal: #1c1714;
+  --coal-fleck: rgba(255, 255, 255, 0.18);
+
+  /* The train picker's swatches, one per livery in src/rail/liveries.ts. */
+  --swatch-metro: linear-gradient(#f1e9dc 0 60%, #d4502f 60%);
+  --swatch-bullet: linear-gradient(#faf7f0 0 55%, #2f5fa8 55%);
+  --swatch-steam: linear-gradient(90deg, #2f4a3a 0 45%, #8a5a3c 45%);
+  --swatch-heritage: linear-gradient(90deg, #b3262e 0 45%, #8e1f2c 45%);
+  --swatch-heritage-trim: #e3b65a;
+  --swatch-toy: linear-gradient(
+    90deg,
+    #e0452b 0 33%,
+    #f4c430 33% 66%,
+    #2e86c1 66%
+  );
+
+  --f: "Overpass", "Segoe UI", system-ui, sans-serif;
+  --step-1: 0.875rem;
+  --step0: 1.0625rem;
+  --step1: 1.3rem;
+  --step2: 1.75rem;
+  --step3: clamp(2.4rem, 6vw, 4.4rem);
+
   --dd-bg: var(--surface);
   --dd-fg: var(--ink);
   --dd-muted: var(--muted);
   --dd-line: var(--rule);
+
   color-scheme: light;
 
   :root[data-theme="dark"] & {
     --bg: #1f1612;
-    --surface: #2a1e18;
-    --ink: #f3e9dc;
-    --muted: #c9b8a8;
-    --rule: #4a3a30;
-    --ground: #2a1e18;
-    --track: #3cbbb1;
+    --surface: #2a1f19;
+    --ink: #f7e8d6;
+    --muted: #c2a994;
+    --rule: #3e2f26;
+    --marigold: #f2b441;
+    --tomato: #f06a4c;
+    --teal: #3db19f;
+    --plum: #c474b0;
+    --cobalt: #6b97e6;
+    --track-under: rgba(194, 169, 148, 0.28);
+    --platform: #33261f;
+    --shadow: rgba(0, 0, 0, 0.5);
+    --lit: #ffd98a;
+    --puff: #d8cdc2;
+    --tomato-ink: #f27a5e;
     color-scheme: dark;
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) & {
       --bg: #1f1612;
-      --surface: #2a1e18;
-      --ink: #f3e9dc;
-      --muted: #c9b8a8;
-      --rule: #4a3a30;
-      --ground: #2a1e18;
-      --track: #3cbbb1;
+      --surface: #2a1f19;
+      --ink: #f7e8d6;
+      --muted: #c2a994;
+      --rule: #3e2f26;
+      --marigold: #f2b441;
+      --tomato: #f06a4c;
+      --teal: #3db19f;
+      --plum: #c474b0;
+      --cobalt: #6b97e6;
+      --track-under: rgba(194, 169, 148, 0.28);
+      --platform: #33261f;
+      --shadow: rgba(0, 0, 0, 0.5);
+      --lit: #ffd98a;
+      --puff: #d8cdc2;
+      --tomato-ink: #f27a5e;
       color-scheme: dark;
     }
   }
