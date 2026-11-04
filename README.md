@@ -34,3 +34,4 @@ npm run test:e2e:install # only needed for the e2e tests
 - [`docs/rfcs/theme-contract.md`](docs/rfcs/theme-contract.md): how a theme plugs into the page and the scene runtime.
 - [`docs/rfcs/theme-contract-history.md`](docs/rfcs/theme-contract-history.md): why that contract took its shape.
 - [`scripts/og-image.mjs`](scripts/og-image.mjs): how to regenerate the link-preview image, `public/og-image.png`.
+- [`scripts/favicon.mjs`](scripts/favicon.mjs): how to regenerate `public/favicon.ico` and `public/apple-touch-icon.png` from `public/favicon.svg`.
