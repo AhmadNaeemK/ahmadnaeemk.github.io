@@ -29,6 +29,7 @@ const previewCommand = `npm run preview -- --ignore-lock --host 127.0.0.1 --port
 /** They read `dist/` and open no page, so one run with no browser says it all. */
 const BUILT_FILE_SPECS = [
   "**/conformance/built-css.spec.ts",
+  "**/conformance/favicon.spec.ts",
   "**/scene/chunk-rule.spec.ts",
 ];
 
