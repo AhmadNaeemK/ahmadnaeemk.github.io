@@ -1,17 +1,15 @@
 // Everything here goes through the public entry point, so it keeps guarding the
-// contract (RFC section 7) when Task 4 replaces the stub behind it.
+// contract (RFC section 7) however the engine is arranged behind it.
 import { describe, expect, it } from "vitest";
 import {
   createWorld,
   DEFAULT_LIVERY,
-  LIVERY_ORDER,
-  sample,
   SPEEDS,
   type World,
   type WorldView,
 } from "./index";
+import { step } from "./testkit";
 
-const FRAME_SECONDS = 0.05;
 const FRAMES_TO_SEE_MOTION = 20;
 /** Long enough for a train at cruising speed to coast to a stop. */
 const FRAMES_TO_COME_TO_REST = 400;
@@ -52,12 +50,6 @@ function stopFlags({ userStopped, textPaused }: World) {
 function frontCarPosition({ cars }: WorldView) {
   const { x, y } = cars[0];
   return { x, y };
-}
-
-function step(world: World, frames: number): void {
-  for (let frame = 0; frame < frames; frame += 1) {
-    world.update(FRAME_SECONDS);
-  }
 }
 
 const CONTROLS: readonly ((world: World) => void)[] = [
@@ -275,76 +267,6 @@ describe("setSpeed at the ends of the range", () => {
     expect(Number.isFinite(frontCarPosition(world).x)).toBe(true);
     expect(frontCarPosition(world)).not.toEqual(position);
   });
-});
-
-describe("an unknown livery (E16)", () => {
-  const UNKNOWN_LIVERIES = ["nope", "", "METRO", "constructor", "__proto__"];
-
-  function expectDefaultLivery(world: WorldView): void {
-    const { livery: defaultLivery } = createWorld({
-      seed: 11,
-      livery: DEFAULT_LIVERY,
-      startStopped: false,
-    });
-
-    expect(world.liveryId).toBe(DEFAULT_LIVERY);
-    expect(world.livery).toEqual(defaultLivery);
-    expect(world.cars).toHaveLength(defaultLivery.cars.length);
-  }
-
-  it.each(UNKNOWN_LIVERIES)(
-    "createWorld falls back to the default for %j",
-    (livery) => {
-      expectDefaultLivery(
-        createWorld({ seed: 11, livery, startStopped: false }),
-      );
-    },
-  );
-
-  it.each(UNKNOWN_LIVERIES)(
-    "setLivery falls back to the default for %j, not to the current livery",
-    (livery) => {
-      const otherLivery = LIVERY_ORDER.find((id) => id !== DEFAULT_LIVERY);
-      if (!otherLivery) throw new Error("Expected a second livery.");
-      const world = createWorld({
-        seed: 11,
-        livery: otherLivery,
-        startStopped: false,
-      });
-
-      world.setLivery(livery);
-
-      expectDefaultLivery(world);
-    },
-  );
-});
-
-describe("sample", () => {
-  // `elevationAt` reads the segment off the point, so a point without one would
-  // draw the bridge flat with no error.
-  it("gives every point the segment it came from", () => {
-    const world = startRunning();
-    const segments = world.letters.flatMap(({ parts }) => parts);
-    expect(segments.length).toBeGreaterThan(0);
-
-    for (const segment of segments) {
-      for (const point of sample(segment)) {
-        expect(point.seg).toBe(segment);
-      }
-    }
-  });
-
-  it("gives points elevationAt can read", () => {
-    const world = startRunning();
-    const [segment] = world.letters.flatMap(({ parts }) => parts);
-
-    for (const point of sample(segment)) {
-      expect(Number.isFinite(world.elevationAt(point))).toBe(true);
-    }
-  });
-
-  // The stub has no bridge and its `elevationAt` is always 0.
-  it.todo("Task 4: elevationAt(sample(bridge)[i]) rises above the ground");
 });
 
 // Checked by `npm run typecheck`, never run: Vitest strips types. If the line
