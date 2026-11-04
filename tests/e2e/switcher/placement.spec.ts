@@ -120,7 +120,8 @@ test.describe("a viewport too short for the list", () => {
   }) => {
     const LIST_SCROLL = 40;
     await page.setViewportSize(SHORT_VIEWPORT);
-    await serveWithCss(page, tallSectionsCss());
+    // A pinned header would leave the toggle, and so the list, where they are.
+    await serveWithCss(page, CLIPPING_HEADER_CSS + tallSectionsCss());
     await openOnTheme(page);
     await openListByMouse(page);
     const list = showingList(page);
@@ -135,10 +136,16 @@ test.describe("a viewport too short for the list", () => {
       window.scrollBy({ top: 30, behavior: "instant" }),
     );
 
-    // Moved, so the list has been placed again since it was scrolled.
+    // Moved or resized, so the list has been placed again since it was scrolled. A
+    // list held at the viewport's top by a tall header only gets shorter.
     await expect
-      .poll(async () => (await rectOf(list)).top)
-      .not.toBeCloseTo(listBefore.top, 0);
+      .poll(async () => {
+        const { top, height } = await rectOf(list);
+        return (
+          Math.abs(top - listBefore.top) + Math.abs(height - listBefore.height)
+        );
+      })
+      .toBeGreaterThan(1);
     await frames(page);
     expect(await listScroll()).toBe(LIST_SCROLL);
   });
