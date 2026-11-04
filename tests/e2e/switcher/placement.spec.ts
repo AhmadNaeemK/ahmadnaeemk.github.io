@@ -120,7 +120,8 @@ test.describe("a viewport too short for the list", () => {
   }) => {
     const LIST_SCROLL = 40;
     await page.setViewportSize(SHORT_VIEWPORT);
-    await serveWithCss(page, tallSectionsCss());
+    // A pinned header would leave the toggle, and so the list, where they are.
+    await serveWithCss(page, CLIPPING_HEADER_CSS + tallSectionsCss());
     await openOnTheme(page);
     await openListByMouse(page);
     const list = showingList(page);

@@ -172,7 +172,7 @@ const CONTACT_PHOTO_RENDER_PX = 144;
           </span>
           Projects
         </h2>
-        <p class="lede">Products I built at Arbisoft for US startups.</p>
+        <p class="lede">{profile.projectsLede}</p>
         <div class="routes">
           {projects.map((project) => (
             <article class={`route line-${project.color}`}>
@@ -238,10 +238,7 @@ const CONTACT_PHOTO_RENDER_PX = 144;
           </span>
           Contact
         </h2>
-        <p class="contact__lead">
-          The fastest way to reach me is email. I'm happy to talk about a
-          product, a role, or a good story.
-        </p>
+        <p class="contact__lead">{profile.contactLead}</p>
         <div class="contact__mail">
           <Image
             class="contact__photo"

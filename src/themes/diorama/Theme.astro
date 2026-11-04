@@ -192,7 +192,7 @@ const [city] = profile.location.split(",");
     <section id={sectionId(theme, "projects")} class="sec">
       <div class="wrap">
         <h2 class="h2">Projects</h2>
-        <p class="lede">Products I built at Arbisoft for US startups.</p>
+        <p class="lede">{profile.projectsLede}</p>
         <div class="sets">
           {projects.map((project) => (
             <article class:list={["set", `set--${project.color}`]}>
@@ -256,10 +256,7 @@ const [city] = profile.location.split(",");
             <p class="ticket__mail" data-copy-target>
               {profile.email}
             </p>
-            <p class="ticket__note">
-              Email is the fastest way to reach me. Happy to talk about a
-              product, a role, or a good story.
-            </p>
+            <p class="ticket__note">{profile.contactNote}</p>
             <div class="ticket__cta">
               <button
                 class="btn btn--red"

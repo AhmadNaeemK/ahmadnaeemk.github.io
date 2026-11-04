@@ -2,7 +2,7 @@
 
 ## Context
 
-The site ships three train themes (Interchange, Diorama, Pixel Depot) on one static page. The engine, the page shell and all three themes are built in parallel, so they need a written boundary before any of them exists. The prototypes in `design/train-concepts/` show the boundary is close, but they were never written to share a page: each builds its own world, sets global CSS, and two of them throw at desktop widths.
+The site ships three train themes (Interchange, Diorama, Pixel Depot) on one static page. The engine, the page shell and all three themes were built in parallel, so this written boundary came before any of them. The prototypes in `design/train-concepts/` show the boundary is close, but they were never written to share a page: each builds its own world, sets global CSS, and two of them throw at desktop widths.
 
 The contract as code is `src/scene/contract.ts`, `src/scene/world-start.ts`, `src/themes/registry.ts` and `src/rail/types.ts`. Where this document and those files disagree, it is a bug in one of them: raise it through section 12.
 
@@ -50,7 +50,7 @@ The contract owns the header link labels (`NAV_SECTIONS`: About, Work, Projects,
    - If the page has scrolled and is at its bottom (`scrollY > 0` and `scrollY + innerHeight >= scrollHeight - 1`), it is `contact`, because a short last section may never reach the viewport top.
    - Otherwise it is the last section in document order whose top is at or above the viewport top plus that section's own `scroll-margin-top` plus 1 px, or `top` if none is. The margin keeps a sticky header from walking back a section per switch, and the 1 px absorbs the fraction a scroll lands short.
 2. Write the new `data-rail-theme`.
-3. Scroll `sectionId(newTheme, key)` to the top of the viewport without animation. Themes with a sticky header set `scroll-margin-top` on their sections and `<main>`, because `top` is `<main>`.
+3. Scroll `sectionId(newTheme, key)` to the top of the viewport without animation. Themes with a sticky header set `scroll-margin-top` on their sections and `<main>`, because `top` is `<main>`. The margin has to clear the header with the theme's real fonts and with fallback fonts, which are often wider and wrap the header at different widths. Too high only adds a gap above the section, so take the taller result. A section's own top padding may cover the difference, as long as the heading stays clear.
 4. Replace the hash with `history.replaceState`, adding no history entry and firing no `hashchange`, so a stale `#a-about` cannot bring the old theme back on reload. A section hash becomes `#<sectionId(newTheme, key)>`; anything else becomes `themeHash(newTheme)`.
 
 **Staying there on a theme's first show.** Two things keep the section in place while the incoming theme settles:
@@ -71,7 +71,9 @@ A theme lives in `src/themes/<name>/` and has four fixed entry points. `src/them
 | `scene.ts`    | `createScene: CreateScene`                              | On first show, as its own chunk |
 | `tokens.css`  | Custom properties and `color-scheme`, nothing else      | Imported by `Theme.astro`       |
 
-`tokens.css` is separate so another page can take a theme's look without its layout: the 404 page (Task 12) imports all three and sets the saved theme's name on an element's `data-rail-theme-root` and on `data-rail-theme` on `<html>`, because the global CSS hides any root that is not selected. Each file sets at least `--bg`, `--ink`, `--muted` and the `--dd-*` tokens under `[data-rail-theme-root="<name>"]`, in light and dark. Other CSS, such as the stubs' `theme.css`, is the theme's own choice.
+`tokens.css` is separate so another page can take a theme's look without its layout: the 404 page imports all three and sets the saved theme's name on an element's `data-rail-theme-root` and on `data-rail-theme` on `<html>`, because the global CSS hides any root that is not selected. Each file sets at least `--bg`, `--ink`, `--muted` and the `--dd-*` tokens under `[data-rail-theme-root="<name>"]`, in light and dark. Other CSS, such as each theme's `theme.css`, is the theme's own choice.
+
+**Other pages.** A page with no address of its own, such as the 404 page, passes `noindex` to `Base`. It then gets `<meta name="robots" content="noindex">` and no canonical link or `og:url`.
 
 **The static part must:**
 
@@ -79,9 +81,9 @@ A theme lives in `src/themes/<name>/` and has four fixed entry points. `src/them
 - Have one element with `data-rail-hero` and `tabindex="-1"`, holding one `data-rail-scene-frame` element at any depth. The frame holds the canvas parent, the controls below it, and `<RightNow />` as a direct child. Only `.now` is bound by selector (`[data-rail-scene-frame] > .now`), so the others may nest. The controls must sit below the canvas parent: at full width the line overlays the frame's bottom edge while the scene loads, so without a controls slot there it lands on the static hero. `src/layouts/global.css` makes the frame a size container named `rail-scene` and the line's positioning parent, so a theme sets neither `position` nor its own `container-type` on it.
 - Have one `<canvas data-rail-canvas role="img" aria-label="…">`, with `display: block`, whose parent is a block element, not a flex container, with no horizontal padding that fills the frame's content box. A flex parent would shrink the static hero, so a canvas narrower than its parent centres with `margin-inline: auto`. The runtime reads that parent's `clientWidth`, so the frame's size queries measure exactly the same width. Before any scene loads, the parent reserves the height the scene will draw at, compact and full, with `aspect-ratio` and a container query at `COMPACT_SCENE_WIDTH` (600 px, repeated by hand because CSS cannot import it). Never a viewport query: a padded hero or a max-width wrapper makes the viewport wider than the scene, and the CSS would reserve full height while the scene draws compact. A canvas that snaps to whole pixels, as Pixel Depot's does (Task 9), can outgrow that reservation by up to its pixel size, so its parent also sets `overflow: hidden`.
 - Have one `data-rail-static` element inside that parent: what shows when no scene runs (no JavaScript, or a failed load). It fills the reserved box and must fit it without clipping at 320 px, where the box is about 90 px tall. A taller one grows the parent and moves the hero when the scene starts, and `overflow: hidden` on the parent would cut its text off while passing every check, so shorten the content instead.
-- Put its controls in one `data-rail-controls` element in the frame, using the prototype's hooks: `data-rail-toggle` with a `data-rail-label` inside, `data-rail-speed="<index>"` for each of `SPEEDS`, and `data-rail-livery="<id>"` for each of `LIVERY_ORDER`, named by `LIVERY_LABELS`. Task 6 binds them and writes their state (below). Task 6 rewrites the toggle's label, so the label holds the width of the widest of its three strings in the theme's own font, or a press can rewrap the controls and move the page. Which string is widest depends on the font, and an icon and gap sit beside the label, so size the label and not the toggle: `[data-rail-label] { display: inline-block; min-inline-size: 15ch; }` does this for all three themes. It makes the toggle about 45 to 50 px wider than the prototype's on Interchange and Diorama, and about 24 px on Pixel Depot; accept that when comparing with the prototype.
-- Render `<RightNow />` from `src/components/RightNow.astro` as a direct child of the frame, with no props: it reads `getSiteContent()` itself, and its `items` prop is only for the stubs. Theme CSS may style its `.now`, `.now__label`, `.now__k` and `.now__v` classes, but not its position: at full width the line is out of the flow from the start, overlaying the frame's bottom edge until the billboard takes over, and it returns to the flow on `failed`.
-- Render `src/components/ThemeSwitcher.astro` with `current="<name>"` in its header. Task 10 replaces the placeholder behind the same props, and keeps `data-theme-switcher` (`THEME_HOOKS.themeSwitcher`) on its outer element: after a switch, focus goes to its `[aria-current="true"]` element, or otherwise its first `a` or `button`, so one of those must be focusable while the switcher is closed. It also hides with no JavaScript.
+- Put its controls in one `data-rail-controls` element in the frame, using the prototype's hooks: `data-rail-toggle` with a `data-rail-label` inside, `data-rail-speed="<index>"` for each of `SPEEDS`, and `data-rail-livery="<id>"` for each of `LIVERY_ORDER`, named by `LIVERY_LABELS`. Task 6 binds them and writes their state (below). Task 6 rewrites the toggle's label, so the label holds the width of the widest of its three strings in the theme's own font, or a press can rewrap the controls and move the page. Which string is widest depends on the font, and an icon and gap sit beside the label, so size the label and not the toggle: `[data-rail-label] { display: inline-block; min-inline-size: <n>ch; text-align: start; }`. A button centres its text, so without `text-align` the gap to the icon changes with the string. Diorama and Pixel Depot use `15ch`. Interchange uses `12ch`, because `15ch` pushed its service bar to three rows at 320 px. Measure a theme's own value, since `ch` differs by font; expect a toggle wider than the prototype's.
+- Render `<RightNow />` from `src/components/RightNow.astro` as a direct child of the frame. It takes no props and reads `getSiteContent()` itself. Theme CSS may style its `.now`, `.now__label`, `.now__k` and `.now__v` classes, but not its position: at full width the line is out of the flow from the start, overlaying the frame's bottom edge until the billboard takes over, and it returns to the flow on `failed`.
+- Render `src/components/ThemeSwitcher.astro` with `current="<name>"` in its header. It keeps `data-theme-switcher` (`THEME_HOOKS.themeSwitcher`) on its outer element: after a switch, focus goes to its `[aria-current="true"]` element, or otherwise its first `a` or `button`, so one of those must be focusable while the switcher is closed.
 - Use the page-helper hooks that Task 5 binds: `data-theme-toggle`, `data-copy` with `data-copy-label`, `data-copy-target`, `data-cv`, `data-year`.
 
 **Porting the prototypes' heroes.** Check the ratios against each `render.js` if a view changes.
@@ -102,7 +104,7 @@ A theme lives in `src/themes/<name>/` and has four fixed entry points. `src/them
 
 Task 5 writes `aria-pressed` and `aria-label` on `data-theme-toggle`: pressed means dark.
 
-**Content.** All content comes from `getSiteContent()` in `src/content/site.ts`, called in `Theme.astro`'s frontmatter. Do not call `getCollection` directly: the integrity checks for empty collections, `order` and the PNG portrait run only through that call. Nothing passes content down as props, so the page never changes when a theme does.
+**Content.** All content comes from `getSiteContent()` in `src/content/site.ts`, called in the frontmatter of `Theme.astro` or of any section component inside the theme. Do not call `getCollection` directly: the integrity checks for empty collections, `order` and the PNG portrait run only through that call. The page passes no content to a theme, so the page never changes when a theme does. Facts about Ahmad live in `src/content/`; only a theme's own voice, such as UI hints and section names, stays in its files.
 
 **Images.** Every image must load lazily, so a hidden theme's images do not load, and have `width` and `height`, so they cannot move the page when they arrive.
 
@@ -123,8 +125,6 @@ Task 5 writes `aria-pressed` and `aria-label` on `data-theme-toggle`: pressed me
 - **After a failure at 1280 and 1920 px:** the static hero's text stays clear of "Right now".
 - **Tokens and headers:** the `--dd-*` tokens are set on all four colour routes (light, dark by the system, dark by a pick, light by a pick on a dark system), and a switched-to section's heading clears any pinned header on desktop and phone.
 - **Also:** a saved scheme beats the system's, one "Right now" survives a resize across widths, and no theme's CSS reaches outside its root.
-
-**The stubs** still use placeholder "Right now" items, although `getSiteContent()` is now on the branch, until Tasks 7 to 9 replace them.
 
 ## 7. The shared world
 
@@ -208,25 +208,25 @@ At full width before a scene runs, "Right now" overlays the frame's bottom edge,
 
 Those results come from real sockets in Chromium and Playwright's WebKit, on the real engine. Safari itself was not run.
 
-**Chunk rule (`scene-chunks.mjs`).** A scene chunk may statically import only the `page` chunk, which holds the `import()` calls and loads with the page. The build shapes chunks this way for Tasks 7 to 9, but it does not reject a scene's own `import()` or CSS import. `tests/e2e/scene/chunk-rule.spec.ts` catches an `import()` and a large CSS import. Astro inlines a tiny CSS import, which passes that spec, so the rule itself is: no CSS import in `scene.ts`. `src/scene/scene-css-imports.test.ts` scans the source for it.
+**Chunk rule (`scene-chunks.mjs`).** A scene chunk may statically import only the `page` chunk, which holds the `import()` calls and loads with the page. The build shapes chunks this way, but it does not reject a scene's own `import()` or CSS import. `tests/e2e/scene/chunk-rule.spec.ts` catches an `import()` and a large CSS import. Astro inlines a tiny CSS import, which passes that spec, so the rule itself is: no CSS import in `scene.ts`. `src/scene/scene-css-imports.test.ts` scans the source for it.
 
 - **Why.** In WebKit, a shared chunk that loads on demand and fails leaves every scene that imports it failed, with no recovery in place. If a scene chunk has any such dependency, Vite also adds a `modulepreload` link for that scene, and after a failure WebKit stops fetching it. The spike's retry succeeded only because its chunks had no dependencies.
 - **What themes get.** Code only one scene reaches stays in that scene's chunk. Code two scenes share moves to `page` with no action needed, so it loads on every first visit. Keep large code private to a scene.
 - **What themes must not do.** Do not work around this: no `import()` and no CSS import in `scene.ts` or its helpers, no chunking settings of your own, and no retry or refresh logic in a theme.
-- **Other pages.** An entry script's own body stays out of `page`, so importing `page` never starts the runtime. But every module an entry script imports goes to `page`, even one private to that script. So a script on another page with one imported helper loads all of `page`, including the engine, and the helper joins the home page's chunk. Tasks 11 and 12 should avoid module imports in other pages' scripts, or accept that cost.
+- **Other pages.** An entry script's own body stays out of `page`, so importing `page` never starts the runtime. But every module an entry script imports goes to `page`, even one private to that script. So a script on another page with one imported helper loads all of `page`, including the engine, and the helper joins the home page's chunk. So avoid module imports in other pages' scripts, as the 404 page does, or accept that cost.
 
 **`data-now` on the hero** has one rule, in the runtime, for all three themes: `board` when a scene is loaded and `size.compact` is false, otherwise `html`. Absent (no JavaScript) behaves like `html`. Motion preferences play no part. `src/layouts/global.css` visually hides the HTML line on `board`, and screen readers keep it. At compact widths the line is in the flow before and after the scene starts. At full width it is out of the flow before and after, so neither case moves the hero. On `failed` it is in the flow at every width, as with no JavaScript.
 
 ## 9. Tokens, CSS and fonts
 
 - **Every theme rule sits under `[data-rail-theme-root="<name>"]`,** including what the prototypes put on `:root`, `html`, `body` and `*` (C9). `design/train-concepts/scope_css.py` shows the mapping. This covers tokens too, so scenes read them with `readToken`, from the theme root.
-- **How to scope is the theme's choice.** The stubs wrap `tokens.css` and `theme.css` each in a nested rule (Baseline since 2023), which the build leaves as is.
+- **How to scope is the theme's choice.** The themes write nested rules (Baseline since 2023). The build leaves them nested. `build.cssTarget` in `astro.config.mjs` names browser versions the minifier has nothing to rewrite for, apart from the `-webkit-backdrop-filter` Safari before 18 needs, which it would otherwise strip. Write both forms wherever a theme uses `backdrop-filter`.
 - **Dark rules** go in two places, as in the prototypes: `:root[data-theme="dark"] &` and `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) & }`.
 - **The theme root carries the page background and `color-scheme`.**
 - **Each theme sets `--dd-bg`, `--dd-fg`, `--dd-muted` and `--dd-line`,** which the switcher reads.
 - **Shared tokens and global CSS** live in `src/layouts/`. All themes' CSS loads on every visit (C8) and counts toward the budget.
 - **Canvas colours come from tokens,** not literals, so a scheme change reaches them.
-- **Porting a prototype's `style.css`.** Drop what `src/layouts/global.css` owns: `html { scroll-behavior }` with its reduced-motion rule, `body::before`, and the rules from `shared/now.css`. `shared/switcher.css` belongs to Task 10. Keep the rest under the theme root: `:root` custom properties and `color-scheme` go to `tokens.css`, `body` type and colour rules go on the root itself, `* { box-sizing }` becomes the root and `& *`, and `a { color: inherit }` becomes `& a`. Viewport media queries may stay for page layout, but the scene's reserved height uses the container query in section 6.
+- **Porting a prototype's `style.css`.** Drop what `src/layouts/global.css` owns: `html { scroll-behavior }` with its reduced-motion rule, `body::before`, and the rules from `shared/now.css`. `shared/switcher.css` went into `src/components/ThemeSwitcher.astro`. Keep the rest under the theme root: `:root` custom properties and `color-scheme` go to `tokens.css`, `body` type and colour rules go on the root itself, `* { box-sizing }` becomes the root and `& *`, and `a { color: inherit }` becomes `& a`. Viewport media queries may stay for page layout, but the scene's reserved height uses the container query in section 6.
 - **Fonts.** Each theme names one Google Fonts stylesheet in `meta.fontStylesheet`, and Task 5 requests it only when that theme is shown. Self-host only a font with no Google match. Canvas text must stay legible with fallback fonts (E15).
 
 ## 10. Engine API
@@ -244,7 +244,7 @@ Those results come from real sockets in Chromium and Playwright's WebKit, on the
 | `LIVERY_ORDER`, `LIVERY_LABELS`              | From `shared/content.py` (lines 137–138): control order and names                                                                                       |
 | `SPEEDS`, `TAU`                              | `SPEEDS` lets a theme render its speed buttons at build time                                                                                            |
 
-**These shapes win over the prototype's,** so Tasks 4 and 7 to 9 follow this section and `src/rail/types.ts`:
+**These shapes win over the prototype's,** so the engine and the themes follow this section and `src/rail/types.ts`:
 
 - **`marqueeSegments` drops its last argument.** It is `0` at both call sites and no definition of it exists anywhere in the repo.
 - **The theme tasks pass `world.textTime`** where the prototypes pass `world.time`.
@@ -276,15 +276,6 @@ Those results come from real sockets in Chromium and Playwright's WebKit, on the
 | Saving the livery                                                                                                                     | Task 6, in the control binding                                                                      |
 | `hitTrain` radii 16 and 20 in `bindCanvasInput`                                                                                       | `HIT_RADIUS`, used by Task 6                                                                        |
 
-**Stubs and who replaces them:**
-
-| Stub                                                                 | Replaced by |
-| -------------------------------------------------------------------- | ----------- |
-| `src/themes/interchange/{Theme.astro,scene.ts,tokens.css,theme.css}` | Task 7      |
-| `src/themes/diorama/{Theme.astro,scene.ts,tokens.css,theme.css}`     | Task 8      |
-| `src/themes/pixel-depot/{Theme.astro,scene.ts,tokens.css,theme.css}` | Task 9      |
-| `src/components/ThemeSwitcher.astro`                                 | Task 10     |
-
 ## 11. What the spike showed
 
 All three real prototype renderers ran from their own source, unchanged except for the adapter's text substitutions, on one page in Chromium and WebKit, at 1280 and 375 px, in a throwaway page outside the repo. A mini runtime drove them as `Scene` objects.
@@ -304,10 +295,10 @@ The measurements are in the description of the PR that added this document.
 
 The agent that finds a gap stops work on that seam, reports it, and does not work around it locally. The orchestrator dispatches one small branch from the wave's base, and it merges into that base first (local `git merge`, pushed).
 
-- **Additive** (a new optional hook or field): updates contract and stubs. No pause; other tasks merge the base in when convenient.
-- **Breaking** (rename, removal, changed meaning): the coordinator approves it and reports it in the wave summary. Affected in-flight tasks pause, the change updates contract, types, stubs and the conformance suite together, and they merge the base in before continuing.
+- **Additive** (a new optional hook or field): updates the contract and whatever implements it. No pause; other tasks merge the base in when convenient.
+- **Breaking** (rename, removal, changed meaning): the coordinator approves it and reports it in the wave summary. Affected in-flight tasks pause, the change updates contract, types, themes and the conformance suite together, and they merge the base in before continuing.
 - Each change adds a line to the change log below. A second breaking change in one wave stops the wave for a code review of the whole contract, with the outcome in the wave summary.
-- Bugs in `src/scene/` or `src/rail/` found in Wave 3 go the same way, since nobody owns those paths in that wave.
+- Bugs in `src/scene/` or `src/rail/` go the same way in any wave where nobody owns those paths.
 
 ### Change log
 
@@ -319,3 +310,6 @@ The agent that finds a gap stops work on that seam, reports it, and does not wor
 - Wave 3 base, breaking in form, approved by the coordinator, with no theme yet affected because Tasks 7 to 9 have not started: a theme's hero holds its height when its scene starts. `data-rail-scene-frame` (`THEME_HOOKS.sceneFrame`) replaces a theme's own `container-type`, holds the controls and `<RightNow />`, and is set up by `src/layouts/global.css`. Controls keep their space with `visibility: hidden` until a scene runs, and at full width "Right now" stays out of the flow from the start (sections 5, 6 and 8).
 - Wave 3 base, additive: `src/scene/scene-css-imports.test.ts` scans for CSS imports in `scene.ts`, and section 6 lists everything the conformance suite checks and maps the prototypes' heroes.
 - Wave 3 base, breaking in form, approved by the coordinator, with no theme yet affected because Tasks 7 to 9 have not started: on `failed`, "Right now" returns to the flow, replacing the rule that a static hero keeps its last 3 rem clear (section 8). The label holds its widest string with `15ch` on `data-rail-label`, replacing the rule on the toggle's width. The static hero must fit its box at 320 px (section 6).
+- Wave 4 base, additive: `getSiteContent()` may be called in section components as well as `Theme.astro`, and facts about Ahmad live in `src/content/` (section 6). The label rule names each theme's own `ch` value and adds `text-align: start`, since `15ch` pushed Interchange's service bar to three rows at 320 px (section 6).
+- Wave 4 base, additive: `Base`'s `noindex` prop is for pages with no address of their own (section 6). A sticky header's `scroll-margin-top` clears it in fallback fonts as well as real ones (section 5). `build.cssTarget` keeps `-webkit-backdrop-filter` in the build (section 9).
+- Wave 4 base, additive: `RightNow`'s `items` prop is gone, and with all stubs replaced, this document no longer describes them (sections 6, 8, 9, 10 and 12).

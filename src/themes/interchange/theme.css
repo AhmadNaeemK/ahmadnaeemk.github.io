@@ -1,7 +1,8 @@
 /* The page frame: base type, the header and buttons. */
 [data-rail-theme-root="interchange"] {
   /* The header's height with one row and with its nav on a second row. Section
-     links land just below it. */
+     links land just below it. A section's own padding covers the extra row fallback
+     fonts can add just above 920 px. */
   --top-height: 66px;
 
   background: var(--bg);
@@ -41,6 +42,7 @@
     top: env(safe-area-inset-top, 0px);
     z-index: 5;
     background: color-mix(in srgb, var(--bg) 88%, transparent);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--rule);
   }

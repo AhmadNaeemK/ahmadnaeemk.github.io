@@ -19,7 +19,7 @@ const { profile } = await getSiteContent();
 // and the root keeps the default theme, which the global CSS shows.
 ---
 
-<Base title={`Page not found | ${profile.name}`}>
+<Base title={`Page not found | ${profile.name}`} noindex>
   <div class="not-found" data-rail-theme-root={DEFAULT_THEME}>
     <script is:inline define:vars={{ THEME_ATTRIBUTE, THEME_ROOT_ATTRIBUTE }}>
       const root = document.currentScript.parentElement;

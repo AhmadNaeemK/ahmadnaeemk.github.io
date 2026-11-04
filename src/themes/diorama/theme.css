@@ -1,8 +1,10 @@
 /* Diorama: a model railway catalogue in late-afternoon light. Condensed industrial
    display type, warm wood and brick, a departures board, kit boxes and a ticket. */
 [data-rail-theme-root="diorama"] {
-  /* The sticky header's height, for the sections it would otherwise cover. */
-  --header-height: 62px;
+  /* The sticky header's height, for the sections it would otherwise cover. It holds
+     for real and fallback fonts, and fallback fonts wrap the header at wider widths,
+     so each tier takes the taller result: too high only adds a gap above a heading. */
+  --header-height: 72px;
   /* A section's own top padding, and the gap kept between the header and its heading. */
   --section-padding: 72px;
   --heading-clearance: 12px;
@@ -157,7 +159,7 @@
     white-space: nowrap;
   }
   @media (max-width: 1040px) {
-    --header-height: 120px;
+    --header-height: 90px;
 
     & .theme__txt {
       display: none;
@@ -183,6 +185,9 @@
     & .top > .top__in > .btn {
       display: none;
     }
+  }
+  @media (max-width: 460px) {
+    --header-height: 130px;
   }
 
   /* Hero */

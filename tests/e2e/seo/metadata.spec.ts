@@ -84,6 +84,28 @@ test.describe("what the home page tells search engines and link previews", () =>
   });
 });
 
+test.describe("what an address with no page tells search engines", () => {
+  test("it asks not to be indexed, and claims no URL of its own", async ({
+    page,
+  }) => {
+    const response = await page.goto("/no-such-page");
+    expect(response?.status()).toBe(404);
+
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+      "content",
+      "noindex",
+    );
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+    await expect(page.locator('meta[property="og:url"]')).toHaveCount(0);
+  });
+
+  test("the home page does not ask the same", async ({ page }) => {
+    await page.goto("/");
+
+    await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
+  });
+});
+
 test.describe("what crawlers find from robots.txt", () => {
   test("robots.txt leads to a sitemap on the canonical host", async ({
     request,

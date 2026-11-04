@@ -2,16 +2,20 @@
 
 Each YAML file here is one content collection, defined in `src/content.config.ts`. Editing content means editing one file. A mistake fails `npm run build` with a message naming the entry and field.
 
-| File              | Holds                                          |
-| ----------------- | ---------------------------------------------- |
-| `profile.yaml`    | Name, links, about text, facts and photo paths |
-| `experience.yaml` | Jobs                                           |
-| `education.yaml`  | Degrees                                        |
-| `projects.yaml`   | Projects, each with a required logo            |
-| `skills.yaml`     | Skill groups                                   |
-| `now.yaml`        | The "Right now" items, at least one            |
+| File              | Holds                                                                                    |
+| ----------------- | ---------------------------------------------------------------------------------------- |
+| `profile.yaml`    | Name, links, about text, facts, the short lines themes show about Ahmad, and photo paths |
+| `experience.yaml` | Jobs                                                                                     |
+| `education.yaml`  | Degrees                                                                                  |
+| `projects.yaml`   | Projects, each with a required logo                                                      |
+| `skills.yaml`     | Skill groups                                                                             |
+| `now.yaml`        | The "Right now" items, at least one                                                      |
 
 Each entry's `order` field sets its display position, because collections do not keep file order. Pages and themes read everything through `getSiteContent()` in `site.ts`.
+
+## Facts and theme copy
+
+Anything true of Ahmad lives here, so correcting it means editing one file: `favouriteGame`, `projectsLede`, and the two wordings of how to reach him, `contactLead` (Interchange) and `contactNote` (Diorama and Pixel Depot). What belongs to a theme's own voice stays in that theme: UI hints, section names, Pixel Depot's "The town is asleep" note and Diorama's plate.
 
 ## Dates
 

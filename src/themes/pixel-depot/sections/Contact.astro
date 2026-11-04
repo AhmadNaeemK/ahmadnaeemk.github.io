@@ -16,10 +16,7 @@ const { profile } = await getSiteContent();
     <div class="panel save">
       <div>
         <Image class="save__photo" src={profile.contactPhoto} alt="" />
-        <p class="save__text">
-          Email is the fastest way to reach me. Happy to talk about a product, a
-          role, or a good story.
-        </p>
+        <p class="save__text">{profile.contactNote}</p>
         <p class="save__mail" data-copy-target>
           {profile.email}
         </p>

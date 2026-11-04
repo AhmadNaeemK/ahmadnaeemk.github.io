@@ -16,6 +16,11 @@ ahmad:
     - I'm a senior full-stack engineer with more than five years of shipping React Native and web products. I like being the person who turns a fuzzy requirement into a plan, then a release, and I'm usually the one the client calls when scope, trade-offs or architecture need a decision. I work AI-first.
     - "Away from the editor I sketch people, write the occasional bit of Urdu poetry, and play a lot of games. My favourite game of all time is Sekiro: Shadows Die Twice. Dying, learning the pattern and trying again is also roughly how I debug."
     - Talk to me about spirituality, life, or tell me a story.
+  favouriteGame: "Sekiro: Shadows Die Twice"
+  projectsLede: Products I built at Arbisoft for US startups.
+  # Two wordings of one fact: Interchange uses the lead, Diorama and Pixel Depot the note.
+  contactLead: The fastest way to reach me is email. I'm happy to talk about a product, a role, or a good story.
+  contactNote: Email is the fastest way to reach me. Happy to talk about a product, a role, or a good story.
   facts:
     - value: 5+
       label: years shipping products

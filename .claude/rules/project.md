@@ -69,7 +69,7 @@ Elsewhere in the workflow, `<test>`, `<lint>`, `<base-branch>`, and similar plac
 | E2E tests                                      | `tests/e2e/`      |
 | Design prototypes (reference only, not built)  | `design/`         |
 
-- **Test file patterns:** `src/**/*.test.ts`, `tests/e2e/**/*.spec.ts`
+- **Test file patterns:** `src/**/*.test.ts`, `tests/e2e/**`
 - **Design tokens:** shared tokens in `src/layouts/`, per-theme tokens in `src/themes/`
 
 ## Integrations

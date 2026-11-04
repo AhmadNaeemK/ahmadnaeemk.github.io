@@ -10,7 +10,8 @@
   --notch-4:
     0 -4px 0 0 var(--line), 0 4px 0 0 var(--line), -4px 0 0 0 var(--line),
     4px 0 0 0 var(--line);
-  /* The pinned header's height, which a section link has to land below. */
+  /* The pinned header's height, which a section link has to land below. A section's
+     own padding covers the extra row fallback fonts can add at 422 to 432 px. */
   --top-height: 72px;
   --safe-top: env(safe-area-inset-top, 0px);
   --gutter-left: max(18px, env(safe-area-inset-left, 0px));
@@ -30,11 +31,8 @@
   @media (max-width: 1120px) {
     --top-height: 104px;
   }
-  @media (max-width: 480px) {
-    --top-height: 136px;
-  }
-  @media (max-width: 380px) {
-    --top-height: 176px;
+  @media (max-width: 339px) {
+    --top-height: 146px;
   }
 
   & * {
@@ -187,6 +185,9 @@
   }
   & .dd__list {
     border-width: 3px;
+    border-radius: 0;
+  }
+  & .dd__link {
     border-radius: 0;
   }
   @media (max-width: 1120px) {

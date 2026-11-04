@@ -81,10 +81,12 @@ test.describe("Diorama's images", () => {
     const onlyDiorama = hidden
       .map(({ src }) => imageUrl(src))
       .filter((url) => !showingElsewhere.has(url));
+    expect(onlyDiorama.length).toBeGreaterThan(0);
     expect(requested.filter((url) => onlyDiorama.includes(url))).toEqual([]);
-    expect(hidden.map(({ naturalWidth }) => naturalWidth)).toEqual(
-      hidden.map(() => 0),
-    );
+    const hiddenWidths = hidden
+      .filter(({ src }) => onlyDiorama.includes(imageUrl(src)))
+      .map(({ naturalWidth }) => naturalWidth);
+    expect(hiddenWidths).toEqual(hiddenWidths.map(() => 0));
   });
 
   test("all are files that load, with a width and height that match, once shown", async ({

@@ -40,6 +40,19 @@ const wholePixelsInside = ({ left, top, right, bottom }: Edges) => ({
   height: Math.floor(bottom) - Math.ceil(top),
 });
 
+const edgesOf = (element: Element): Edges => {
+  const { left, top, right, bottom } = element.getBoundingClientRect();
+  return { left, top, right, bottom };
+};
+
+/** Where two boxes overlap. */
+const overlapOf = (a: Edges, b: Edges): Edges => ({
+  left: Math.max(a.left, b.left),
+  top: Math.max(a.top, b.top),
+  right: Math.min(a.right, b.right),
+  bottom: Math.min(a.bottom, b.bottom),
+});
+
 /** A town has far more colours than this, so a blank canvas cannot pass as crisp. */
 const FEWEST_TOWN_COLOURS = 20;
 
@@ -71,20 +84,21 @@ for (const deviceScaleFactor of [1, 2]) {
         }
         await waitFrames(page, 3);
 
-        const box = await canvas(page, THEME).evaluate((element) => {
-          const { left, top, right, bottom } = element.getBoundingClientRect();
-          return { left, top, right, bottom };
-        });
+        const box = await canvas(page, THEME).evaluate(edgesOf);
+        const parentBox = await canvas(page, THEME)
+          .locator("..")
+          .evaluate(edgesOf);
         const buffer = await readCanvasPixels(page);
         const pixelSize = (box.right - box.left) / buffer.width;
         expect(Number.isInteger(pixelSize)).toBe(true);
 
-        // Crops to whole CSS pixels inside the canvas. Where the canvas top is
-        // fractional, WebKit at a ratio of 2 clips one device row off its first or
-        // last buffer row at `overflow: hidden`: a hard edge half a CSS pixel short,
-        // with no blended colour, and nothing inside the canvas is affected.
+        // The canvas may outgrow its `overflow: hidden` parent by under a buffer row,
+        // as the contract allows. A visitor never sees that part, so the crop stops at
+        // the parent: past it, the clipped row would read as a row of mixed blocks.
         const image = decodePng(
-          await page.screenshot({ clip: wholePixelsInside(box) }),
+          await page.screenshot({
+            clip: wholePixelsInside(overlapOf(box, parentBox)),
+          }),
         );
         expect(new Set(image.pixels).size).toBeGreaterThan(FEWEST_TOWN_COLOURS);
 

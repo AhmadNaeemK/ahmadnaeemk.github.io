@@ -1,6 +1,6 @@
 import { type Page } from "@playwright/test";
 import { THEME_ROOT_ATTRIBUTE } from "../../../src/scene/contract";
-import { goToHash } from "../selection/support";
+import { goToHash, pastPinSettling } from "../selection/support";
 import {
   expect,
   expectState,
@@ -80,6 +80,7 @@ test.describe("while another theme shows", () => {
     const requested = watchImageRequests(page);
     await page.goto("/#diorama");
     await expectState(page, "diorama", "running");
+    await pastPinSettling(page);
     // Off the top too: a lazy image waits on nearness, which this rules out.
     await page.evaluate(() =>
       window.scrollTo({
@@ -96,6 +97,8 @@ test.describe("while another theme shows", () => {
     requested.length = 0;
     await goToHash(page, `#${THEME}`);
     await expectState(page, THEME, "running");
+    // The section pin would scroll an image back out of reach before it loads.
+    await pastPinSettling(page);
     await expectAllImagesLoadWhenReached(page);
     expect(urls.filter((url) => !requested.includes(url))).toEqual([]);
   });
