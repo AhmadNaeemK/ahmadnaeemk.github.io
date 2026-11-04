@@ -1,0 +1,56 @@
+---
+import { PRESENT } from "../../../content/month";
+import { getSiteContent } from "../../../content/site";
+import { sectionId } from "../../../scene/contract";
+import { THEME } from "../theme-name";
+import "./work.css";
+
+const { experience, education } = await getSiteContent();
+---
+
+<section id={sectionId(THEME, "work")} class="sec">
+  <div class="wrap">
+    <h2 class="h2">
+      Quest log <span class="h2__sub">Work</span>
+    </h2>
+    <ol class="quests">
+      {experience.map((job) => {
+        const isCurrent = job.end === PRESENT;
+        return (
+          <li class:list={["panel quest", { "quest--active": isCurrent }]}>
+            <div class="quest__head">
+              <h3>
+                {job.title} <span>at {job.org}</span>
+              </h3>
+              <p class="quest__time">
+                {job.startLabel} to {job.endLabel}
+              </p>
+              <p class="quest__state">
+                {isCurrent ? "In progress" : "Complete"}
+              </p>
+            </div>
+            <ul>
+              {job.points.map((point) => (
+                <li>{point}</li>
+              ))}
+            </ul>
+          </li>
+        );
+      })}
+      {education.map((degree) => (
+        <li class="panel quest">
+          <div class="quest__head">
+            <h3>{degree.degree}</h3>
+            <p class="quest__time">
+              {degree.startLabel} to {degree.endLabel}
+            </p>
+            <p class="quest__state">Complete</p>
+          </div>
+          <p class="quest__meta">
+            {degree.school}, {degree.place}
+          </p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
