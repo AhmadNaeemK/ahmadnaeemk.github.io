@@ -1,0 +1,42 @@
+/* STUB, replaced with the theme. Custom properties and color-scheme only. */
+[data-rail-theme-root="diorama"] {
+  --bg: #f4e4de;
+  --surface: #fff6ea;
+  --ink: #2a1f1a;
+  --muted: #5e4a40;
+  --rule: #d8c4b4;
+  --ground: #fff6ea;
+  --track: #6a4632;
+  --train: #2f4a3a;
+  --board: #1e1612;
+  --board-ink: #ffd77a;
+  --dd-bg: var(--surface);
+  --dd-fg: var(--ink);
+  --dd-muted: var(--muted);
+  --dd-line: var(--rule);
+  color-scheme: light;
+
+  :root[data-theme="dark"] & {
+    --bg: #1f1823;
+    --surface: #2b2330;
+    --ink: #f2e8df;
+    --muted: #c8bac9;
+    --rule: #4a4052;
+    --ground: #2b2330;
+    --track: #b49a80;
+    color-scheme: dark;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) & {
+      --bg: #1f1823;
+      --surface: #2b2330;
+      --ink: #f2e8df;
+      --muted: #c8bac9;
+      --rule: #4a4052;
+      --ground: #2b2330;
+      --track: #b49a80;
+      color-scheme: dark;
+    }
+  }
+}

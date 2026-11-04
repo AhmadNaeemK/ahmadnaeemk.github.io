@@ -1,0 +1,42 @@
+/* STUB, replaced with the theme. Custom properties and color-scheme only. */
+[data-rail-theme-root="interchange"] {
+  --bg: #efe8de;
+  --surface: #fbf7f1;
+  --ink: #2b1a12;
+  --muted: #6a5246;
+  --rule: #dccfbf;
+  --ground: #fbf7f1;
+  --track: #1c7d70;
+  --train: #d2432a;
+  --board: #21140e;
+  --board-ink: #ffb648;
+  --dd-bg: var(--surface);
+  --dd-fg: var(--ink);
+  --dd-muted: var(--muted);
+  --dd-line: var(--rule);
+  color-scheme: light;
+
+  :root[data-theme="dark"] & {
+    --bg: #1f1612;
+    --surface: #2a1e18;
+    --ink: #f3e9dc;
+    --muted: #c9b8a8;
+    --rule: #4a3a30;
+    --ground: #2a1e18;
+    --track: #3cbbb1;
+    color-scheme: dark;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) & {
+      --bg: #1f1612;
+      --surface: #2a1e18;
+      --ink: #f3e9dc;
+      --muted: #c9b8a8;
+      --rule: #4a3a30;
+      --ground: #2a1e18;
+      --track: #3cbbb1;
+      color-scheme: dark;
+    }
+  }
+}

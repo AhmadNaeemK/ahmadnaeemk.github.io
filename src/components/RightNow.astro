@@ -1,0 +1,21 @@
+---
+import type { NowItem } from "../scene/contract";
+
+interface Props {
+  items: readonly NowItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="now" role="group" aria-label="What I'm into right now">
+  <span class="now__label">Right now</span>
+  <ul class="now__list">
+    {items.map(({ label, value }) => (
+      <li>
+        <span class="now__k">{label}</span>
+        <span class="now__v">{value}</span>
+      </li>
+    ))}
+  </ul>
+</div>
