@@ -1,0 +1,20 @@
+# "order" sets the display position, newest first. The CV PDF repeats this text and is not generated from it. See README.md.
+senior-software-engineer:
+  order: 1
+  title: Senior Software Engineer
+  org: Arbisoft
+  start: 2024-07
+  end: present
+  points:
+    - Built an AI development workflow in Claude Code where planner, builder, tester and reviewer agents take code through gated plan, build, test and commit steps, with a person approving each gate.
+    - Lead developer and client-facing technical contact on Gumdrop, Lola and Crush, turning client requirements into technical plans and releases.
+    - Shipped four React Native apps to the App Store and Google Play, plus a Next.js and Django SaaS product.
+    - Set up testing, CI/CD and code review on Lola and Gumdrop, and mentored a trainee developer on the Lola team.
+software-engineer:
+  order: 2
+  title: Software Engineer
+  org: Arbisoft
+  start: 2021-07
+  end: 2024-07
+  points:
+    - Built and released React Native apps for US startup clients. Promoted to Senior Software Engineer in July 2024.
