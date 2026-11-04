@@ -1,6 +1,7 @@
 /** Everything that changes what the server sends, through `page.route`. */
 import { expect, type Page, type Route } from "@playwright/test";
 import {
+  type NowItem,
   THEME_ROOT_ATTRIBUTE,
   type ThemeName,
 } from "../../../src/scene/contract";
@@ -8,6 +9,8 @@ import { openScenePage, waitFrames } from "./page-actions";
 import type { SceneCallName } from "./scene-spy";
 
 const SCENE_CHUNK = /\/_astro\/scene\.[^/]*\.js(\?.*)?$/;
+/** The `.now` list in a theme's HTML, for specs that choose its items. */
+const NOW_LIST = /(<ul class="now__list"[^>]*>)[\s\S]*?(<\/ul>)/;
 
 export interface HeldChunks {
   /** Requests seen so far, in the order the page made them. */
@@ -200,6 +203,20 @@ export async function rewriteThemeHtml(
     },
   );
 }
+
+/** An edit for `rewriteThemeHtml`, marking the items up as `RightNow.astro` does. */
+export const nowItemsHtml =
+  (items: readonly NowItem[]) =>
+  (themeHtml: string): string =>
+    themeHtml.replace(
+      NOW_LIST,
+      `$1${items
+        .map(
+          ({ label, value }) =>
+            `<li>${label ? `<span class="now__k">${label}</span> ` : ""}<span class="now__v">${value}</span></li>`,
+        )
+        .join("")}$2`,
+    );
 
 /** Adds a style to the page's HTML, so it applies from the first layout on. */
 export async function addStyleToHtml(page: Page, css: string): Promise<void> {

@@ -186,7 +186,8 @@ export interface ThemeMeta {
 }
 
 export interface NowItem {
-  readonly label: string;
+  /** Absent for a plain item, which shows only its value. */
+  readonly label?: string;
   readonly value: string;
 }
 

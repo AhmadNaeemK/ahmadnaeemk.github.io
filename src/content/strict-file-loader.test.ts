@@ -4,6 +4,8 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { LoaderContext } from "astro/loaders";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { parseNowFile } from "./now-text";
+import { nowSchema } from "./schemas";
 import { strictFile } from "./strict-file-loader";
 
 // Astro's real `file()` loader runs here against real files. Only the context it
@@ -59,6 +61,8 @@ function fakeDevServerContext() {
     changeListeners,
   };
 }
+
+const NOW_TEXT_WITH_A_TOO_LONG_SECOND_LINE = `Playing: Sekiro\n${"x".repeat(201)}\n`;
 
 const VALID_YAML = "current:\n  label: Playing\n";
 const MALFORMED_YAML = "current:\n  label: [Playing\n";
@@ -143,6 +147,37 @@ describe("strictFile in a build (no watcher)", () => {
       current: { label: "Playing" },
     });
   });
+
+  it("rejects when a parser refuses the file, naming the collection, file and line", async () => {
+    await writeFile(
+      join(directory, "now.txt"),
+      NOW_TEXT_WITH_A_TOO_LONG_SECOND_LINE,
+    );
+    const { context } = fakeLoaderContext();
+
+    await expect(
+      strictFile("now.txt", parseNowFile).load(context),
+    ).rejects.toThrow(/^now: [^]*now\.txt[^]*Line 2/);
+  });
+
+  it('rejects a now file of only comments with "Right now" needing an item', async () => {
+    await writeFile(join(directory, "now.txt"), "# Nothing yet\n\n# Soon\n");
+    const { context } = fakeLoaderContext();
+    const validatingContext = {
+      ...context,
+      parseData: async ({ data }: { data: unknown }) => {
+        const parsed = nowSchema.safeParse(data);
+        if (!parsed.success) {
+          throw new Error(parsed.error.issues[0].message);
+        }
+        return parsed.data;
+      },
+    } as unknown as LoaderContext;
+
+    await expect(
+      strictFile("now.txt", parseNowFile).load(validatingContext),
+    ).rejects.toThrow('"Right now" needs at least one item');
+  });
 });
 
 describe("strictFile on the dev server (with a watcher)", () => {
@@ -171,17 +206,33 @@ describe("strictFile on the dev server (with a watcher)", () => {
     );
   });
 
+  it("logs why a parser refused the file, naming the line, so the server stays up", async () => {
+    await writeFile(
+      join(directory, "now.txt"),
+      NOW_TEXT_WITH_A_TOO_LONG_SECOND_LINE,
+    );
+    const { context, logger } = fakeDevServerContext();
+
+    await expect(
+      strictFile("now.txt", parseNowFile).load(context),
+    ).resolves.toBeUndefined();
+
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.stringContaining("Line 2"),
+    );
+  });
+
   it("only logs a half-saved edit, keeping the last good content", async () => {
-    const filePath = join(directory, "now.yaml");
+    const filePath = join(directory, "edited.yaml");
     await writeFile(filePath, VALID_YAML);
     const { context, logger, stored, changeListeners } = fakeDevServerContext();
-    await strictFile("now.yaml").load(context);
+    await strictFile("edited.yaml").load(context);
 
     await writeFile(filePath, MALFORMED_YAML);
     await changeListeners[0](filePath);
 
     expect(logger.error).toHaveBeenCalledWith(
-      expect.stringContaining("now.yaml"),
+      expect.stringContaining("edited.yaml"),
     );
     expect(Object.fromEntries(stored)).toEqual({
       current: { label: "Playing" },

@@ -261,18 +261,18 @@ describe("assembleSiteContent", () => {
   });
 
   describe("empty collections", () => {
-    it.each<CollectionName>([
-      "profile",
-      "experience",
-      "education",
-      "projects",
-      "skills",
-      "now",
-    ])("fails on an empty %s, pointing at the file to edit", (collection) => {
+    it.each<[CollectionName, string]>([
+      ["profile", "src/content/profile.yaml"],
+      ["experience", "src/content/experience.yaml"],
+      ["education", "src/content/education.yaml"],
+      ["projects", "src/content/projects.yaml"],
+      ["skills", "src/content/skills.yaml"],
+      ["now", "src/content/now.txt"],
+    ])("fails on an empty %s, pointing at %s", (collection, filePath) => {
       expect(() =>
         assembleSiteContent(rawCollections({ [collection]: [] })),
       ).toThrow(
-        `Content collection "${collection}" is empty. Add an entry to src/content/${collection}.yaml.`,
+        `Content collection "${collection}" is empty. Add an entry to ${filePath}.`,
       );
     });
   });

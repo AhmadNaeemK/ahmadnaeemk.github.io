@@ -1,9 +1,10 @@
-import { THEME_NAMES } from "../../../src/scene/contract";
+import { RIGHT_NOW_PARTS, THEME_NAMES } from "../../../src/scene/contract";
 import {
   expect,
   hero,
   instrumentScenes,
   isNowLineShowing,
+  nowItemsHtml,
   openScenePage,
   rewriteThemeHtml,
   showTheme,
@@ -11,16 +12,17 @@ import {
   waitFrames,
 } from "./helpers";
 
-const NOW_LIST = /(<ul class="now__list"[^>]*>)[\s\S]*?(<\/ul>)/;
 const LONG_VALUE =
   "a very long single item about something that keeps on going and going, and then goes on a good while longer, well past the width of any phone";
-const NOW_ITEM_MARKUP = `<li><span class="now__k">Reading</span> <span class="now__v">${LONG_VALUE}</span></li>`;
+const PLAIN_VALUE = "Back at 12:30, see https://x.com";
 
 for (const theme of THEME_NAMES) {
   test.describe(`${theme} with a single long Right now item`, () => {
     test.beforeEach(async ({ page }) => {
-      await rewriteThemeHtml(page, theme, (html) =>
-        html.replace(NOW_LIST, `$1${NOW_ITEM_MARKUP}$2`),
+      await rewriteThemeHtml(
+        page,
+        theme,
+        nowItemsHtml([{ label: "Reading", value: LONG_VALUE }]),
       );
       await instrumentScenes(page);
     });
@@ -66,6 +68,34 @@ for (const theme of THEME_NAMES) {
         theme,
       );
       expect(nowItems).toEqual([{ label: "Reading", value: LONG_VALUE }]);
+    });
+  });
+
+  test.describe(`${theme} with a plain Right now item`, () => {
+    test("the HTML line shows only its text, and the scene gets it with no label", async ({
+      page,
+    }) => {
+      await rewriteThemeHtml(
+        page,
+        theme,
+        nowItemsHtml([{ value: PLAIN_VALUE }]),
+      );
+      await instrumentScenes(page);
+      await page.setViewportSize({ width: 375, height: 720 });
+      await openScenePage(page);
+      await showTheme(page, theme);
+
+      expect(await isNowLineShowing(page, theme)).toBe(true);
+      const line = hero(page, theme).locator(".now");
+      await expect(line.locator(RIGHT_NOW_PARTS.value)).toHaveText(PLAIN_VALUE);
+      await expect(line.locator(RIGHT_NOW_PARTS.value)).toBeVisible();
+      await expect(line.locator(RIGHT_NOW_PARTS.label)).toHaveCount(0);
+
+      const nowItems = await page.evaluate(
+        (name) => window.__sceneSpy.contexts[name].nowItems,
+        theme,
+      );
+      expect(nowItems).toEqual([{ value: PLAIN_VALUE }]);
     });
   });
 }

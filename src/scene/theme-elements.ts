@@ -32,8 +32,12 @@ export function findThemeDom(theme: ThemeName): ThemeDom {
 }
 
 export function readNowItems(root: HTMLElement): NowItem[] {
-  return [...root.querySelectorAll(RIGHT_NOW_PARTS.item)].map((item) => ({
-    label: item.querySelector(RIGHT_NOW_PARTS.label)?.textContent?.trim() ?? "",
-    value: item.querySelector(RIGHT_NOW_PARTS.value)?.textContent?.trim() ?? "",
-  }));
+  return [...root.querySelectorAll(RIGHT_NOW_PARTS.item)].map((item) => {
+    const label = item
+      .querySelector(RIGHT_NOW_PARTS.label)
+      ?.textContent?.trim();
+    const value =
+      item.querySelector(RIGHT_NOW_PARTS.value)?.textContent?.trim() ?? "";
+    return label ? { label, value } : { value };
+  });
 }

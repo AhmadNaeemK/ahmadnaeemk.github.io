@@ -9,22 +9,6 @@ import { canvas } from "../scene/helpers";
 
 export const THEME: ThemeName = "pixel-depot";
 
-/** The `.now` list in the theme's HTML, for specs that choose its items. */
-const NOW_LIST = /(<ul class="now__list"[^>]*>)[\s\S]*?(<\/ul>)/;
-
-export const nowItemsHtml =
-  (items: readonly (readonly [string, string])[]) =>
-  (themeHtml: string): string =>
-    themeHtml.replace(
-      NOW_LIST,
-      `$1${items
-        .map(
-          ([label, value]) =>
-            `<li><span class="now__k">${label}</span> <span class="now__v">${value}</span></li>`,
-        )
-        .join("")}$2`,
-    );
-
 export interface CanvasPixels {
   readonly width: number;
   readonly height: number;

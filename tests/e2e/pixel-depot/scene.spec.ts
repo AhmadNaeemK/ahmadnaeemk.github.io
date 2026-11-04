@@ -8,6 +8,7 @@ import {
   expectToggle,
   instrumentScenes,
   liveryButton,
+  nowItemsHtml,
   openScenePage,
   REDUCED_START_TOGGLE,
   rewriteThemeHtml,
@@ -20,7 +21,6 @@ import {
   waitFrames,
 } from "../scene/helpers";
 import {
-  nowItemsHtml,
   readBillboardBand,
   readTownBelowBillboard,
   samePixels,
@@ -90,8 +90,8 @@ test.describe("a reduced-motion start at full width", () => {
       page,
       THEME,
       nowItemsHtml([
-        ["Playing", "Spider-Man"],
-        ["Building", "this site"],
+        { label: "Playing", value: "Spider-Man" },
+        { label: "Building", value: "this site" },
       ]),
     );
     await open(page, true);

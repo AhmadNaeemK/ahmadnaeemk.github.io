@@ -8,12 +8,15 @@ import type { LoaderContext } from "astro/loaders";
 import { type Page } from "@playwright/test";
 import type { RawCollections } from "../../../src/content/assemble";
 import { dateLabels } from "../../../src/content/month";
+import { parseNowFile } from "../../../src/content/now-text";
 import { strictFile } from "../../../src/content/strict-file-loader";
+import { type ThemeName } from "../../../src/scene/contract";
 import {
-  THEME_ROOT_ATTRIBUTE,
-  type ThemeName,
-} from "../../../src/scene/contract";
-import { canvas } from "../scene/helpers";
+  canvas,
+  type CanvasText,
+  lastTextsFrom,
+  logThemeCanvasTexts,
+} from "../scene/helpers";
 
 export const THEME: ThemeName = "interchange";
 
@@ -43,9 +46,11 @@ async function readCollection<Name extends keyof RawCollections>(
       },
     },
   };
-  await strictFile(`src/content/${collection}.yaml`).load(
-    context as unknown as LoaderContext,
-  );
+  const loader =
+    collection === "now"
+      ? strictFile("src/content/now.txt", parseNowFile)
+      : strictFile(`src/content/${collection}.yaml`);
+  await loader.load(context as unknown as LoaderContext);
   return entries;
 }
 
@@ -223,79 +228,13 @@ export async function readCanvasPixels(
   return { width, height, rgba: Uint8Array.from(bytes) };
 }
 
-/** One `fillText` on Interchange's canvas, with its box in device pixels. */
-export interface CanvasText {
-  readonly text: string;
-  readonly box: CanvasRect;
-}
-
-declare global {
-  interface Window {
-    __canvasTexts: CanvasText[];
-  }
-}
-
 /** The label the board's chip carries, and where each drawing of the board begins. */
 const BOARD_CHIP_TEXT = "Right now";
-/** Half the height of the chip's text in the scene's units, from its font size. */
-const TEXT_HALF_HEIGHT = 7;
-const TEXTS_KEPT = 2000;
 
 /** Call before the page loads. Keeps every text the scene draws. */
-export async function logCanvasTexts(page: Page): Promise<void> {
-  await page.addInitScript(
-    ({ rootAttribute, theme, halfHeight, kept }) => {
-      const log: CanvasText[] = [];
-      window.__canvasTexts = log;
-      const prototype = CanvasRenderingContext2D.prototype;
-      const fillText = prototype.fillText;
-      prototype.fillText = function (
-        this: CanvasRenderingContext2D,
-        text: string,
-        x: number,
-        y: number,
-        maxWidth?: number,
-      ) {
-        const owner = this.canvas as HTMLCanvasElement;
-        if (owner.closest(`[${rootAttribute}="${theme}"]`)) {
-          const { a, d, e, f } = this.getTransform();
-          log.push({
-            text,
-            box: {
-              x: Math.round(a * x + e),
-              y: Math.round(d * (y - halfHeight) + f),
-              width: Math.round(a * this.measureText(text).width),
-              height: Math.round(d * halfHeight * 2),
-            },
-          });
-          if (log.length > kept) log.splice(0, log.length - kept);
-        }
-        return maxWidth === undefined
-          ? fillText.call(this, text, x, y)
-          : fillText.call(this, text, x, y, maxWidth);
-      };
-    },
-    {
-      rootAttribute: THEME_ROOT_ATTRIBUTE,
-      theme: THEME,
-      halfHeight: TEXT_HALF_HEIGHT,
-      kept: TEXTS_KEPT,
-    },
-  );
-}
+export const logCanvasTexts = (page: Page): Promise<void> =>
+  logThemeCanvasTexts(page, THEME);
 
-export const clearCanvasTexts = (page: Page): Promise<void> =>
-  page.evaluate(() => {
-    window.__canvasTexts.length = 0;
-  });
-
-/**
- * The most recent drawing of the board, its chip first and then all it rolled, or
- * an empty list when none was drawn since the log was last cleared.
- */
+/** The most recent drawing of the board, as `lastTextsFrom` reads it. */
 export const lastBoardTexts = (page: Page): Promise<CanvasText[]> =>
-  page.evaluate((chipText) => {
-    const log = window.__canvasTexts;
-    const start = log.map(({ text }) => text).lastIndexOf(chipText);
-    return start < 0 ? [] : log.slice(start);
-  }, BOARD_CHIP_TEXT);
+  lastTextsFrom(page, BOARD_CHIP_TEXT);

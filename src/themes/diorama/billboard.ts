@@ -37,7 +37,7 @@ export interface Billboard {
 
 export function createBillboard(nowItems: readonly NowItem[]): Billboard {
   const items = nowItems.map(({ label, value }) => ({
-    key: label.toUpperCase(),
+    key: label?.toUpperCase(),
     value: value.toUpperCase(),
   }));
   let widths: BoardWidths | null = null;
@@ -56,7 +56,9 @@ export function createBillboard(nowItems: readonly NowItem[]): Billboard {
       palette,
       labelFont: font.label,
       segments: items.flatMap(({ key, value }): MarqueeSegment[] => [
-        { text: `${key}  `, font: font.key, color: palette.billboardKey },
+        ...(key
+          ? [{ text: `${key}  `, font: font.key, color: palette.billboardKey }]
+          : []),
         { text: value, font: font.value, color: palette.billboardValue },
         { text: SEPARATOR, font: font.key, color: palette.billboardSeparator },
       ]),
@@ -67,10 +69,10 @@ export function createBillboard(nowItems: readonly NowItem[]): Billboard {
     const font = fonts(family);
     const widest = (texts: readonly string[], fontString: string) => {
       ctx.font = fontString;
-      return Math.max(...texts.map((text) => ctx.measureText(text).width));
+      return Math.max(0, ...texts.map((text) => ctx.measureText(text).width));
     };
     const keyWidth = widest(
-      items.map(({ key }) => key),
+      items.flatMap(({ key }) => key ?? []),
       font.key,
     );
     const valueWidth = widest(
@@ -82,7 +84,12 @@ export function createBillboard(nowItems: readonly NowItem[]): Billboard {
       label: labelWidth,
       total: Math.min(
         MAX_WIDTH,
-        8 + labelWidth + 12 + keyWidth + 8 + valueWidth + 14,
+        8 +
+          labelWidth +
+          12 +
+          (keyWidth > 0 ? keyWidth + 8 : 0) +
+          valueWidth +
+          14,
       ),
     };
   }

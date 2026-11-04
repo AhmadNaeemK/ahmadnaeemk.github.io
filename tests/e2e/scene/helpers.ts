@@ -5,6 +5,7 @@
  * theme draws or on which engine runs underneath it.
  */
 export * from "./canvas-reads";
+export * from "./canvas-texts";
 export * from "./page-actions";
 export * from "./routes";
 export * from "./scene-spy";

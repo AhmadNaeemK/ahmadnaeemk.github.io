@@ -144,6 +144,6 @@ export const skillGroupSchema = z.strictObject({
 
 export const nowSchema = z.strictObject({
   items: z
-    .array(z.strictObject({ label: text, value: text }))
+    .array(z.strictObject({ label: text.optional(), value: text }))
     .min(1, '"Right now" needs at least one item'),
 });
