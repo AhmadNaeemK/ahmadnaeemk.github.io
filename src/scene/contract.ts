@@ -41,6 +41,8 @@ export const THEME_HOOKS = {
   copyTarget: "[data-copy-target]",
   cvLink: "[data-cv]",
   year: "[data-year]",
+  /** On `ThemeSwitcher.astro`'s outer element, whatever Task 10 renders inside. */
+  themeSwitcher: "[data-theme-switcher]",
 } as const;
 
 /** Selectors for what `RightNow.astro` renders, so no theme writes these. */

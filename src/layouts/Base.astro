@@ -1,19 +1,74 @@
 ---
 import "./global.css";
+import {
+  COLOR_SCHEME_ATTRIBUTE,
+  DEFAULT_THEME,
+  STORAGE_KEYS,
+  THEME_ATTRIBUTE,
+  THEME_BY_HASH,
+  THEME_NAMES,
+} from "../scene/contract";
+import { THEME_META } from "../themes/registry";
 
 interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
+
+// The head script is inline and synchronous, so the right theme is set before the
+// first paint. Its rules match src/scene/theme.ts, which it cannot import. A saved
+// value is looked up in the list, never as a table key: a table key such as
+// "constructor" would find a function on the prototype. These notes sit here so
+// they do not ship with the script.
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="color-scheme" content="light dark" />
     <title>{title}</title>
+    <script
+      is:inline
+      define:vars={{
+        COLOR_SCHEME_ATTRIBUTE,
+        DEFAULT_THEME,
+        STORAGE_KEYS,
+        THEME_ATTRIBUTE,
+        THEME_BY_HASH,
+        THEME_NAMES,
+      }}
+    >
+      function readSaved(key) {
+        try {
+          return localStorage.getItem(key);
+        } catch {
+          return null;
+        }
+      }
+      const html = document.documentElement;
+      const savedTheme = readSaved(STORAGE_KEYS.theme);
+      const savedScheme = readSaved(STORAGE_KEYS.colorScheme);
+      const theme = Object.hasOwn(THEME_BY_HASH, location.hash)
+        ? THEME_BY_HASH[location.hash]
+        : THEME_NAMES.includes(savedTheme)
+          ? savedTheme
+          : DEFAULT_THEME;
+      html.setAttribute(THEME_ATTRIBUTE, theme);
+      if (savedScheme === "light" || savedScheme === "dark") {
+        html.setAttribute(COLOR_SCHEME_ATTRIBUTE, savedScheme);
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <noscript>
+      <link rel="stylesheet" href={THEME_META[DEFAULT_THEME].fontStylesheet} />
+    </noscript>
   </head>
   <body>
     <slot />

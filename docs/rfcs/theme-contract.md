@@ -32,7 +32,7 @@ Names come from `design/train-concepts/concepts/combined.html` (line 21). Use `T
 - **`data-theme` on `<html>` stays light or dark,** as in the prototype (`shared/engine.js`, line 451). It is `light`, `dark` or absent, and absent means follow the system. Task 5 writes it.
 - **Each theme's outermost element carries `data-rail-theme-root="<name>"`.** `src/layouts/global.css` shows the selected root and hides the rest with `display: none`, which also takes hidden themes out of the accessibility tree (E19).
 - **No attribute, no JavaScript or an unknown name all show Interchange** (E1, E2), in the CSS and in `resolveThemeName()`, which takes bare values only.
-- **Hashes go through `themeFromHash(location.hash)`.** It returns the theme named by a theme hash (`#diorama`) or a section hash (`#b-about`), so a reload keeps the theme (E5) and a shared section link selects its theme (E6). It returns null when the hash names no theme.
+- **Hashes go through `themeFromHash(location.hash)`.** It returns the theme named by a theme hash (`#diorama`) or a section hash (`#b-about`), so a reload keeps the theme (E5) and a shared section link selects its theme (E6). It returns null when the hash names no theme. Task 5 follows the hash once more when its module starts, in case a link was clicked before the module ran.
 - **The no-flash head script gets `THEME_BY_HASH` at build time through `define:vars`.** That script must be inline and synchronous, so it cannot import `src/scene/contract.ts`. `THEME_BY_HASH` is a plain table of every theme and section hash, and `themeFromHash` is a lookup on it.
 - **Storage keys** are in `STORAGE_KEYS`: `rail-selected-theme`, `rail-color-scheme`, `rail-livery`. They replace the prototype's `rail-concept` and its confusingly named `rail-theme`. Every access is guarded (E3).
 
@@ -44,7 +44,7 @@ The contract owns the header link labels (`NAV_SECTIONS`: About, Work, Projects,
 
 **Keeping the section across a switch (E30).** Task 5 does this in one synchronous step:
 
-1. Find the outgoing theme's current key.
+1. Find the outgoing theme's current key. On a history step, read it at `popstate`: WebKit restores the scroll before `hashchange`, to a position saved for the other theme.
    - If the page has scrolled and is at its bottom (`scrollY > 0` and `scrollY + innerHeight >= scrollHeight - 1`), it is `contact`, because a short last section may never reach the viewport top.
    - Otherwise it is the last section in document order whose top is at or above the viewport top plus that section's own `scroll-margin-top` plus 1 px, or `top` if none is. The margin keeps a sticky header from walking back a section per switch, and the 1 px absorbs the fraction a scroll lands short.
 2. Write the new `data-rail-theme`.
@@ -54,7 +54,9 @@ The contract owns the header link labels (`NAV_SECTIONS`: About, Work, Projects,
 **Staying there on a theme's first show.** Two things keep the section in place while the incoming theme settles:
 
 - **Reservation.** The incoming theme's hero must already hold the scene's height (section 6) and its lazy images must have `width` and `height`.
-- **Re-pinning.** Reservation cannot cover everything: controls appear, the HTML line leaves the flow on `board`, and fonts swap late. So after step 4, Task 5 repeats step 3 with the same key whenever the incoming root's `data-scene-state` changes (a `MutationObserver` runs this before the next paint) and whenever `loadedFontFaceCount()`, sampled each frame, goes up. The pin ends at the visitor's first wheel, touch move, pointer press or key press of any kind, at any `hashchange`, and at the next switch. It never ends on a `scroll` event, since its own scrolls fire those too.
+- **Re-pinning.** Reservation cannot cover everything: controls appear, the HTML line leaves the flow on `board`, and fonts swap late. So after step 4, Task 5 repeats step 3 with the same key whenever the incoming root's `data-scene-state` changes (a `MutationObserver` runs this before the next paint) and whenever `loadedFontFaceCount()`, sampled each frame, goes up. The pin ends at the visitor's first wheel, touch move, pointer press or key press of any kind, at any `hashchange` or `popstate` (a step between entries with the same hash fires only `popstate`), at the next switch, and 10 seconds after it started, so it does not sample fonts forever with no input. It never ends on a `scroll` event, since its own scrolls fire those too.
+- **Settling.** For the first 3 frames of a pin, Task 5 repeats step 3 unconditionally. A smooth scroll from a section link survives the switch's instant scroll in Chromium and carries the page away from the section, and it cannot be stopped synchronously before step 1. One frame was enough in every run; the other two are margin.
+- **Section links on load.** A section link opened fresh (navigation type `navigate`) is a first show too, so Task 5 pins that section from page start, under the same rules. A reload or a history step is not pinned, because the browser restores the visitor's own scroll position.
 
 ## 6. What a theme provides
 
@@ -77,7 +79,7 @@ A theme lives in `src/themes/<name>/` and has four fixed entry points. `src/them
 - Have one `data-rail-static` element inside that parent: what shows when no scene runs (no JavaScript, or a failed load). It fills the reserved box.
 - Put its controls in one `data-rail-controls` element, using the prototype's hooks: `data-rail-toggle` with a `data-rail-label` inside, `data-rail-speed="<index>"` for each of `SPEEDS`, and `data-rail-livery="<id>"` for each of `LIVERY_ORDER`, named by `LIVERY_LABELS`. Task 6 binds them and writes their state (below).
 - Render `src/components/RightNow.astro` inside the hero. Theme CSS may style its `.now`, `.now__label`, `.now__k` and `.now__v` classes.
-- Render `src/components/ThemeSwitcher.astro` with `current="<name>"` in its header. Task 10 replaces the placeholder behind the same props.
+- Render `src/components/ThemeSwitcher.astro` with `current="<name>"` in its header. Task 10 replaces the placeholder behind the same props, and keeps `data-theme-switcher` (`THEME_HOOKS.themeSwitcher`) on its outer element: focus lands inside it after a switch, and it hides with no JavaScript.
 - Use the page-helper hooks that Task 5 binds: `data-theme-toggle`, `data-copy` with `data-copy-label`, `data-copy-target`, `data-cv`, `data-year`.
 
 **Control state.** Task 6 writes these attributes, on every theme's controls so a hidden theme is right when shown, and theme CSS styles from them. The prototype stylesheets use `[data-state="stop"]` on the toggle and `[aria-pressed="true"]` on speed and livery buttons.
@@ -94,7 +96,7 @@ Task 5 writes `aria-pressed` and `aria-label` on `data-theme-toggle`: pressed me
 
 **Images.** Use `loading="lazy"`, so a hidden theme's images do not load, with `width` and `height`, so they cannot move the page when they arrive. `profile.portraitPixels` comes back as plain `{ url, width, height }`: render it with a plain `<img>` and `image-rendering: pixelated`, and never through Astro's `<Image>`, which would resize or re-encode it (E23).
 
-**The stubs** use placeholder "Right now" items because `getSiteContent()` is not on their branch. Tasks 7 to 9 replace them.
+**The stubs** still use placeholder "Right now" items, although `getSiteContent()` is now on the branch, until Tasks 7 to 9 replace them.
 
 ## 7. The shared world
 
@@ -250,4 +252,4 @@ The agent that finds a gap stops work on that seam, reports it, and does not wor
 
 ### Change log
 
-None yet.
+- 2026-11-04, additive (Task 5): section 5 adds a 10-second limit on the pin, 3 settling frames, and a pin for section links opened fresh. Section 6 corrects the sentence on the stubs' placeholders. Section 5 reads the key at `popstate` on a history step, and section 4 follows the hash once more at start. `popstate` also ends a pin (section 5), and `THEME_HOOKS` adds `themeSwitcher` (section 6).
