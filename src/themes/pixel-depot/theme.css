@@ -229,6 +229,12 @@
       display: none;
     }
   }
+  /* Room for a wider fallback font at the narrowest phones. */
+  @media (max-width: 340px) {
+    & .menu a {
+      font-size: 0.8125rem;
+    }
+  }
   /* The mark, the switcher and the toggle share a row. */
   @media (max-width: 359px) {
     & .top__in {
