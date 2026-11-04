@@ -111,14 +111,15 @@ test("the page chunk has no CSS, which a shared one would need a preload list fo
 test("importing the page chunk starts nothing, and the entry script does", async ({
   page,
 }) => {
-  const entryScript = /<script type="module" src="([^"]+)"[^>]*><\/script>/g;
-  let entryUrl = "";
+  const entryScript =
+    /<script\b(?=[^>]*\btype="module")[^>]*\bsrc="([^"]+)"[^>]*><\/script>/g;
+  let entryUrls: string[] = [];
   await page.route(
     (url) => url.pathname === "/",
     async (route) => {
       const response = await route.fetch();
       const html = await response.text();
-      entryUrl = [...html.matchAll(entryScript)][0]?.[1] ?? "";
+      entryUrls = [...html.matchAll(entryScript)].map(([, url]) => url);
       await route.fulfill({ response, body: html.replace(entryScript, "") });
     },
   );
@@ -129,18 +130,31 @@ test("importing the page chunk starts nothing, and the entry script does", async
     }
   });
   await page.goto("/");
-  expect(entryUrl, "The home page has no entry script to take out.").not.toBe(
-    "",
-  );
+  expect(
+    entryUrls.length,
+    "The home page has no entry script to take out.",
+  ).toBeGreaterThan(0);
+  await expect(
+    page.locator('script[type="module"]'),
+    "A module script stayed on the page, so the check below would prove nothing.",
+  ).toHaveCount(0);
 
-  await page.evaluate((url) => import(url), `/_astro/${pageChunkNames()[0]}`);
+  const pageChunkUrl = `/_astro/${pageChunkNames()[0]}`;
+  expect(entryUrls, "The page chunk is itself an entry script.").not.toContain(
+    pageChunkUrl,
+  );
+  await page.evaluate((url) => import(url), pageChunkUrl);
   await page.evaluate(
     () => new Promise((resolve) => requestAnimationFrame(resolve)),
   );
   expect(sceneRequests).toEqual([]);
   await expect(page.locator(`[${SCENE_STATE_ATTRIBUTE}]`)).toHaveCount(0);
 
-  await page.evaluate((url) => import(url), entryUrl);
+  // A page can have several entries in any order, and one of them starts the runtime.
+  await page.evaluate(
+    (urls) => Promise.all(urls.map((url) => import(url))),
+    entryUrls,
+  );
   await expect(page.locator(`[${SCENE_STATE_ATTRIBUTE}]`)).not.toHaveCount(0);
 });
 
