@@ -1,0 +1,6 @@
+<div class="now" role="group" aria-label="What I'm into right now">
+  <span class="now__label">Right now</span>
+  <ul class="now__list">
+    {% for k, v in c.NOW %}<li><span class="now__k">{{ k }}</span> <span class="now__v">{{ v }}</span></li>{% endfor %}
+  </ul>
+</div>

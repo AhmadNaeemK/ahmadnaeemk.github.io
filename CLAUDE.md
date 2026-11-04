@@ -6,7 +6,6 @@
 
 - **Project profile (stack, commands, branches, layout):** @.claude/rules/project.md
 - **Code standards:** @.claude/rules/code-standards.md
-- **React add-on:** @.claude/rules/react.md
 
 **Referenced** by the commands, skills, and agents that use them:
 

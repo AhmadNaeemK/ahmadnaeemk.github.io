@@ -1,0 +1,7 @@
+design/
+.claude/
+public/
+package-lock.json
+
+# The CRA deploy workflow stays byte-for-byte until the cut-over replaces it.
+.github/workflows/deploy.yml
