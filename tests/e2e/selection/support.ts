@@ -34,6 +34,15 @@ export const THEME_PAIRS = THEMES.flatMap((from) =>
 
 const FONT_HOSTS = /^https:\/\/fonts\.(googleapis|gstatic)\.com\//;
 
+/**
+ * WebKit logs this when the page's own `rel="preconnect"` finds no network, which
+ * is how these runs keep the fonts away, and more often under load. A route cannot
+ * reach a preconnect. Only this message is dropped: a font stylesheet that fails, or
+ * a preconnect to any other host, still counts.
+ */
+const BLOCKED_FONT_PRECONNECT =
+  /^Failed to preconnect to https:\/\/fonts\.(googleapis|gstatic)\.com\/\. Error: /;
+
 export const test = base.extend<{
   /** Every font stylesheet the page asked for, in order. */
   fontRequests: string[];
@@ -65,7 +74,10 @@ export const test = base.extend<{
       const watch = (page: Page) => {
         page.on("pageerror", (error) => problems.push(`uncaught: ${error}`));
         page.on("console", (message) => {
-          if (message.type() === "error") {
+          if (
+            message.type() === "error" &&
+            !BLOCKED_FONT_PRECONNECT.test(message.text())
+          ) {
             problems.push(`console: ${message.text()}`);
           }
         });
@@ -204,15 +216,26 @@ export async function sceneSettled(
   );
 }
 
-/** The showing theme's switcher, however its header is laid out. */
-export function switcherChoice(page: Page, theme: ThemeName): Locator {
-  return page
-    .getByRole("navigation", { name: "Design theme" })
-    .getByRole("link", { name: THEME_META[theme].label, exact: true });
+/** Hidden themes are out of the accessibility tree, so this is the showing theme's. */
+export function showingSwitcher(page: Page): Locator {
+  return page.getByRole("navigation", { name: "Design theme" });
 }
 
-/** A real click, for when the page's scroll position does not matter. */
+export function switcherToggle(page: Page): Locator {
+  return showingSwitcher(page).getByRole("button", { name: /^Design theme:/ });
+}
+
+/** The showing theme's link for a theme, found whether or not the list is open. */
+export function switcherChoice(page: Page, theme: ThemeName): Locator {
+  return showingSwitcher(page).getByRole("link", {
+    name: new RegExp(`^${THEME_META[theme].label}\\b`),
+    includeHidden: true,
+  });
+}
+
+/** Real clicks, for when the page's scroll position does not matter. */
 export async function pickTheme(page: Page, theme: ThemeName): Promise<void> {
+  await switcherToggle(page).click();
   await switcherChoice(page, theme).click();
 }
 

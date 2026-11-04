@@ -1,101 +1,283 @@
 ---
-/** STUB, replaced by Task 7. Carries every hook the contract asks of a theme. */
-import RightNow from "../../components/RightNow.astro";
+import { Image } from "astro:assets";
 import ThemeSwitcher from "../../components/ThemeSwitcher.astro";
-import { LIVERY_LABELS, LIVERY_ORDER, SPEEDS } from "../../rail";
-import {
-  NAV_SECTIONS,
-  sectionId,
-  type NowItem,
-  type ThemeName,
-} from "../../scene/contract";
+import { getSiteContent } from "../../content/site";
+import { NAV_SECTIONS, sectionId, type ThemeName } from "../../scene/contract";
+import Hero from "./Hero.astro";
+import { LINES } from "./lines";
 import "./tokens.css";
 import "./theme.css";
+import "./hero.css";
+import "./sections.css";
+import "./about.css";
+import "./work.css";
+import "./projects.css";
+import "./skills.css";
+import "./contact.css";
 
 const theme: ThemeName = "interchange";
-// Real themes read this and everything else from getSiteContent().
-const stubNow: NowItem[] = [
-  { label: "Stub", value: "Interchange first item" },
-  { label: "Also", value: "Interchange second item" },
-];
+const { profile, experience, education, projects, skills } =
+  await getSiteContent();
+const [aboutLine, workLine, projectsLine, skillsLine, contactLine] = LINES;
+const [city] = profile.location.split(",");
+const lastEducationId = education.at(-1)?.id;
+const LOGO_RENDER_PX = 104;
+const CONTACT_PHOTO_RENDER_PX = 144;
 ---
 
 <div data-rail-theme-root={theme}>
   <header class="top">
-    <a class="mark" href={`#${sectionId(theme, "top")}`}>
-      Ahmad Naeem
-    </a>
-    <nav aria-label="Sections">
-      {NAV_SECTIONS.map(({ key, label }) => (
-        <a href={`#${sectionId(theme, key)}`}>{label}</a>
-      ))}
-    </nav>
-    <ThemeSwitcher current={theme} />
-    <button type="button" data-theme-toggle aria-label="Switch to dark theme">
-      <span aria-hidden="true">&#9680;</span>
-    </button>
-    <a href="/Ahmad_Naeem_CV.pdf" download data-cv>
-      Download CV
-    </a>
+    <div class="top__in">
+      <a
+        class="mark"
+        href={`#${sectionId(theme, "top")}`}
+        aria-label={`${profile.name}, back to top`}
+      >
+        <span
+          class="mark__dot"
+          aria-hidden="true"
+          data-letter={aboutLine.letter}
+        ></span>
+        <span class="mark__name">{profile.name}</span>
+      </a>
+      <nav class="nav" aria-label="Sections">
+        {NAV_SECTIONS.map(({ key, label }) => (
+          <a href={`#${sectionId(theme, key)}`}>{label}</a>
+        ))}
+      </nav>
+      <div class="top__actions">
+        <ThemeSwitcher current={theme} />
+        <button
+          class="icon-btn"
+          type="button"
+          data-theme-toggle
+          aria-pressed="false"
+          aria-label="Switch to dark theme"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <circle cx="12" cy="12" r="5" fill="currentColor"></circle>
+            <path
+              d="M12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            ></path>
+          </svg>
+        </button>
+        <a class="btn btn--solid" href={profile.cv} download data-cv>
+          Download CV
+        </a>
+      </div>
+    </div>
   </header>
 
   <main id={sectionId(theme, "top")}>
-    <section data-rail-hero tabindex="-1" aria-label="Introduction">
-      <div class="scene-frame">
-        <div class="scene">
-          <canvas
-            data-rail-canvas
-            role="img"
-            aria-label="A train runs around a ring of track. Interchange stub scene."
-          ></canvas>
-          <p data-rail-static>Interchange stub: the static hero.</p>
-        </div>
-      </div>
-      <div data-rail-controls role="group" aria-label="Train controls">
-        <button type="button" data-rail-toggle aria-pressed="false">
-          <span data-rail-label>Stop the train</span>
-        </button>
-        <div role="group" aria-label="Speed">
-          {SPEEDS.map((_, index) => (
-            <button
-              type="button"
-              data-rail-speed={index}
-              aria-label={`Speed ${index + 1} of ${SPEEDS.length}`}
-              aria-pressed="false"
-            >
-              {index + 1}
-            </button>
+    <Hero profile={profile} />
+
+    <section id={sectionId(theme, "about")} class="sec">
+      <div class="wrap about">
+        <div class="about__text">
+          <h2 class="h2">
+            <span class={`bullet line-${aboutLine.color}`} aria-hidden="true">
+              {aboutLine.letter}
+            </span>
+            About
+          </h2>
+          {profile.about.map((paragraph) => (
+            <p>{paragraph}</p>
           ))}
         </div>
-        <div role="group" aria-label="Choose a train">
-          {LIVERY_ORDER.map((id) => (
-            <button type="button" data-rail-livery={id} aria-pressed="false">
-              {LIVERY_LABELS[id]}
-            </button>
-          ))}
-        </div>
+        <aside class="about__side">
+          <figure class="sign">
+            <div class="sign__lines" aria-hidden="true">
+              {LINES.map(({ color }) => (
+                <i class={`line-${color}`} />
+              ))}
+            </div>
+            <Image
+              class="sign__photo"
+              src={profile.portrait}
+              alt={profile.portraitAlt}
+            />
+            <figcaption>
+              <p class="sign__name">{profile.name}</p>
+              <p class="sign__sub">{city}</p>
+              <p class="sign__bullets" aria-hidden="true">
+                {LINES.map(({ letter, color }) => (
+                  <span class={`line-${color}`}>{letter}</span>
+                ))}
+              </p>
+            </figcaption>
+          </figure>
+        </aside>
       </div>
-      <RightNow items={stubNow} />
-      <h1>Ahmad Naeem</h1>
     </section>
 
-    {NAV_SECTIONS.map(({ key, label }) => (
-      <section id={sectionId(theme, key)}>
-        <h2>{label}</h2>
-        <p>Interchange stub section.</p>
-        {key === "contact" && (
-          <p>
-            <span data-copy-target>stub@example.com</span>
-            <button type="button" data-copy="stub@example.com">
-              <span data-copy-label>Copy email</span>
-            </button>
-          </p>
-        )}
-      </section>
-    ))}
+    <section id={sectionId(theme, "work")} class="sec">
+      <div class="wrap">
+        <h2 class="h2">
+          <span class={`bullet line-${workLine.color}`} aria-hidden="true">
+            {workLine.letter}
+          </span>
+          Work
+        </h2>
+        <ol class="line">
+          {experience.map((job) => (
+            <li class="stop">
+              <div class="stop__time">
+                <span>{job.startLabel}</span>
+                <span>{job.endLabel}</span>
+              </div>
+              <div class="stop__body">
+                <h3>
+                  {job.title}
+                  <span class="stop__org">{job.org}</span>
+                </h3>
+                <ul>
+                  {job.points.map((point) => (
+                    <li>{point}</li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ))}
+          {education.map((school) => (
+            <li
+              class:list={[
+                "stop",
+                { "stop--end": school.id === lastEducationId },
+              ]}
+            >
+              <div class="stop__time">
+                <span>{school.startLabel}</span>
+                <span>{school.endLabel}</span>
+              </div>
+              <div class="stop__body">
+                <h3>{school.degree}</h3>
+                <p class="stop__meta">
+                  {school.school}, {school.place}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <section id={sectionId(theme, "projects")} class="sec">
+      <div class="wrap">
+        <h2 class="h2">
+          <span class={`bullet line-${projectsLine.color}`} aria-hidden="true">
+            {projectsLine.letter}
+          </span>
+          Projects
+        </h2>
+        <p class="lede">Products I built at Arbisoft for US startups.</p>
+        <div class="routes">
+          {projects.map((project) => (
+            <article class={`route line-${project.color}`}>
+              <header class="route__head">
+                <Image
+                  class="route__logo"
+                  src={project.logo}
+                  alt={`${project.name} logo`}
+                  width={LOGO_RENDER_PX}
+                  height={LOGO_RENDER_PX}
+                />
+                <div>
+                  <h3>{project.name}</h3>
+                  <p class="route__blurb">{project.blurb}</p>
+                </div>
+              </header>
+              <p class="route__meta">
+                <span>{project.role}</span>
+                <span>
+                  {project.startLabel} – {project.endLabel}
+                </span>
+              </p>
+              <ol class="route__pts">
+                {project.points.map((point) => (
+                  <li>{point}</li>
+                ))}
+                <li class="route__end">{project.tech.join(", ")}</li>
+              </ol>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section id={sectionId(theme, "skills")} class="sec">
+      <div class="wrap">
+        <h2 class="h2">
+          <span class={`bullet line-${skillsLine.color}`} aria-hidden="true">
+            {skillsLine.letter}
+          </span>
+          Skills
+        </h2>
+        <div class="skills">
+          {skills.map(({ group, items }) => (
+            <div class="skills__row">
+              <h3>{group}</h3>
+              <ul>
+                {items.map((skill) => (
+                  <li>{skill}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section id={sectionId(theme, "contact")} class="sec sec--end">
+      <div class="wrap contact">
+        <h2 class="h2">
+          <span class={`bullet line-${contactLine.color}`} aria-hidden="true">
+            {contactLine.letter}
+          </span>
+          Contact
+        </h2>
+        <p class="contact__lead">
+          The fastest way to reach me is email. I'm happy to talk about a
+          product, a role, or a good story.
+        </p>
+        <div class="contact__mail">
+          <Image
+            class="contact__photo"
+            src={profile.contactPhoto}
+            alt=""
+            width={CONTACT_PHOTO_RENDER_PX}
+            height={CONTACT_PHOTO_RENDER_PX}
+          />
+          <span class="contact__addr" data-copy-target>
+            {profile.email}
+          </span>
+          <button class="btn" type="button" data-copy={profile.email}>
+            <span data-copy-label>Copy email</span>
+          </button>
+        </div>
+        <ul class="contact__links">
+          <li>
+            <a href={profile.linkedin} target="_blank" rel="noopener">
+              LinkedIn
+            </a>
+            <span>{profile.linkedinLabel}</span>
+          </li>
+          <li>
+            <a href={profile.github} target="_blank" rel="noopener">
+              GitHub
+            </a>
+            <span>{profile.githubLabel}</span>
+          </li>
+        </ul>
+      </div>
+    </section>
   </main>
 
-  <footer>
-    &copy; <span data-year>2026</span> Ahmad Naeem
+  <footer class="foot">
+    <div class="wrap">
+      &copy; <span data-year>{new Date().getUTCFullYear()}</span> {profile.name}
+    </div>
   </footer>
 </div>

@@ -51,16 +51,36 @@ html[data-rail-theme="pixel-depot"] [data-rail-theme-root="pixel-depot"] {
   display: block;
 }
 
-/* The canvas and controls appear only once a scene runs, so no JavaScript and a
-   failed load both land on the static hero. !important so a theme can set its
-   own display on these elements without undoing this. */
+/* Holds the canvas parent, the controls and "Right now", and answers the size
+   queries for them, so a theme's hero keeps its height when its scene starts. */
+[data-rail-scene-frame] {
+  container: rail-scene / inline-size;
+  position: relative;
+}
+
+/* The canvas appears only once a scene runs, so no JavaScript and a failed load
+   both land on the static hero. !important so a theme can set its own display on
+   these elements without undoing this. */
 [data-rail-theme-root]:not(
     [data-scene-state="running"],
     [data-scene-state="paused"]
   )
-  :is([data-rail-canvas], [data-rail-controls]),
+  [data-rail-canvas],
 [data-scene-state="running"] [data-rail-static],
 [data-scene-state="paused"] [data-rail-static] {
+  display: none !important;
+}
+/* The controls keep their space until a scene runs, unseen and out of the tab
+   order and the accessibility tree. */
+[data-rail-theme-root]:not(
+    [data-scene-state="running"],
+    [data-scene-state="paused"]
+  )
+  [data-rail-controls] {
+  visibility: hidden !important;
+}
+/* No scene is coming, so there is nothing to keep the space for. */
+[data-scene-state="failed"] [data-rail-controls] {
   display: none !important;
 }
 
@@ -68,7 +88,8 @@ html[data-rail-theme="pixel-depot"] [data-rail-theme-root="pixel-depot"] {
 @media (scripting: none) {
   [data-theme-toggle],
   [data-copy],
-  [data-theme-switcher] {
+  [data-theme-switcher],
+  [data-rail-controls] {
     display: none !important;
   }
 }
@@ -101,6 +122,22 @@ html[data-rail-theme="pixel-depot"] [data-rail-theme-root="pixel-depot"] {
 .now__k,
 .now__v {
   overflow-wrap: anywhere;
+}
+/* Where a billboard will be drawn, the line never takes space in the frame, so the
+   board taking over moves nothing. Until then it overlays the frame's bottom edge.
+   On a failure no board is coming and the controls have gone, so it returns to the
+   flow rather than cover the static hero. 600px repeats COMPACT_SCENE_WIDTH. */
+@media (scripting: enabled) {
+  @container rail-scene (width >= 600px) {
+    [data-rail-theme-root]:not([data-scene-state="failed"])
+      [data-rail-scene-frame]
+      > .now {
+      position: absolute !important;
+      inset: auto 0 0;
+      margin: 0;
+      z-index: 1;
+    }
+  }
 }
 /* The billboard is drawn, so the line stays for screen readers only. !important
    because themes may style .now, and any of these would then show the line. */

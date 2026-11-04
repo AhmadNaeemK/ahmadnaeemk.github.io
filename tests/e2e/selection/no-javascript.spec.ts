@@ -6,9 +6,8 @@ import {
 } from "../../../src/scene/contract";
 import { fontStylesheetUrl, test, THEMES, themeRoot } from "./support";
 
-// Locators only in this file: `evaluate` and `addStyleTag` can hang with
-// JavaScript off, and this has to stay the real thing, because `<noscript>` and
-// `@media (scripting: none)` respond to nothing else.
+// JavaScript stays really off, because `<noscript>` and `@media (scripting: none)`
+// respond to nothing else. `addStyleTag` can hang like this.
 test.use({ javaScriptEnabled: false });
 
 for (const path of ["/", "/#diorama", "/#b-about"]) {
@@ -52,6 +51,44 @@ for (const path of ["/", "/#diorama", "/#b-about"]) {
     });
   });
 }
+
+test.describe("at full width", () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test("Right now sits below the static hero, not over it", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const root = themeRoot(page, "interchange");
+    const hero = await root.locator(THEME_HOOKS.staticHero).boundingBox();
+    const line = await root.locator(".now").boundingBox();
+    if (!hero || !line)
+      throw new Error("The static hero or line is not showing.");
+    expect(line.y).toBeGreaterThanOrEqual(hero.y + hero.height - 1);
+    // Nothing will ever fill the controls, so they take no space.
+    expect(await root.locator(THEME_HOOKS.controls).boundingBox()).toBeNull();
+  });
+});
+
+test.describe("at 320 px", () => {
+  test.use({ viewport: { width: 320, height: 640 } });
+
+  test("the static hero fits its box without clipping", async ({ page }) => {
+    await page.goto("/");
+    const staticHero = themeRoot(page, "interchange").locator(
+      THEME_HOOKS.staticHero,
+    );
+    // Counts what `overflow: hidden` would cut off, which toBeVisible cannot see.
+    const overflowing = await staticHero.evaluate((element) =>
+      [element, element.parentElement].flatMap((box) =>
+        box && box.scrollHeight > box.clientHeight + 1
+          ? [`${box.tagName}: ${box.scrollHeight} in ${box.clientHeight}`]
+          : [],
+      ),
+    );
+    expect(overflowing).toEqual([]);
+  });
+});
 
 test("only Interchange's font is requested", async ({ page, fontRequests }) => {
   await page.goto("/#diorama");

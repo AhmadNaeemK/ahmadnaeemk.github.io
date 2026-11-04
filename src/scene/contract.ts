@@ -28,6 +28,7 @@ export type NowMode = "board" | "html";
 /** Selectors for the hooks a theme's static part must put in its markup. */
 export const THEME_HOOKS = {
   hero: "[data-rail-hero]",
+  sceneFrame: "[data-rail-scene-frame]",
   canvas: "[data-rail-canvas]",
   staticHero: "[data-rail-static]",
   controls: "[data-rail-controls]",
@@ -102,6 +103,25 @@ export function isThemeName(value: unknown): value is ThemeName {
  */
 export function resolveThemeName(value: unknown): ThemeName {
   return isThemeName(value) ? value : DEFAULT_THEME;
+}
+
+/** The theme selected on `<html>`, whatever wrote the attribute. */
+export function showingTheme(): ThemeName {
+  return resolveThemeName(
+    document.documentElement.getAttribute(THEME_ATTRIBUTE),
+  );
+}
+
+/** A theme's outermost element, or null on a page that does not render it. */
+export function themeRootElement(theme: ThemeName): HTMLElement | null {
+  return document.querySelector(`[${THEME_ROOT_ATTRIBUTE}="${theme}"]`);
+}
+
+/** The scheme picked on `<html>`, or the system's when none is picked. */
+export function effectiveColorScheme(): ColorScheme {
+  const picked = document.documentElement.getAttribute(COLOR_SCHEME_ATTRIBUTE);
+  if (picked === "light" || picked === "dark") return picked;
+  return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 /** The DOM id of a section in a theme, such as `b-about`. */

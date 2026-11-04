@@ -8,6 +8,9 @@ import type { ThemeName } from "./contract";
  * thing to change: one seed for everyone, a saved livery
  * wins, otherwise a first visit gets the default of the theme shown first.
  * The prototypes used seeds 11, 23 and 31; 11 is the default theme's.
+ * For the user to confirm: with no saved livery, picking Diorama and reloading
+ * changes the train from metro to steam, because the world restarts from the
+ * default of the theme now shown.
  */
 export const WORLD_START: {
   readonly seed: number;

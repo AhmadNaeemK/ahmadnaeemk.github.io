@@ -1,101 +1,40 @@
 ---
-/** STUB, replaced by Task 9. Carries every hook the contract asks of a theme. */
-import RightNow from "../../components/RightNow.astro";
-import ThemeSwitcher from "../../components/ThemeSwitcher.astro";
-import { LIVERY_LABELS, LIVERY_ORDER, SPEEDS } from "../../rail";
-import {
-  NAV_SECTIONS,
-  sectionId,
-  type NowItem,
-  type ThemeName,
-} from "../../scene/contract";
+/**
+ * Pixel Depot: a cosy pixel-art town and a game menu around it. Each section reads
+ * its own content through `getSiteContent()`, as `<RightNow />` does, so nothing
+ * passes content down as props.
+ */
+import { getSiteContent } from "../../content/site";
+import { sectionId } from "../../scene/contract";
+import About from "./sections/About.astro";
+import Contact from "./sections/Contact.astro";
+import Header from "./sections/Header.astro";
+import Hero from "./sections/Hero.astro";
+import Projects from "./sections/Projects.astro";
+import Skills from "./sections/Skills.astro";
+import Work from "./sections/Work.astro";
+import { THEME } from "./theme-name";
 import "./tokens.css";
 import "./theme.css";
+import "./hero.css";
+import "./sections/common.css";
 
-const theme: ThemeName = "pixel-depot";
-// Real themes read this and everything else from getSiteContent().
-const stubNow: NowItem[] = [
-  { label: "Stub", value: "Pixel Depot first item" },
-  { label: "Also", value: "Pixel Depot second item" },
-];
+const { profile } = await getSiteContent();
 ---
 
-<div data-rail-theme-root={theme}>
-  <header class="top">
-    <a class="mark" href={`#${sectionId(theme, "top")}`}>
-      Ahmad Naeem
-    </a>
-    <nav aria-label="Sections">
-      {NAV_SECTIONS.map(({ key, label }) => (
-        <a href={`#${sectionId(theme, key)}`}>{label}</a>
-      ))}
-    </nav>
-    <ThemeSwitcher current={theme} />
-    <button type="button" data-theme-toggle aria-label="Switch to dark theme">
-      <span aria-hidden="true">&#9680;</span>
-    </button>
-    <a href="/Ahmad_Naeem_CV.pdf" download data-cv>
-      Download CV
-    </a>
-  </header>
-
-  <main id={sectionId(theme, "top")}>
-    <section data-rail-hero tabindex="-1" aria-label="Introduction">
-      <div class="scene-frame">
-        <div class="scene">
-          <canvas
-            data-rail-canvas
-            role="img"
-            aria-label="A train runs around a ring of track. Pixel Depot stub scene."
-          ></canvas>
-          <p data-rail-static>Pixel Depot stub: the static hero.</p>
-        </div>
-      </div>
-      <div data-rail-controls role="group" aria-label="Train controls">
-        <button type="button" data-rail-toggle aria-pressed="false">
-          <span data-rail-label>Stop the train</span>
-        </button>
-        <div role="group" aria-label="Speed">
-          {SPEEDS.map((_, index) => (
-            <button
-              type="button"
-              data-rail-speed={index}
-              aria-label={`Speed ${index + 1} of ${SPEEDS.length}`}
-              aria-pressed="false"
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
-        <div role="group" aria-label="Choose a train">
-          {LIVERY_ORDER.map((id) => (
-            <button type="button" data-rail-livery={id} aria-pressed="false">
-              {LIVERY_LABELS[id]}
-            </button>
-          ))}
-        </div>
-      </div>
-      <RightNow items={stubNow} />
-      <h1>Ahmad Naeem</h1>
-    </section>
-
-    {NAV_SECTIONS.map(({ key, label }) => (
-      <section id={sectionId(theme, key)}>
-        <h2>{label}</h2>
-        <p>Pixel Depot stub section.</p>
-        {key === "contact" && (
-          <p>
-            <span data-copy-target>stub@example.com</span>
-            <button type="button" data-copy="stub@example.com">
-              <span data-copy-label>Copy email</span>
-            </button>
-          </p>
-        )}
-      </section>
-    ))}
+<div data-rail-theme-root={THEME}>
+  <Header />
+  <main id={sectionId(THEME, "top")}>
+    <Hero />
+    <About />
+    <Work />
+    <Projects />
+    <Skills />
+    <Contact />
   </main>
-
-  <footer>
-    &copy; <span data-year>2026</span> Ahmad Naeem
+  <footer class="foot">
+    <div class="wrap">
+      &copy; <span data-year>2026</span> {profile.name}
+    </div>
   </footer>
 </div>

@@ -158,26 +158,74 @@ test.describe("by mouse", () => {
 });
 
 test.describe("asking the scene about the train", () => {
+  /**
+   * Within 1 px, not exactly: a canvas at a fractional position reports a point such
+   * as 39.6875 in Chromium and 39.703125 in WebKit, and 1 px is far inside any hit
+   * radius.
+   */
+  const POINT_TOLERANCE = 1;
+  const inside = { x: 30, y: 40 };
+
+  async function expectAskedNear(
+    page: Page,
+    expected: { x: number; y: number },
+    radius: number,
+  ): Promise<void> {
+    await expect
+      .poll(async () => {
+        const asked = await page.evaluate(
+          () => window.__sceneSpy.lastHitTrainArgs,
+        );
+        if (!asked) return "nothing asked yet";
+        const [point, askedRadius] = asked as [
+          { x: number; y: number },
+          number,
+        ];
+        const near =
+          Math.abs(point.x - expected.x) <= POINT_TOLERANCE &&
+          Math.abs(point.y - expected.y) <= POINT_TOLERANCE;
+        return near && askedRadius === radius
+          ? "as expected"
+          : `${JSON.stringify(point)} at radius ${askedRadius}`;
+      })
+      .toBe("as expected");
+  }
+
+  async function expectHoverAndPressAskNear(page: Page): Promise<void> {
+    const box = await canvas(page, "interchange").boundingBox();
+    if (!box) throw new Error("The canvas is not showing.");
+
+    await page.mouse.move(box.x + inside.x, box.y + inside.y);
+    await expectAskedNear(page, inside, HIT_RADIUS.hover);
+
+    await page.mouse.click(box.x + inside.x, box.y + inside.y);
+    await expectAskedNear(page, inside, HIT_RADIUS.click);
+  }
+
   test("hover and press ask with canvas-relative points and the contract's radii", async ({
     page,
   }) => {
     await instrumentScenes(page);
     await openScenePage(page);
-    const box = await canvas(page, "interchange").boundingBox();
-    if (!box) throw new Error("The canvas is not showing.");
-    const lastAsked = () =>
-      page.evaluate(() => window.__sceneSpy.lastHitTrainArgs);
-    const inside = { x: 30, y: 40 };
+    await expectHoverAndPressAskNear(page);
+  });
 
-    await page.mouse.move(box.x + inside.x, box.y + inside.y);
+  test("hover and press stay canvas-relative with the canvas at a fractional position", async ({
+    page,
+  }) => {
+    await instrumentScenes(page);
+    await openScenePage(page);
+    await page.addStyleTag({
+      content: `[data-rail-hero] { padding-top: 10.37px !important; }`,
+    });
     await expect
-      .poll(lastAsked)
-      .toEqual([expect.objectContaining(inside), HIT_RADIUS.hover]);
+      .poll(async () => {
+        const box = await canvas(page, "interchange").boundingBox();
+        return box ? box.y % 1 : 0;
+      })
+      .not.toBe(0);
 
-    await page.mouse.click(box.x + inside.x, box.y + inside.y);
-    await expect
-      .poll(lastAsked)
-      .toEqual([expect.objectContaining(inside), HIT_RADIUS.click]);
+    await expectHoverAndPressAskNear(page);
   });
 });
 

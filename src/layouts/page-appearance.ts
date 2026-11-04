@@ -5,11 +5,12 @@
  */
 import {
   COLOR_SCHEME_ATTRIBUTE,
-  resolveThemeName,
+  effectiveColorScheme,
+  showingTheme,
   STORAGE_KEYS,
   THEME_ATTRIBUTE,
   THEME_HOOKS,
-  THEME_ROOT_ATTRIBUTE,
+  themeRootElement,
   type ColorScheme,
   type ThemeName,
 } from "../scene/contract";
@@ -31,10 +32,7 @@ export function startPageAppearance(): void {
   const systemDark = matchMedia("(prefers-color-scheme: dark)");
   const requestedFonts = new Set<ThemeName>();
 
-  const isDark = () => {
-    const picked = html.getAttribute(COLOR_SCHEME_ATTRIBUTE);
-    return picked === "dark" || (picked !== "light" && systemDark.matches);
-  };
+  const isDark = () => effectiveColorScheme() === "dark";
 
   function requestFontStylesheet(theme: ThemeName): void {
     if (requestedFonts.has(theme)) return;
@@ -50,7 +48,7 @@ export function startPageAppearance(): void {
    * cannot flow up to `html`, so the showing theme's `--bg` is copied there.
    */
   function syncPageCanvas(theme: ThemeName): void {
-    const root = document.querySelector(`[${THEME_ROOT_ATTRIBUTE}="${theme}"]`);
+    const root = themeRootElement(theme);
     const canvas = root && getComputedStyle(root).getPropertyValue("--bg");
     if (canvas) html.style.setProperty(PAGE_CANVAS_PROPERTY, canvas.trim());
     else html.style.removeProperty(PAGE_CANVAS_PROPERTY);
@@ -70,7 +68,7 @@ export function startPageAppearance(): void {
   }
 
   function sync(): void {
-    const theme = resolveThemeName(html.getAttribute(THEME_ATTRIBUTE));
+    const theme = showingTheme();
     requestFontStylesheet(theme);
     syncPageCanvas(theme);
     syncToggles();

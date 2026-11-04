@@ -1,66 +1,220 @@
-/* STUB, replaced with the theme. Every rule sits under this theme's root. */
+/* Pixel Depot: a pixel face for headings and UI, a very readable face for running
+   text, and panels with notched pixel borders. Every rule sits under this root. */
 [data-rail-theme-root="pixel-depot"] {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: ui-monospace, monospace;
+  --notch-2:
+    0 -2px 0 0 var(--line), 0 2px 0 0 var(--line), -2px 0 0 0 var(--line),
+    2px 0 0 0 var(--line);
+  --notch-3:
+    0 -3px 0 0 var(--line), 0 3px 0 0 var(--line), -3px 0 0 0 var(--line),
+    3px 0 0 0 var(--line);
+  --notch-4:
+    0 -4px 0 0 var(--line), 0 4px 0 0 var(--line), -4px 0 0 0 var(--line),
+    4px 0 0 0 var(--line);
+  /* The pinned header's height, which a section link has to land below. */
+  --top-height: 72px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --gutter-left: max(18px, env(safe-area-inset-left, 0px));
+  --gutter-right: max(18px, env(safe-area-inset-right, 0px));
 
-  /* Reserves the scene's height before it loads. 600px repeats COMPACT_SCENE_WIDTH.
-     The query sits on the canvas parent's parent, whose content box the parent
-     fills, so it measures what the scene measures. */
-  & .scene-frame {
-    container-type: inline-size;
+  box-sizing: border-box;
+  /* Sticky `top` alone moves the header down over what follows it. */
+  padding-top: var(--safe-top);
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--bg2) 1.5px, transparent 1.6px);
+  background-size: 12px 12px;
+  color: var(--ink);
+  font-family: var(--fb);
+  font-size: 1.05rem;
+  line-height: 1.65;
+
+  @media (max-width: 1120px) {
+    --top-height: 104px;
   }
-  & .scene {
-    aspect-ratio: 768 / 302;
-    @container (width < 600px) {
-      aspect-ratio: 768 / 264;
-    }
+  @media (max-width: 480px) {
+    --top-height: 136px;
   }
-  & [data-rail-static] {
-    height: 100%;
-    margin: 0;
+  @media (max-width: 380px) {
+    --top-height: 176px;
+  }
+
+  & * {
+    box-sizing: border-box;
   }
   & a {
     color: inherit;
   }
-  & button {
-    color: inherit;
-    background: var(--surface);
-    border: 1px solid var(--muted);
-    font: inherit;
-    padding: 4px 8px;
-  }
-  & .top {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-  }
-  & .top nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
+  & :focus-visible {
+    outline: 3px dashed var(--gold);
+    outline-offset: 3px;
   }
   & main,
-  & footer {
-    padding: 0 16px 16px;
+  & .sec {
+    scroll-margin-top: calc(var(--safe-top) + var(--top-height));
   }
-  & [data-rail-controls],
-  & [data-rail-controls] > div {
+  & .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-left: var(--gutter-left);
+    padding-right: var(--gutter-right);
+  }
+
+  & .panel {
+    position: relative;
+    background: var(--panel);
+    box-shadow:
+      var(--notch-4),
+      8px 8px 0 0 var(--drop);
+  }
+
+  & .px-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 0;
+    padding: 8px 14px;
+    background: var(--red-fill);
+    color: var(--on-red);
+    box-shadow:
+      var(--notch-3),
+      inset 0 -4px 0 0 var(--press-shadow);
+    font: 500 1rem var(--fp);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  & .px-btn:hover {
+    transform: translateY(1px);
+    box-shadow:
+      var(--notch-3),
+      inset 0 -2px 0 0 var(--press-shadow);
+  }
+  & .px-btn--ghost {
+    background: var(--panel);
+    color: var(--ink);
+  }
+  & .px-btn--big {
+    padding: 12px 20px;
+    font-size: 1.15rem;
+  }
+
+  /* Header */
+  & .top {
+    position: sticky;
+    top: var(--safe-top);
+    z-index: 5;
+    background: var(--bg);
+    border-bottom: 4px solid var(--line);
+  }
+  & .top__in {
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-block: 12px;
+    padding-left: var(--gutter-left);
+    padding-right: var(--gutter-right);
+  }
+  & .top .px-btn {
+    white-space: nowrap;
+  }
+  & .mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font: 700 1.3rem var(--fp);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  & .mark__px {
+    width: 18px;
+    height: 18px;
+    background:
+      linear-gradient(var(--red) 0 0) 0 0 / 6px 6px no-repeat,
+      linear-gradient(var(--gold) 0 0) 6px 6px / 6px 6px no-repeat,
+      linear-gradient(var(--teal) 0 0) 12px 12px / 6px 6px no-repeat,
+      linear-gradient(var(--sky) 0 0) 12px 0 / 6px 6px no-repeat,
+      linear-gradient(var(--plum) 0 0) 0 12px / 6px 6px no-repeat;
+  }
+  & .menu {
+    display: flex;
     gap: 6px;
-    margin-top: 8px;
+    margin-left: auto;
   }
-  & canvas {
+  & .menu a {
+    position: relative;
+    padding: 4px 8px 4px 18px;
+    font: 500 1rem var(--fp);
+    text-decoration: none;
+  }
+  & .menu a::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    margin-top: -5px;
+    border: 5px solid transparent;
+    border-left: 7px solid var(--red);
+    opacity: 0;
+  }
+  & .menu a:hover::before,
+  & .menu a:focus-visible::before {
+    opacity: 1;
+  }
+  & .theme {
+    padding: 8px;
+  }
+  & .theme__icon {
     display: block;
-    image-rendering: pixelated;
+    width: 18px;
+    height: 18px;
+    background:
+      linear-gradient(var(--gold) 0 0) 6px 0 / 6px 18px no-repeat,
+      linear-gradient(var(--gold) 0 0) 0 6px / 18px 6px no-repeat,
+      linear-gradient(var(--gold) 0 0) 3px 3px / 12px 12px no-repeat;
   }
-  & .now {
-    margin-top: 8px;
-    padding: 6px 10px;
-    background: var(--board);
-    color: var(--board-ink);
+  & .theme[aria-pressed="true"] .theme__icon {
+    background:
+      linear-gradient(var(--gold) 0 0) 3px 0 / 9px 3px no-repeat,
+      linear-gradient(var(--gold) 0 0) 0 3px / 6px 12px no-repeat,
+      linear-gradient(var(--gold) 0 0) 3px 15px / 9px 3px no-repeat,
+      linear-gradient(var(--gold) 0 0) 6px 12px / 9px 3px no-repeat;
+  }
+  & .dd__btn {
+    border-width: 3px;
+    border-radius: 0;
+    font-family: var(--fp);
+    font-weight: 500;
+  }
+  & .dd__list {
+    border-width: 3px;
+    border-radius: 0;
+  }
+  @media (max-width: 1120px) {
+    & .top__in {
+      flex-wrap: wrap;
+      row-gap: 8px;
+    }
+    & .top [data-theme-switcher] {
+      margin-left: auto;
+    }
+    & .menu {
+      order: 3;
+      width: 100%;
+      margin: 0;
+      overflow-x: auto;
+    }
+    /* A scrolling box clips an outline that sits outside its links. */
+    & .menu a:focus-visible {
+      outline-offset: -3px;
+    }
+    & .top__in > .px-btn:not(.theme) {
+      display: none;
+    }
+  }
+
+  & .foot {
+    padding-block: 20px max(40px, env(safe-area-inset-bottom, 0px));
+    color: var(--muted);
+    font: 500 0.95rem var(--fp);
   }
 }
