@@ -21,7 +21,6 @@ const FEWEST_TRACK_COLOURS = 5;
 const SMALLEST_TRACK_SHARE = 0.002;
 const SMALLEST_DRAWN_SHARE = 0.05;
 
-const HINT = /tap the train/i;
 const NARROW = { width: 320, height: 640 };
 
 async function expectTracksDrawn(
@@ -53,26 +52,21 @@ for (const colorScheme of ["light", "dark"] as const) {
       // Really off: `@media (scripting: none)` responds to nothing else.
       noScriptTest.use({ javaScriptEnabled: false, viewport, colorScheme });
 
-      noScriptTest(
-        "the tracks show, and the hint about the train takes no space",
-        async ({ page }) => {
-          await page.goto("/");
-          const interchange = themeRoot(page, THEME);
-          await expectTracksDrawn(
-            page,
-            interchange.locator(THEME_HOOKS.staticHero),
-          );
-          await expect(interchange.getByText(HINT)).toHaveCount(1);
-          expect(await interchange.getByText(HINT).boundingBox()).toBeNull();
-        },
-      );
+      noScriptTest("the tracks show", async ({ page }) => {
+        await page.goto("/");
+        const interchange = themeRoot(page, THEME);
+        await expectTracksDrawn(
+          page,
+          interchange.locator(THEME_HOOKS.staticHero),
+        );
+      });
     });
 
     sceneTest.describe(`after a scene chunk fails (${where})`, () => {
       sceneTest.use({ viewport, colorScheme });
 
       sceneTest(
-        "the tracks show, and the hint about the train takes no space",
+        "the tracks show, and the controls for a train do not",
         async ({ page, problems }) => {
           await failSceneChunks(page);
           await openScenePage(page, { waitForRunning: false });
@@ -85,23 +79,13 @@ for (const colorScheme of ["light", "dark"] as const) {
           );
           await expect(canvas(page, THEME)).toBeHidden();
           await expect(toggle(page, THEME)).toBeHidden();
-          await expect(root(page, THEME).getByText(HINT)).toHaveCount(1);
-          expect(
-            await root(page, THEME).getByText(HINT).boundingBox(),
-          ).toBeNull();
         },
       );
     });
   }
 }
 
-sceneTest(
-  "with a scene running, the hint shows and the tracks give way",
-  async ({ page }) => {
-    await openScenePage(page);
-    await expect(root(page, THEME).getByText(HINT)).toBeVisible();
-    await expect(
-      root(page, THEME).locator(THEME_HOOKS.staticHero),
-    ).toBeHidden();
-  },
-);
+sceneTest("with a scene running, the tracks give way", async ({ page }) => {
+  await openScenePage(page);
+  await expect(root(page, THEME).locator(THEME_HOOKS.staticHero)).toBeHidden();
+});

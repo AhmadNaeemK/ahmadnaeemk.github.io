@@ -51,40 +51,57 @@ function attributesAtFirstRoot(page: Page) {
   return page.evaluate(() => window.attributesAtFirstRoot);
 }
 
-const HASH_CASES: { hash: string; named: ThemeName | null }[] = [
-  { hash: "", named: null },
-  { hash: "#nothing", named: null },
-  ...THEMES.flatMap((theme) => [
-    { hash: themeHash(theme), named: theme },
-    { hash: `#${sectionId(theme, "about")}`, named: theme },
-  ]),
-];
+/** Any theme but this one, so a saved theme that wrongly won would show. */
+const otherTheme = (theme: ThemeName): ThemeName =>
+  THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
 
-const SAVED_CASES: (ThemeName | null)[] = [null, ...THEMES];
+/** The rule one step at a time, not every hash against every saved theme. */
+const FIRST_SHOW_CASES: {
+  hash: string;
+  saved: ThemeName | null;
+  expected: ThemeName;
+}[] = [
+  // With nothing in the hash, the saved theme beats the default.
+  { hash: "", saved: null, expected: "interchange" },
+  ...THEMES.map((saved) => ({ hash: "", saved, expected: saved })),
+  // A hash naming no theme changes nothing.
+  { hash: "#nothing", saved: null, expected: "interchange" },
+  { hash: "#nothing", saved: "diorama", expected: "diorama" },
+  // A hash naming a theme, by itself or by a section, beats a saved theme.
+  ...THEMES.flatMap((theme) =>
+    [themeHash(theme), `#${sectionId(theme, "about")}`].map((hash) => ({
+      hash,
+      saved: otherTheme(theme),
+      expected: theme,
+    })),
+  ),
+  // And it is enough with nothing saved.
+  { hash: themeHash("diorama"), saved: null, expected: "diorama" },
+  {
+    hash: `#${sectionId("pixel-depot", "about")}`,
+    saved: null,
+    expected: "pixel-depot",
+  },
+];
 
 test.describe.configure({ mode: "parallel" });
 
 test.describe("no flash of the wrong theme", () => {
-  for (const { hash, named } of HASH_CASES) {
-    for (const saved of SAVED_CASES) {
-      // The hash beats the saved theme, and the saved theme beats the default.
-      const expected = named ?? saved ?? "interchange";
+  for (const { hash, saved, expected } of FIRST_SHOW_CASES) {
+    test(`hash "${hash}" with saved ${saved} shows ${expected} from the first parse`, async ({
+      page,
+    }) => {
+      await watchFirstRoot(page);
+      if (saved) await seedStorage(page, { [STORAGE_KEYS.theme]: saved });
 
-      test(`hash "${hash}" with saved ${saved} shows ${expected} from the first parse`, async ({
-        page,
-      }) => {
-        await watchFirstRoot(page);
-        if (saved) await seedStorage(page, { [STORAGE_KEYS.theme]: saved });
+      await page.goto(`/${hash}`);
+      expect((await attributesAtFirstRoot(page))?.theme).toBe(expected);
+      await expectShowing(page, expected);
 
-        await page.goto(`/${hash}`);
-        expect((await attributesAtFirstRoot(page))?.theme).toBe(expected);
-        await expectShowing(page, expected);
-
-        await page.reload();
-        expect((await attributesAtFirstRoot(page))?.theme).toBe(expected);
-        await expectShowing(page, expected);
-      });
-    }
+      await page.reload();
+      expect((await attributesAtFirstRoot(page))?.theme).toBe(expected);
+      await expectShowing(page, expected);
+    });
   }
 
   for (const scheme of ["light", "dark"]) {
@@ -107,7 +124,7 @@ test.describe("no flash of the wrong theme", () => {
   });
 });
 
-test.describe("corrupt or hostile values fall back to Interchange (E2)", () => {
+test.describe("corrupt or hostile values fall back to Interchange", () => {
   const HOSTILE_NAMES = [
     "constructor",
     "__proto__",

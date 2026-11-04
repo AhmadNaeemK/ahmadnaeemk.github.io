@@ -1,0 +1,88 @@
+/* Local fonts shaped like each web font, so the page barely moves when the real one
+   lands. They live here and not under a theme root because `@font-face` cannot nest,
+   and they cost nothing until used: a theme's stack names only its own.
+
+   size-adjust is the real font's width over Arial's on this site's text. The overrides
+   are its hhea ascent and descent divided by that, because size-adjust scales them too.
+   Liberation Sans shares Arial's widths. Roboto, for Android, is close but not tuned. */
+@font-face {
+  font-family: "Overpass Fallback";
+  src: local("Arial"), local("Liberation Sans"), local("Roboto");
+  font-weight: 400;
+  size-adjust: 100.1%;
+  ascent-override: 88.2%;
+  descent-override: 38.3%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Overpass Fallback";
+  src: local("Arial Bold"), local("Liberation Sans Bold"), local("Roboto Bold");
+  font-weight: 700;
+  size-adjust: 97.4%;
+  ascent-override: 90.7%;
+  descent-override: 39.3%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Figtree Fallback";
+  src: local("Arial"), local("Liberation Sans"), local("Roboto");
+  font-weight: 400;
+  size-adjust: 101.2%;
+  ascent-override: 93.9%;
+  descent-override: 24.7%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Figtree Fallback";
+  src: local("Arial Bold"), local("Liberation Sans Bold"), local("Roboto Bold");
+  font-weight: 700;
+  size-adjust: 96.9%;
+  ascent-override: 98%;
+  descent-override: 25.8%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Big Shoulders Display Fallback";
+  src: local("Arial Bold"), local("Liberation Sans Bold"), local("Roboto Bold");
+  font-weight: 700;
+  size-adjust: 81%;
+  ascent-override: 121.5%;
+  descent-override: 26.3%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Pixelify Sans Fallback";
+  src: local("Arial"), local("Liberation Sans"), local("Roboto");
+  font-weight: 400;
+  size-adjust: 106%;
+  ascent-override: 86.8%;
+  descent-override: 26.4%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Pixelify Sans Fallback";
+  src: local("Arial Bold"), local("Liberation Sans Bold"), local("Roboto Bold");
+  font-weight: 700;
+  size-adjust: 96%;
+  ascent-override: 95.8%;
+  descent-override: 29.2%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Fallback";
+  src: local("Arial"), local("Liberation Sans"), local("Roboto");
+  font-weight: 400;
+  size-adjust: 99.3%;
+  ascent-override: 95.7%;
+  descent-override: 29.2%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Fallback";
+  src: local("Arial Bold"), local("Liberation Sans Bold"), local("Roboto Bold");
+  font-weight: 700;
+  size-adjust: 98%;
+  ascent-override: 96.9%;
+  descent-override: 29.6%;
+  line-gap-override: 0%;
+}

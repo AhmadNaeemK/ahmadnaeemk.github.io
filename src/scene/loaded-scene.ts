@@ -59,7 +59,7 @@ export function loadScene(options: LoadSceneOptions): LoadedScene {
 export const currentPixelRatio = () =>
   Math.min(window.devicePixelRatio || 1, MAX_DEVICE_PIXEL_RATIO);
 
-/** Null at zero width, where a scene must not be resized (E13). */
+/** Null at zero width, where a scene must not be resized. */
 export function measureScene({ elements }: LoadedScene): SceneSize | null {
   const width = elements.sizer.clientWidth;
   if (width === 0) return null;
@@ -77,10 +77,14 @@ export function isSameSize(size: SceneSize, other: SceneSize | null): boolean {
   );
 }
 
-/** Sampled, because `loadingdone` never fired in Playwright's WebKit. */
-export function tellSceneAboutFonts(entry: LoadedScene): void {
+/**
+ * Sampled, because `loadingdone` never fired in Playwright's WebKit. Returns whether
+ * the scene heard of a font, since its canvas text may now be out of date.
+ */
+export function tellSceneAboutFonts(entry: LoadedScene): boolean {
   const count = loadedFontFaceCount();
-  if (count <= entry.fontFacesSeen) return;
+  if (count <= entry.fontFacesSeen) return false;
   entry.fontFacesSeen = count;
   entry.scene.onFontsReady();
+  return true;
 }

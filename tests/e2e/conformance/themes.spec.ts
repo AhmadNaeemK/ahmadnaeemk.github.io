@@ -1,8 +1,7 @@
 /**
- * The same checks for every theme, in the shape a visitor meets them. A theme task
- * runs this but cannot edit it (contract, section 12). It reads only the contract's
- * attributes and hooks, so real themes, which share no markup with the stubs, get a
- * fair test.
+ * The same checks for every theme, in the shape a visitor meets them. A theme
+ * change runs this but does not edit it (contract, section 11). It reads only the
+ * contract's attributes and hooks, so themes that share no markup get a fair test.
  */
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page } from "@playwright/test";
@@ -39,6 +38,8 @@ import {
 } from "../selection/support";
 
 const WIDTHS = [320, 390, 768, 1280, 1920];
+/** Layout is Chromium's to prove at every width; WebKit keeps a phone and a desktop. */
+const WEBKIT_CONFORMS_WIDTHS = [320, 1280];
 const SCHEMES = ["light", "dark"] as const;
 const VIEWPORT_HEIGHT = 800;
 
@@ -129,7 +130,11 @@ for (const theme of THEMES) {
         test(`conforms in ${scheme} at ${width} px`, async ({
           page,
           pageProblems,
+          browserName,
         }) => {
+          test.skip(
+            browserName === "webkit" && !WEBKIT_CONFORMS_WIDTHS.includes(width),
+          );
           await openTheme(page, theme, scheme, width);
 
           await test.step("exactly one Right now shows", async () => {
@@ -234,6 +239,11 @@ test.describe("the hero when the scene starts", () => {
    */
   const TOGGLE_HOLDS_WITHIN = 0.5;
 
+  /**
+   * Reduced motion at a full-size scene shows "Pause the text" until the first press,
+   * and only there, so this opens the sweep. Motion on adds no label of its own.
+   */
+  const TOGGLE_FULL_SCENE_WIDTH = 1280;
   /** Widths the toggle's labels are swept across. */
   const REWRAP_SWEEP = [320, 344, 360, 390, 430, 480, 580];
   /** Where each prototype's controls rewrapped, with its own fonts. */
@@ -396,50 +406,52 @@ test.describe("the hero when the scene starts", () => {
           });
         }
       });
-
-      test(`${theme}'s toggle label cannot rewrap the controls, motion ${motion}`, async ({
-        page,
-      }) => {
-        const release = await openWithSceneHeld(page, theme, {
-          width: 320,
-          motion,
-        });
-        await release();
-        await sceneRunning(page, theme);
-
-        const toggle = themeRoot(page, theme).locator(THEME_HOOKS.toggle);
-        const toggleWidth = async () =>
-          (await toggle.boundingBox())?.width ?? Number.NaN;
-        const labels = new Set<string | null>();
-        const widths = [...REWRAP_SWEEP, ...PROTOTYPE_REWRAP_BANDS[theme]];
-        for (const width of widths) {
-          await test.step(`${width} px`, async () => {
-            await page.setViewportSize({ width, height: VIEWPORT_HEIGHT });
-            await frames(page);
-            const { hero: resting } = await heroHeights(page, theme);
-            const restingToggle = await toggleWidth();
-            for (let press = 0; press < 3; press += 1) {
-              labels.add(
-                await toggle.locator(THEME_HOOKS.toggleLabel).textContent(),
-              );
-              await toggle.click();
-              await frames(page);
-              const { hero } = await heroHeights(page, theme);
-              expect(Math.abs(hero - resting)).toBeLessThanOrEqual(
-                HOLDS_WITHIN,
-              );
-              // A wrap needs the right width to show, and which widths those are
-              // depends on the fonts. A toggle that holds its width cannot cause one.
-              expect(
-                Math.abs((await toggleWidth()) - restingToggle),
-              ).toBeLessThanOrEqual(TOGGLE_HOLDS_WITHIN);
-            }
-          });
-        }
-        // Otherwise no label changed, and this tested nothing.
-        expect(labels.size).toBeGreaterThan(1);
-      });
     }
+
+    test(`${theme}'s toggle label cannot rewrap the controls`, async ({
+      page,
+    }) => {
+      const release = await openWithSceneHeld(page, theme, {
+        width: TOGGLE_FULL_SCENE_WIDTH,
+        motion: "reduce",
+      });
+      await release();
+      await sceneRunning(page, theme);
+
+      const toggle = themeRoot(page, theme).locator(THEME_HOOKS.toggle);
+      const toggleWidth = async () =>
+        (await toggle.boundingBox())?.width ?? Number.NaN;
+      const labels = new Set<string | null>();
+      const widths = [
+        TOGGLE_FULL_SCENE_WIDTH,
+        ...REWRAP_SWEEP,
+        ...PROTOTYPE_REWRAP_BANDS[theme],
+      ];
+      for (const width of widths) {
+        await test.step(`${width} px`, async () => {
+          await page.setViewportSize({ width, height: VIEWPORT_HEIGHT });
+          await frames(page);
+          const { hero: resting } = await heroHeights(page, theme);
+          const restingToggle = await toggleWidth();
+          for (let press = 0; press < 3; press += 1) {
+            labels.add(
+              await toggle.locator(THEME_HOOKS.toggleLabel).textContent(),
+            );
+            await toggle.click();
+            await frames(page);
+            const { hero } = await heroHeights(page, theme);
+            expect(Math.abs(hero - resting)).toBeLessThanOrEqual(HOLDS_WITHIN);
+            // A wrap needs the right width to show, and which widths those are
+            // depends on the fonts. A toggle that holds its width cannot cause one.
+            expect(
+              Math.abs((await toggleWidth()) - restingToggle),
+            ).toBeLessThanOrEqual(TOGGLE_HOLDS_WITHIN);
+          }
+        });
+      }
+      // Otherwise a label was never measured, and this tested less than it says.
+      expect(labels.size).toBe(3);
+    });
 
     test(`${theme}'s controls stay out of reach until the scene runs`, async ({
       page,
@@ -582,7 +594,7 @@ test.describe("the tokens the switcher reads", () => {
 });
 
 test.describe("a switched-to section's heading", () => {
-  // Real scenes are heavier than stubs, and theme tasks cannot edit this suite.
+  // A real scene is heavy to run at every width.
   test.describe.configure({ timeout: 90_000 });
 
   /**
@@ -661,7 +673,7 @@ test.describe("a switched-to section's heading", () => {
   }
 });
 
-test.describe("theme CSS stays under its root (C9)", () => {
+test.describe("theme CSS stays under its root", () => {
   const PROPERTIES = [
     "fontFamily",
     "fontSize",

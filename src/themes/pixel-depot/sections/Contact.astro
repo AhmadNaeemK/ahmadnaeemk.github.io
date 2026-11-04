@@ -5,7 +5,7 @@ import { sectionId } from "../../../scene/contract";
 import { THEME } from "../theme-name";
 import "./contact.css";
 
-const { profile } = await getSiteContent();
+const { profile, contactLinks } = await getSiteContent();
 ---
 
 <section id={sectionId(THEME, "contact")} class="sec">
@@ -27,18 +27,14 @@ const { profile } = await getSiteContent();
         </div>
       </div>
       <ul class="save__links">
-        <li>
-          <span>LinkedIn</span>
-          <a href={profile.linkedin} target="_blank" rel="noopener">
-            {profile.linkedinLabel}
-          </a>
-        </li>
-        <li>
-          <span>GitHub</span>
-          <a href={profile.github} target="_blank" rel="noopener">
-            {profile.githubLabel}
-          </a>
-        </li>
+        {contactLinks.map(({ name, href, label }) => (
+          <li>
+            <span>{name}</span>
+            <a href={href} target="_blank" rel="noopener">
+              {label}
+            </a>
+          </li>
+        ))}
       </ul>
     </div>
   </div>

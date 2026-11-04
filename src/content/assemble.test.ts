@@ -132,6 +132,25 @@ const rawCollections = (
 });
 
 describe("assembleSiteContent", () => {
+  describe("contact links", () => {
+    it("gives every theme the same links, each with its own address and label", () => {
+      const { contactLinks } = assembleSiteContent(rawCollections());
+
+      expect(contactLinks).toEqual([
+        {
+          name: "LinkedIn",
+          href: "https://www.linkedin.com/in/example",
+          label: "linkedin.com/in/example",
+        },
+        {
+          name: "GitHub",
+          href: "https://github.com/example",
+          label: "github.com/example",
+        },
+      ]);
+    });
+  });
+
   describe("the shape themes read", () => {
     it("adds an id and date labels to each experience entry, keeping its fields", () => {
       const { experience } = assembleSiteContent(rawCollections());
@@ -205,7 +224,7 @@ describe("assembleSiteContent", () => {
     });
   });
 
-  describe("pixel portrait (E23)", () => {
+  describe("pixel portrait", () => {
     it.each(["jpg", "webp", "avif"] as const)(
       "rejects %s, naming the format, because it would not keep exact pixels",
       (format) => {

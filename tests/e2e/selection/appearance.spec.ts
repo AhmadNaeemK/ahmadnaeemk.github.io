@@ -61,7 +61,7 @@ async function expectCanvasMatches(
     .toBe(true);
 }
 
-test.describe("two tabs (E8)", () => {
+test.describe("two tabs", () => {
   test("each stays as it is, and the last pick applies on the next load", async ({
     page,
     context,
@@ -125,7 +125,7 @@ test.describe("two tabs (E8)", () => {
   });
 });
 
-test.describe("the system scheme and the pick (E9)", () => {
+test.describe("the system scheme and the pick", () => {
   test("follows the system until picked, the pick wins, and a reload keeps it", async ({
     page,
   }) => {

@@ -36,8 +36,10 @@
   --lid-stripe: rgb(255 255 255 / 7%);
   --logo-shadow: rgb(0 0 0 / 18%);
 
-  --fd: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
-  --fb: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --fd:
+    "Big Shoulders Display", "Big Shoulders Display Fallback", "Arial Narrow",
+    Impact, sans-serif;
+  --fb: "Figtree", "Figtree Fallback", "Segoe UI", system-ui, sans-serif;
 
   /* Canvas: the ground. */
   --grass: #b6b35e;

@@ -220,26 +220,6 @@
     font-weight: 600;
     margin-left: 6px;
   }
-  & .hint {
-    grid-column: 1 / -1;
-    color: var(--muted);
-    font-size: var(--step-1);
-    margin: 6px 0 0;
-  }
-  /* No train to tap until a scene runs. It keeps its line while one is coming, so
-     the hero holds its height, and leaves when none is. */
-  &:not([data-scene-state="running"], [data-scene-state="paused"]) .hint {
-    visibility: hidden;
-  }
-  &[data-scene-state="failed"] .hint {
-    display: none;
-  }
-  @media (scripting: none) {
-    & .hint {
-      display: none;
-    }
-  }
-
   @media (max-width: 760px) {
     & .intro {
       grid-template-columns: 1fr;

@@ -34,7 +34,7 @@ const { profile } = await getSiteContent();
   </main>
   <footer class="foot">
     <div class="wrap">
-      &copy; <span data-year>2026</span> {profile.name}
+      &copy; <span data-year>{new Date().getUTCFullYear()}</span> {profile.name}
     </div>
   </footer>
 </div>

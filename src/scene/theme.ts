@@ -6,8 +6,8 @@
  */
 import {
   DEFAULT_THEME,
+  HEADER_HEIGHT_PROPERTY,
   isThemeName,
-  loadedFontFaceCount,
   SCENE_STATE_ATTRIBUTE,
   SECTION_KEYS,
   sectionId,
@@ -33,14 +33,14 @@ const SECTION_TOP_TOLERANCE = 1;
  */
 const SMOOTH_SCROLL_SETTLING_FRAMES = 3;
 
-/** Without input a pin would sample fonts for as long as the page stays open. */
+/** Without input a pin would measure the page for as long as it stays open. */
 const PIN_TIME_LIMIT_MS = 10_000;
 
 /**
  * What ends a pin, besides the time limit and the next pin. Never `scroll`, because
  * the pin's own scrolls fire it too. `popstate` as well as `hashchange`, because a
- * step between entries with the same hash fires only `popstate`, and a late font
- * would otherwise undo the scroll it restores.
+ * step between entries with the same hash fires only `popstate`, and a late layout
+ * change would otherwise undo the scroll it restores.
  */
 const PIN_ENDING_EVENTS = [
   "wheel",
@@ -90,7 +90,7 @@ export function sectionKeyFromHash(hash: string): SectionKey | null {
   );
 }
 
-/** Keeps a choice for this tab when storage refuses it (E3). */
+/** Keeps a choice for this tab when storage refuses it. */
 let sessionChoice: ThemeName | null = null;
 
 function savedTheme(): ThemeName | null {
@@ -136,47 +136,75 @@ function measureScroll(theme: ThemeName): ScrollMeasure {
   };
 }
 
+/** Writes the tracked header's height now; nothing is tracked until a theme shows. */
+let measureHeader: () => void = () => {};
+let headerObserver: ResizeObserver | null = null;
+
 /**
- * "instant" and not "auto": `html { scroll-behavior: smooth }` would turn "auto"
- * into an animation.
+ * Keeps a section's `scroll-margin-top` true to the shown header through font swaps
+ * and zoom. This cannot loop, because the height feeds nothing that sizes the header.
  */
-function scrollToSection(theme: ThemeName, key: SectionKey): void {
-  sectionElement(theme, key)?.scrollIntoView({
-    block: "start",
-    behavior: "instant",
-  });
+function trackHeaderHeight(theme: ThemeName): void {
+  const root = themeRootElement(theme);
+  const header = root
+    ?.querySelector(THEME_HOOKS.themeSwitcher)
+    ?.closest("header");
+  if (!root || !header) return;
+  measureHeader = () => {
+    const height = Math.ceil(header.getBoundingClientRect().height);
+    root.style.setProperty(HEADER_HEIGHT_PROPERTY, `${height}px`);
+  };
+  measureHeader();
+  headerObserver?.disconnect();
+  headerObserver = new ResizeObserver(measureHeader);
+  headerObserver.observe(header);
+}
+
+/**
+ * The default is "instant" and not "auto": `html { scroll-behavior: smooth }` would
+ * turn "auto" into an animation. It measures first because a pin can run in the frame
+ * a font lands, before the observer hears of the header's new height.
+ */
+function scrollToSection(
+  theme: ThemeName,
+  key: SectionKey,
+  behavior: ScrollBehavior = "instant",
+): void {
+  measureHeader();
+  sectionElement(theme, key)?.scrollIntoView({ block: "start", behavior });
+}
+
+/**
+ * The `scrollY` that puts a section at the viewport top. Scrolling leaves it alone
+ * and only a layout change moves it, so a pin can read it during a smooth scroll.
+ */
+function sectionRestingScrollY(theme: ThemeName, key: SectionKey): number {
+  const section = sectionElement(theme, key);
+  if (!section) return 0;
+  return (
+    section.getBoundingClientRect().top +
+    window.scrollY -
+    (parseFloat(getComputedStyle(section).scrollMarginTop) || 0)
+  );
+}
+
+function hasMoved(restingScrollY: number, lastSeen: number): boolean {
+  return Math.abs(restingScrollY - lastSeen) > SECTION_TOP_TOLERANCE;
 }
 
 let endPin: (() => void) | null = null;
 
-/** Holds a section in place while the incoming theme settles (section 5). */
-function pinSection(theme: ThemeName, key: SectionKey): void {
+/** Runs `keepSection` every frame until the pin ends (section 5). */
+function startPin(keepSection: () => void, onEnd?: () => void): void {
   endPin?.();
-  const repin = () => scrollToSection(theme, key);
-
-  // A MutationObserver runs before the next paint, so the shift never shows.
-  const stateObserver = new MutationObserver(repin);
-  const root = themeRootElement(theme);
-  if (root) {
-    stateObserver.observe(root, {
-      attributes: true,
-      attributeFilter: [SCENE_STATE_ATTRIBUTE],
-    });
-  }
-
-  let settlingFrames = SMOOTH_SCROLL_SETTLING_FRAMES;
-  let fontFacesSeen = loadedFontFaceCount();
   let frameRequest = requestAnimationFrame(function onFrame() {
-    const fontFaces = loadedFontFaceCount();
-    if (settlingFrames > 0 || fontFaces > fontFacesSeen) repin();
-    settlingFrames -= 1;
-    fontFacesSeen = fontFaces;
+    keepSection();
     frameRequest = requestAnimationFrame(onFrame);
   });
 
   const listeners = new AbortController();
   const end = () => {
-    stateObserver.disconnect();
+    onEnd?.();
     cancelAnimationFrame(frameRequest);
     clearTimeout(timeLimit);
     listeners.abort();
@@ -191,6 +219,57 @@ function pinSection(theme: ThemeName, key: SectionKey): void {
     });
   }
   endPin = end;
+}
+
+/** Holds a section in place while the incoming theme settles (section 5). */
+function pinSection(theme: ThemeName, key: SectionKey): void {
+  let lastSeen = sectionRestingScrollY(theme, key);
+  const repin = () => {
+    scrollToSection(theme, key);
+    lastSeen = sectionRestingScrollY(theme, key);
+  };
+
+  // A MutationObserver runs before the next paint, so the shift never shows.
+  const stateObserver = new MutationObserver(repin);
+  const root = themeRootElement(theme);
+  if (root) {
+    stateObserver.observe(root, {
+      attributes: true,
+      attributeFilter: [SCENE_STATE_ATTRIBUTE],
+    });
+  }
+
+  let framesToSettle = SMOOTH_SCROLL_SETTLING_FRAMES;
+  startPin(
+    () => {
+      if (
+        framesToSettle > 0 ||
+        hasMoved(sectionRestingScrollY(theme, key), lastSeen)
+      ) {
+        repin();
+      }
+      framesToSettle -= 1;
+    },
+    () => stateObserver.disconnect(),
+  );
+}
+
+/**
+ * Sees a clicked link's smooth scroll to the right place. The browser fixes that
+ * scroll's end when it starts, so a section that moves needs a new one, and "auto"
+ * carries on from where the page is instead of jumping. Reduced motion makes it instant.
+ */
+function pinClickedSection(
+  theme: ThemeName,
+  key: SectionKey,
+  restingScrollYAtClick: number,
+): void {
+  let lastSeen = restingScrollYAtClick;
+  startPin(() => {
+    if (!hasMoved(sectionRestingScrollY(theme, key), lastSeen)) return;
+    scrollToSection(theme, key, "auto");
+    lastSeen = sectionRestingScrollY(theme, key);
+  });
 }
 
 /**
@@ -210,6 +289,7 @@ function switchTheme(
   sectionBeforeHistoryStep = null;
   const key = requestedKey ?? sectionKeyInView(measureScroll(showingTheme()));
   document.documentElement.setAttribute(THEME_ATTRIBUTE, incoming);
+  trackHeaderHeight(incoming);
   scrollToSection(incoming, key);
 
   // No history entry and no hashchange, and a stale `#a-about` cannot bring the
@@ -222,7 +302,7 @@ function switchTheme(
   pinSection(incoming, key);
 }
 
-/** Focus would otherwise fall to the body once the old theme hides (E19). */
+/** Focus would otherwise fall to the body once the old theme hides. */
 function focusThemeSwitcher(theme: ThemeName): void {
   const switcher = themeRootElement(theme)?.querySelector(
     THEME_HOOKS.themeSwitcher,
@@ -233,7 +313,7 @@ function focusThemeSwitcher(theme: ThemeName): void {
   target?.focus({ preventScroll: true });
 }
 
-/** The visitor picked a theme. Task 10's dropdown changes theme through this. */
+/** The visitor picked a theme. */
 export function chooseTheme(theme: ThemeName): void {
   saveTheme(theme);
   if (theme === showingTheme()) return;
@@ -249,11 +329,41 @@ function noteSectionBeforeHistoryStep(): void {
 }
 
 /**
+ * A clicked link to a section of the showing theme, until its `hashchange`. Measured
+ * at the click because a font can land before that `hashchange` fires.
+ */
+let clickedLink: { hash: string; restingScrollY: number } | null = null;
+
+function noteClickedLink(event: MouseEvent): void {
+  const plain =
+    !event.defaultPrevented &&
+    !event.metaKey &&
+    !event.ctrlKey &&
+    !event.shiftKey &&
+    !event.altKey;
+  const hash =
+    plain && event.target instanceof Element
+      ? event.target.closest("a")?.hash
+      : null;
+  const key = hash && hash !== location.hash ? sectionKeyFromHash(hash) : null;
+  const theme = showingTheme();
+  clickedLink =
+    hash && key && themeFromHash(hash) === theme
+      ? { hash, restingScrollY: sectionRestingScrollY(theme, key) }
+      : null;
+}
+
+/**
  * The theme follows the hash, and shows what a reload of this hash would show. A
- * link is not a pick, so nothing is saved (E4). With the theme unchanged, the
- * browser has already done any scrolling.
+ * link is not a pick, so nothing is saved. With the theme unchanged, the
+ * browser has already done any scrolling, but a clicked section link can still land
+ * off target if a font or the scene moves the section during it, so it gets a pin of
+ * its own, which leaves the link's smooth scroll running.
  */
 function followHash(): void {
+  const clicked = clickedLink?.hash === location.hash ? clickedLink : null;
+  clickedLink = null;
+
   // Compared by hash as a defence for a browser outside the test matrix that fires
   // no `popstate` on a fragment navigation, which would meet an older note.
   const keyBeforeStep =
@@ -265,7 +375,13 @@ function followHash(): void {
   const incoming =
     themeFromHash(location.hash) ?? savedTheme() ?? DEFAULT_THEME;
   const outgoing = showingTheme();
-  if (incoming === outgoing) return;
+  if (incoming === outgoing) {
+    const linkedKey = sectionKeyFromHash(location.hash);
+    if (linkedKey && clicked) {
+      pinClickedSection(incoming, linkedKey, clicked.restingScrollY);
+    }
+    return;
+  }
 
   const hadFocus = themeRootElement(outgoing)?.contains(document.activeElement);
   switchTheme(incoming, sectionKeyFromHash(location.hash) ?? keyBeforeStep);
@@ -284,6 +400,8 @@ function isFreshNavigation(): boolean {
 }
 
 export function startThemeSelection(): void {
+  trackHeaderHeight(showingTheme());
+  document.addEventListener("click", noteClickedLink);
   window.addEventListener("popstate", noteSectionBeforeHistoryStep);
   window.addEventListener("hashchange", followHash);
 
@@ -291,7 +409,7 @@ export function startThemeSelection(): void {
   // chose the theme. Does nothing when the two already agree, as on a normal load.
   followHash();
 
-  // A shared section link is a first show too (E6): the browser has scrolled to
+  // A shared section link is a first show too: the browser has scrolled to
   // the section, and the same late changes would move it away again.
   const linkedKey = sectionKeyFromHash(location.hash);
   if (linkedKey && isFreshNavigation()) pinSection(showingTheme(), linkedKey);

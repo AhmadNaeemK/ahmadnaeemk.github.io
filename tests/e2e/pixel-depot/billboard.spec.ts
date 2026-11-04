@@ -62,7 +62,7 @@ async function expectBandToChange(page: Page): Promise<void> {
     .toBe(false);
 }
 
-test.describe("the billboard at full width (E21)", () => {
+test.describe("the billboard at full width", () => {
   for (const reducedMotion of [false, true]) {
     const motion = reducedMotion ? "under reduced motion" : "in normal motion";
 

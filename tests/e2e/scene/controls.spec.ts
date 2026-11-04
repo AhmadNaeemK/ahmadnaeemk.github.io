@@ -254,7 +254,7 @@ test.describe("by touch", () => {
   }
 });
 
-test.describe("by keyboard (E20)", () => {
+test.describe("by keyboard", () => {
   for (const theme of THEME_NAMES) {
     test(`with focus on ${theme}'s hero, Space and the speed keys work the train`, async ({
       page,
@@ -414,7 +414,7 @@ test.describe("the saved livery", () => {
     expect(await pressedLiveries(page, "pixel-depot")).toEqual(["steam"]);
   });
 
-  test("an invalid saved livery falls back to the default (E16)", async ({
+  test("an invalid saved livery falls back to the default", async ({
     page,
   }) => {
     await page.addInitScript(
@@ -427,7 +427,7 @@ test.describe("the saved livery", () => {
     expect(await pressedLiveries(page, "interchange")).toEqual(["metro"]);
   });
 
-  test("storage that throws leaves the controls working for the visit (E3)", async ({
+  test("storage that throws leaves the controls working for the visit", async ({
     page,
   }) => {
     await page.addInitScript(() => {
@@ -446,7 +446,7 @@ test.describe("the saved livery", () => {
   });
 });
 
-test.describe("reduced motion (E18)", () => {
+test.describe("reduced motion", () => {
   const COMPACT_VIEWPORT = { width: 500, height: 720 };
   const WIDE_VIEWPORT = { width: 1280, height: 720 };
 

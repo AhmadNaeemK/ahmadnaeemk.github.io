@@ -77,7 +77,7 @@ function flagsReachedFrom(
   });
 }
 
-describe("stop state (E18)", () => {
+describe("stop state", () => {
   it("starts running on a normal start", () => {
     expect(stopFlags(startRunning())).toEqual(RUNNING);
   });
@@ -271,7 +271,7 @@ describe("setSpeed at the ends of the range", () => {
 
 // Checked by `npm run typecheck`, never run: Vitest strips types. If the line
 // below ever compiles, the unused directive fails typecheck, because a theme
-// could then replace `hitTrain` on the world all three share (C14).
+// could then replace `hitTrain` on the world all three share.
 function replaceHitTrainOnSharedWorld(world: WorldView): void {
   // @ts-expect-error `WorldView.hitTrain` is readonly (RFC section 7).
   world.hitTrain = () => false;

@@ -51,7 +51,7 @@ describe("LIVERY_LABELS", () => {
   });
 });
 
-describe("an unknown livery (E16)", () => {
+describe("an unknown livery", () => {
   const UNKNOWN_LIVERIES = ["nope", "", "METRO", "constructor", "__proto__"];
 
   function expectDefaultLivery(world: WorldView): void {

@@ -1,5 +1,6 @@
 ---
 import { Image } from "astro:assets";
+import KeepHyphenatedWords from "../../components/KeepHyphenatedWords.astro";
 import RightNow from "../../components/RightNow.astro";
 import ThemeSwitcher from "../../components/ThemeSwitcher.astro";
 import { getSiteContent } from "../../content/site";
@@ -9,7 +10,7 @@ import "./tokens.css";
 import "./theme.css";
 
 const theme: ThemeName = "diorama";
-const { profile, experience, education, projects, skills } =
+const { profile, contactLinks, experience, education, projects, skills } =
   await getSiteContent();
 const [city] = profile.location.split(",");
 ---
@@ -118,7 +119,8 @@ const [city] = profile.location.split(",");
           <h1 class="intro__name">{profile.name}</h1>
           <div class="intro__side">
             <p class="intro__role">
-              {profile.role}. {profile.focus}. Based in {profile.location}.
+              {profile.role}. <KeepHyphenatedWords text={profile.focus} />.
+              Based in {profile.location}.
             </p>
             <p class="intro__text">{profile.intro}</p>
             <div class="intro__cta">
@@ -268,18 +270,14 @@ const [city] = profile.location.split(",");
             </div>
           </div>
           <ul class="ticket__stub">
-            <li>
-              <span>LinkedIn</span>
-              <a href={profile.linkedin} target="_blank" rel="noopener">
-                {profile.linkedinLabel}
-              </a>
-            </li>
-            <li>
-              <span>GitHub</span>
-              <a href={profile.github} target="_blank" rel="noopener">
-                {profile.githubLabel}
-              </a>
-            </li>
+            {contactLinks.map(({ name, href, label }) => (
+              <li>
+                <span>{name}</span>
+                <a href={href} target="_blank" rel="noopener">
+                  {label}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
@@ -288,7 +286,7 @@ const [city] = profile.location.split(",");
 
   <footer class="foot">
     <div class="wrap">
-      &copy; <span data-year>{new Date().getFullYear()}</span> {profile.name}
+      &copy; <span data-year>{new Date().getUTCFullYear()}</span> {profile.name}
     </div>
   </footer>
 </div>

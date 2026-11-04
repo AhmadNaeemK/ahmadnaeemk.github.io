@@ -401,7 +401,7 @@ describe("profile schema", () => {
   });
 });
 
-describe('"Right now" schema (E21)', () => {
+describe('"Right now" schema', () => {
   it("rejects an empty list, saying it needs an item", async () => {
     expect(await problemsIn(nowSchema, { items: [] })).toEqual([
       { field: "items", message: '"Right now" needs at least one item' },

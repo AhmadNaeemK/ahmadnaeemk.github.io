@@ -37,7 +37,7 @@ const STORAGE_FAILURES: {
 ];
 
 for (const { name, install } of STORAGE_FAILURES) {
-  test.describe(`when ${name} (E3)`, () => {
+  test.describe(`when ${name}`, () => {
     test("choosing, toggling and reloading all work for the session", async ({
       page,
       pageProblems,

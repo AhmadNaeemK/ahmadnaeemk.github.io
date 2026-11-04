@@ -159,7 +159,7 @@ test.describe("showing a scene", () => {
   });
 });
 
-test.describe("fonts (E15)", () => {
+test.describe("fonts", () => {
   const fontsReady = (page: Page, theme: ThemeName) =>
     countSceneCalls(page, theme, "onFontsReady");
 

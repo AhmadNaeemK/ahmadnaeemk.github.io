@@ -250,7 +250,7 @@ describe("marqueeSegments", () => {
 
 describe("nowCycle", () => {
   it.each([0, 0.1, 2.5, 4.99, 5, 100.2])(
-    "never cycles or fades a single item, at time %d (E21)",
+    "never cycles or fades a single item, at time %d",
     (time) => {
       expect(nowCycle(time, 1)).toEqual({ index: 0, alpha: 1 });
     },
