@@ -1,11 +1,20 @@
 ---
 /**
- * PLACEHOLDER. Task 10 replaces this with the dropdown behind the same props,
- * so themes keep it without changing their own files. Keep `data-theme-switcher`
- * on the outer element: it is where focus lands after a switch, and what hides
- * without JavaScript.
+ * A disclosure of real links, not a listbox or menu: choosing a theme is following
+ * `#diorama`, which works before any script has run, opens in a new tab and reads as
+ * what it is. `popover` opens and dismisses it natively before scripts run too, and
+ * the top layer keeps the list from being clipped by a theme's `overflow` or trapped
+ * by its header's `backdrop-filter`.
+ *
+ * Themes render one in their header with `current`. They may style `.dd`, `.dd__btn`,
+ * `.dd__list` and `.dd__link`, as Pixel Depot does. Colours come from `--dd-*`.
  */
-import { THEME_NAMES, themeHash, type ThemeName } from "../scene/contract";
+import {
+  sectionId,
+  THEME_NAMES,
+  themeHash,
+  type ThemeName,
+} from "../scene/contract";
 import { THEME_META } from "../themes/registry";
 
 interface Props {
@@ -13,53 +22,226 @@ interface Props {
 }
 
 const { current } = Astro.props;
+const currentLabel = THEME_META[current].label;
+// All three themes share the page, so this id carries the theme's prefix too.
+const listId = `${sectionId(current, "top")}-theme-list`;
 ---
 
-<nav class="theme-switcher" aria-label="Design theme" data-theme-switcher>
-  {THEME_NAMES.map((name) => (
-    <a
-      href={themeHash(name)}
-      data-theme-choice={name}
-      aria-current={name === current ? "true" : undefined}
+<nav class="dd" aria-label="Design theme" data-theme-switcher>
+  {/* `aria-current` here because the list is closed after a switch, and this comes
+     first, so `focusThemeSwitcher` lands on something that can take focus. No
+     `aria-expanded` until the script runs: browsers work it out from `popovertarget`
+     until then, and a written "false" would be wrong once the list is open. */}
+  <button
+    type="button"
+    class="dd__btn"
+    popovertarget={listId}
+    aria-controls={listId}
+    aria-label={`Design theme: ${currentLabel}`}
+    aria-current="true"
+  >
+    <span class={`sw-ico sw-ico--${current}`} aria-hidden="true"></span>
+    <span class="dd__v">{currentLabel}</span>
+    <svg
+      class="dd__chev"
+      viewBox="0 0 12 12"
+      width="12"
+      height="12"
+      aria-hidden="true"
     >
-      {THEME_META[name].label}
-    </a>
-  ))}
+      <path
+        d="M2.5 4.5 6 8l3.5-3.5"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></path>
+    </svg>
+  </button>
+  <ul class="dd__list" id={listId} popover="auto">
+    {THEME_NAMES.map((name) => (
+      <li>
+        <a
+          class="dd__link"
+          href={themeHash(name)}
+          data-theme-choice={name}
+          aria-current={name === current ? "true" : undefined}
+        >
+          <span class={`sw-ico sw-ico--${name}`} aria-hidden="true" />
+          <span>
+            <span class="dd__name">{THEME_META[name].label}</span>
+            <span class="dd__note">{THEME_META[name].description}</span>
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
 </nav>
 
 <script>
-  import { isThemeName } from "../scene/contract";
-  import { chooseTheme } from "../scene/theme";
+  import { startThemeSwitchers } from "./theme-switcher";
 
-  for (const link of document.querySelectorAll<HTMLElement>(
-    "[data-theme-choice]",
-  )) {
-    link.addEventListener("click", (event) => {
-      // A modified click opens a new tab, which is a shared link and not a pick.
-      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-        return;
-      }
-      const theme = link.dataset.themeChoice;
-      if (!isThemeName(theme)) return;
-      event.preventDefault();
-      chooseTheme(theme);
-    });
-  }
+  startThemeSwitchers();
 </script>
 
-<style>
-  .theme-switcher {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 4px 8px;
-    border: 1px solid var(--dd-line);
-    background: var(--dd-bg);
-  }
-  a {
-    color: var(--dd-fg);
-  }
-  a:not([aria-current]) {
-    color: var(--dd-muted);
+<style is:global>
+  /* `html body` puts these between a theme's blanket rules (`[root] button`), which
+     must not restyle the switcher, and its own `[root] .dd__btn`, which must win
+     whichever stylesheet loads first. */
+  html body {
+    & .dd__btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      height: 38px;
+      padding: 0 10px 0 12px;
+      border: 1px solid var(--dd-line);
+      border-radius: 999px;
+      background: var(--dd-bg);
+      color: var(--dd-fg);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    /* A 44 px touch target, without making the header taller than the prototype's. */
+    & .dd__btn::after {
+      content: "";
+      position: absolute;
+      inset-inline: 0;
+      top: 50%;
+      height: 44px;
+      translate: 0 -50%;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      & .dd__chev {
+        transition: transform 0.15s;
+      }
+    }
+    & .dd:has(:popover-open) .dd__chev {
+      transform: rotate(180deg);
+    }
+
+    /* Until the script places it, as when opened before scripts run, the browser's
+       own popover rules centre it in the viewport. */
+    & .dd__list {
+      box-sizing: border-box;
+      width: 260px;
+      max-width: calc(100vw - 32px);
+      margin: auto;
+      padding: 6px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      list-style: none;
+      border: 1px solid var(--dd-line);
+      border-radius: 12px;
+      background: var(--dd-bg);
+      color: var(--dd-fg);
+      box-shadow: 0 18px 40px -14px rgb(0 0 0 / 45%);
+    }
+    /* !important because a theme's own `ul` rule would otherwise show it closed. */
+    & .dd__list:not(:popover-open) {
+      display: none !important;
+    }
+    /* Safari before 17 has no popover. Out of the header's flow, and shown by the
+       script. A theme's `backdrop-filter` makes the header this list's containing
+       block, but a pinned header sits at the viewport's corner, so it lands the same. */
+    @supports not selector(:popover-open) {
+      & .dd__list {
+        position: fixed;
+        z-index: 40;
+      }
+      & .dd__list:not([data-open]) {
+        display: none !important;
+      }
+      & .dd__btn[aria-expanded="true"] .dd__chev {
+        transform: rotate(180deg);
+      }
+    }
+    & .dd__list li {
+      margin: 0;
+      padding: 0;
+    }
+    & .dd__link {
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      color: var(--dd-fg);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    & .dd__link:hover,
+    & .dd__link:focus {
+      background: color-mix(in srgb, var(--dd-fg) 8%, transparent);
+      outline: none;
+    }
+    & .dd__link:focus-visible {
+      outline: 2px solid var(--dd-fg);
+      outline-offset: -2px;
+    }
+    & .dd__link[aria-current] {
+      background: color-mix(in srgb, var(--dd-fg) 13%, transparent);
+    }
+    /* Forced colours drop the tint, the only mark on the current theme. */
+    @media (forced-colors: active) {
+      & .dd__link[aria-current] {
+        outline: 1px solid;
+        outline-offset: -1px;
+      }
+    }
+    & .dd__name {
+      display: block;
+      font-weight: 700;
+    }
+    & .dd__note {
+      display: block;
+      margin-top: 3px;
+      color: var(--dd-muted);
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    /* Each theme's own swatch, the same in every colour scheme. */
+    & .sw-ico {
+      flex: none;
+      width: 14px;
+      height: 10px;
+      border-radius: 3px;
+    }
+    & .sw-ico--interchange {
+      border-radius: 5px;
+      background: linear-gradient(
+        90deg,
+        #de9420 0 25%,
+        #d2432a 25% 50%,
+        #1c7d70 50% 75%,
+        #2d5da7 75%
+      );
+    }
+    & .sw-ico--diorama {
+      background: linear-gradient(#b6b35e 0 60%, #8b5a36 60%);
+    }
+    & .sw-ico--pixel-depot {
+      border-radius: 0;
+      background: conic-gradient(
+        #c8463c 0 25%,
+        #e9a92f 0 50%,
+        #2f8a86 0 75%,
+        #4f86c9 0
+      );
+    }
+    @media (max-width: 420px) {
+      & .dd__v {
+        display: none;
+      }
+    }
   }
 </style>
