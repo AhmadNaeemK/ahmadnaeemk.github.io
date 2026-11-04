@@ -137,8 +137,8 @@ Task 5 writes `aria-pressed` and `aria-label` on `data-theme-toggle`: pressed me
 | Method                     | When the runtime calls it                                                                                                                                                                 | The scene must                                                                                                             |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `createScene`              | First time the theme is shown                                                                                                                                                             | Not assume a size. Hold no timers or observers of its own                                                                  |
-| `resize(size)`             | On being shown, and at the start of the next frame after a size change. Never while hidden or at zero width                                                                               | Set the canvas's attributes and style. `size.width` is the parent's `clientWidth`; `size.compact` means skip the billboard |
-| `draw()`                   | Once right after being shown, then once per frame while running                                                                                                                           | Draw, animating from `world.time`. Never change the world                                                                  |
+| `resize(size)`             | On being shown, even with an unchanged size, and at the start of the next frame after a size change. Never while hidden or at zero width                                                  | Set the canvas's attributes and style. `size.width` is the parent's `clientWidth`; `size.compact` means skip the billboard |
+| `draw()`                   | Once right after being shown, then once per frame while running. Off-screen, once after a size or colour change                                                                           | Draw, animating from `world.time`. Never change the world                                                                  |
 | `hitTrain(point, radius)`  | On pointer move (`HIT_RADIUS.hover`, 16) and click (`HIT_RADIUS.click`, 20). `point` is canvas-relative CSS pixels; `radius` is world units, as in `shared/engine.js` (lines 403 and 408) | Convert the point with its own projection and compare in world units                                                       |
 | `applyColorScheme(scheme)` | Always before the first `draw`, on being shown if the scheme changed, and on any change while showing                                                                                     | Re-read tokens with `readToken`. Values are already correct, so no deferred read is needed                                 |
 | `onFontsReady()`           | At the next frame after `loadedFontFaceCount()` rises while showing, and on being shown if it rose while hidden. Not for fonts loaded before `createScene`                                | Drop any cached text measurement (E15)                                                                                     |
@@ -151,6 +151,8 @@ Task 5 writes `aria-pressed` and `aria-label` on `data-theme-toggle`: pressed me
 - **It samples fonts rather than listening.** `loadingdone` never fired in Playwright's WebKit, and `document.fonts.ready` resolved before the font loaded. A count of loaded faces rose in both browsers, stayed flat for a 404, and cannot be missed by a pause, as a `document.fonts.status` change could.
 - **`resize` never runs inside the `ResizeObserver` callback,** only at the start of the next frame.
 - **Showing a scene is one task:** resize, colours, then `draw`, so no blank frame appears.
+- **`resize` also runs on show with an unchanged size,** so a scene caches any costly work by size.
+- **Off-screen, a size or colour change gets one `draw` without stepping the world,** because a resize clears the canvas and the next view of it would otherwise be blank.
 
 **`data-scene-state` on the theme root** is written by the runtime only. Absent means never started.
 
@@ -162,7 +164,25 @@ Task 5 writes `aria-pressed` and `aria-label` on `data-theme-toggle`: pressed me
 
 `paused` means loaded but not selected. A selected theme whose canvas is off-screen or whose tab is hidden stays `running`, and only its loop stops ticking, so scrolling never rewrites this attribute.
 
-**Failure (E12).** A rejected import or a throw from any scene method counts as a failed load. The runtime logs it, forgets the scene and sets `failed`. Selecting another theme and coming back retries. The spike saw that retry succeed in Chromium and WebKit after a failed import.
+**Failure (E12).** A rejected import or a throw from any scene method counts as a failed load. The runtime logs it, forgets the scene and sets `failed`, so the static hero and HTML line show, and other themes stay selectable. Selecting another theme and coming back retries in place, with the same URL. A throw from `world.update` is an engine bug, not a failed load: it stays an uncaught error, the theme stays `running` with its canvas frozen, and the next wake (scroll, refocus or switch) tries again.
+
+| What failed                                                    | What happens                                                                                                    | What recovers it                                                                          |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| A scene method threw                                           | `failed`                                                                                                        | Coming back                                                                               |
+| A scene chunk's request failed, on first load or later         | `failed`, each time while still offline                                                                         | Coming back once the network returns, or a reload                                         |
+| A scene chunk returned 404 on first load                       | `failed`                                                                                                        | A reload                                                                                  |
+| A scene chunk no longer exists, on a page from before a deploy | `failed` for every theme not yet loaded, and retries keep failing. Themes already loaded keep working           | Only a reload, and **nothing tells the visitor to reload**: they just see the static hero |
+| A scene chunk is slow or stalled                               | `loading` with the static hero, and no timeout. Other themes stay selectable, and a late arrival starts nothing | Its arrival while selected, or coming back                                                |
+| The `page` chunk failed on first load                          | No runtime: the selected theme's static hero, with no state attribute                                           | A reload                                                                                  |
+
+Those results come from real sockets in Chromium and Playwright's WebKit, on the real engine. Safari itself was not run.
+
+**Chunk rule (`scene-chunks.mjs`).** A scene chunk may statically import only the `page` chunk, which holds the `import()` calls and loads with the page. The build shapes chunks this way for Tasks 7 to 9, but it does not reject a scene's own `import()` or CSS import. `tests/e2e/scene/chunk-rule.spec.ts` catches those.
+
+- **Why.** In WebKit, a shared chunk that loads on demand and fails leaves every scene that imports it failed, with no recovery in place. If a scene chunk has any such dependency, Vite also adds a `modulepreload` link for that scene, and after a failure WebKit stops fetching it. The spike's retry succeeded only because its chunks had no dependencies.
+- **What themes get.** Code only one scene reaches stays in that scene's chunk. Code two scenes share moves to `page` with no action needed, so it loads on every first visit. Keep large code private to a scene.
+- **What themes must not do.** Do not work around this: no `import()` and no CSS import in `scene.ts` or its helpers, no chunking settings of your own, and no retry or refresh logic in a theme.
+- **Other pages.** An entry script's own body stays out of `page`, so importing `page` never starts the runtime. But every module an entry script imports goes to `page`, even one private to that script. So a script on another page with one imported helper loads all of `page`, including the engine, and the helper joins the home page's chunk. Tasks 11 and 12 should avoid module imports in other pages' scripts, or accept that cost.
 
 **`data-now` on the hero** has one rule, in the runtime, for all three themes: `board` when a scene is loaded and `size.compact` is false, otherwise `html`. Absent (no JavaScript) behaves like `html`. Motion preferences play no part. `src/layouts/global.css` visually hides the HTML line on `board`, and screen readers keep it.
 
@@ -219,14 +239,13 @@ Task 5 writes `aria-pressed` and `aria-label` on `data-theme-toggle`: pressed me
 
 **Stubs and who replaces them:**
 
-| Stub                                                                 | Replaced by                                                                    |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `src/rail/stub.ts`                                                   | Task 4                                                                         |
-| `src/scene/runtime.ts`                                               | Task 6. It has no controls, pointer or keyboard input, or off-screen pause yet |
-| `src/themes/interchange/{Theme.astro,scene.ts,tokens.css,theme.css}` | Task 7                                                                         |
-| `src/themes/diorama/{Theme.astro,scene.ts,tokens.css,theme.css}`     | Task 8                                                                         |
-| `src/themes/pixel-depot/{Theme.astro,scene.ts,tokens.css,theme.css}` | Task 9                                                                         |
-| `src/components/ThemeSwitcher.astro`                                 | Task 10                                                                        |
+| Stub                                                                 | Replaced by |
+| -------------------------------------------------------------------- | ----------- |
+| `src/rail/stub.ts`                                                   | Task 4      |
+| `src/themes/interchange/{Theme.astro,scene.ts,tokens.css,theme.css}` | Task 7      |
+| `src/themes/diorama/{Theme.astro,scene.ts,tokens.css,theme.css}`     | Task 8      |
+| `src/themes/pixel-depot/{Theme.astro,scene.ts,tokens.css,theme.css}` | Task 9      |
+| `src/components/ThemeSwitcher.astro`                                 | Task 10     |
 
 ## 11. What the spike showed
 
@@ -256,3 +275,5 @@ The agent that finds a gap stops work on that seam, reports it, and does not wor
 
 - Wave 2, Task 4, breaking (changed meaning), approved by the coordinator: once a `userStopped` train is at rest, the whole scene holds, including the crowd, steam, dwell and `world.time`, where the prototype stopped only the train (section 7). The flags, control bindings and types are unchanged, so no in-flight task pauses.
 - 2026-11-04, additive (Task 5): section 5 adds a 10-second limit on the pin, 3 settling frames, and a pin for section links opened fresh. Section 6 corrects the sentence on the stubs' placeholders. Section 5 reads the key at `popstate` on a history step, and section 4 follows the hash once more at start. `popstate` also ends a pin (section 5), and `THEME_HOOKS` adds `themeSwitcher` (section 6).
+- **Additive (Task 6):** off-screen, a size or colour change gets one `draw` without stepping the world (section 8). Also recorded in section 8: a scene must expect `resize` on show with an unchanged size, and what a throw from `world.update` does.
+- **Additive (Task 6):** the chunk rule in section 8. Scene chunks statically import only the `page` chunk, and themes must not work around it.
