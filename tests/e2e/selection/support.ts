@@ -216,15 +216,26 @@ export async function sceneSettled(
   );
 }
 
-/** The showing theme's switcher, however its header is laid out. */
-export function switcherChoice(page: Page, theme: ThemeName): Locator {
-  return page
-    .getByRole("navigation", { name: "Design theme" })
-    .getByRole("link", { name: THEME_META[theme].label, exact: true });
+/** Hidden themes are out of the accessibility tree, so this is the showing theme's. */
+export function showingSwitcher(page: Page): Locator {
+  return page.getByRole("navigation", { name: "Design theme" });
 }
 
-/** A real click, for when the page's scroll position does not matter. */
+export function switcherToggle(page: Page): Locator {
+  return showingSwitcher(page).getByRole("button", { name: /^Design theme:/ });
+}
+
+/** The showing theme's link for a theme, found whether or not the list is open. */
+export function switcherChoice(page: Page, theme: ThemeName): Locator {
+  return showingSwitcher(page).getByRole("link", {
+    name: new RegExp(`^${THEME_META[theme].label}\\b`),
+    includeHidden: true,
+  });
+}
+
+/** Real clicks, for when the page's scroll position does not matter. */
 export async function pickTheme(page: Page, theme: ThemeName): Promise<void> {
+  await switcherToggle(page).click();
   await switcherChoice(page, theme).click();
 }
 
