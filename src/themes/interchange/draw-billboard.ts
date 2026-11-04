@@ -63,7 +63,7 @@ function widestText(
   texts: readonly string[],
 ): number {
   ctx.font = font;
-  return Math.max(...texts.map((text) => ctx.measureText(text).width));
+  return Math.max(0, ...texts.map((text) => ctx.measureText(text).width));
 }
 
 function measureBoard(
@@ -74,7 +74,7 @@ function measureBoard(
   const keyWidth = widestText(
     ctx,
     fonts.key,
-    items.map(({ label }) => label),
+    items.flatMap(({ label }) => label ?? []),
   );
   const valueWidth = widestText(
     ctx,
@@ -87,8 +87,7 @@ function measureBoard(
     CHIP_INSET +
       labelWidth +
       CHIP_GAP +
-      keyWidth +
-      KEY_VALUE_GAP +
+      (keyWidth > 0 ? keyWidth + KEY_VALUE_GAP : 0) +
       valueWidth +
       TEXT_END_PADDING,
   );
@@ -101,7 +100,9 @@ function rollingSegments(
   tokens: SceneTokens,
 ): MarqueeSegment[] {
   return items.flatMap(({ label, value }) => [
-    { text: label + KEY_GAP, font: fonts.key, color: tokens.boardKey },
+    ...(label
+      ? [{ text: label + KEY_GAP, font: fonts.key, color: tokens.boardKey }]
+      : []),
     { text: value, font: fonts.value, color: tokens.boardValue },
     { text: ITEM_SEPARATOR, font: fonts.key, color: tokens.boardSeparator },
   ]);

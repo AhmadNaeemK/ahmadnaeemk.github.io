@@ -1,27 +1,24 @@
 import { type Page } from "@playwright/test";
 import { THEME_HOOKS } from "../../../src/scene/contract";
 import {
+  clearCanvasTexts,
   expect,
   expectDrawing,
   expectToggle,
   hero,
   isNowLineShowing,
+  nowItemsHtml,
   nowMode,
   openScenePage,
   REDUCED_START_TOGGLE,
+  rewriteThemeHtml,
   root,
   STOPPED_TOGGLE,
   test,
   toggle,
   waitFrames,
 } from "../scene/helpers";
-import {
-  clearCanvasTexts,
-  DESKTOP,
-  lastBoardTexts,
-  logCanvasTexts,
-  THEME,
-} from "./support";
+import { DESKTOP, lastBoardTexts, logCanvasTexts, THEME } from "./support";
 
 const FRAME_AT_THE_COMPACT_LINE = 600;
 /** The hero's side padding. Checked below, so a change shows as itself. */
@@ -131,6 +128,29 @@ test.describe("what the board rolls", () => {
 
     const texts = await lastBoardTexts(page);
     expect(texts.at(-1)?.text).toMatch(/\s$/);
+  });
+
+  test("plain items roll with only their text, and no empty label before it", async ({
+    page,
+  }) => {
+    await logCanvasTexts(page);
+    await rewriteThemeHtml(
+      page,
+      THEME,
+      nowItemsHtml([{ value: "Back at 12:30" }, { value: "https://x.com" }]),
+    );
+    await openScenePage(page);
+
+    const start = await rollPosition(page);
+    await expect.poll(() => rollPosition(page)).not.toBe(start);
+
+    const [, ...rolled] = await lastBoardTexts(page);
+    expect(rolled.slice(0, 4).map(({ text }) => text.trim())).toEqual([
+      "Back at 12:30",
+      "·",
+      "https://x.com",
+      "·",
+    ]);
   });
 
   test("with reduced motion the train holds still but the text rolls until paused", async ({

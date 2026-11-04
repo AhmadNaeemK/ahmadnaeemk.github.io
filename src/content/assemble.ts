@@ -61,6 +61,9 @@ export interface SiteContent {
   now: NowItem[];
 }
 
+const contentFileName = (collection: string) =>
+  collection === "now" ? "now.txt" : `${collection}.yaml`;
+
 /** Fails the build when a collection has no entries, which a schema cannot see. */
 function requireEntries<Data>(
   collection: string,
@@ -68,7 +71,7 @@ function requireEntries<Data>(
 ): Entry<Data>[] {
   if (entries.length === 0) {
     throw new Error(
-      `Content collection "${collection}" is empty. Add an entry to src/content/${collection}.yaml.`,
+      `Content collection "${collection}" is empty. Add an entry to src/content/${contentFileName(collection)}.`,
     );
   }
   return entries;

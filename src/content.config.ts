@@ -1,4 +1,5 @@
 import { defineCollection } from "astro:content";
+import { parseNowFile } from "./content/now-text";
 import {
   createProfileSchema,
   createProjectSchema,
@@ -31,7 +32,7 @@ export const collections = {
     schema: skillGroupSchema,
   }),
   now: defineCollection({
-    loader: strictFile("src/content/now.yaml"),
+    loader: strictFile("src/content/now.txt", parseNowFile),
     schema: nowSchema,
   }),
 };

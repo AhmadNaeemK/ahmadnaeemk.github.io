@@ -414,6 +414,12 @@ describe('"Right now" schema', () => {
     expect(await problemsIn(nowSchema, singleItem)).toEqual([]);
   });
 
+  it("accepts an item with no label", async () => {
+    const plainItem = { items: [{ value: "Back at 12:30" }] };
+
+    expect(await problemsIn(nowSchema, plainItem)).toEqual([]);
+  });
+
   it("rejects an item with an empty value, naming its position", async () => {
     const items = [{ label: "Playing", value: "" }];
 

@@ -13,7 +13,7 @@ const { now } = await getSiteContent();
   <ul class="now__list">
     {now.map(({ label, value }) => (
       <li>
-        <span class="now__k">{label}</span>
+        {label && <span class="now__k">{label}</span>}
         <span class="now__v">{value}</span>
       </li>
     ))}
