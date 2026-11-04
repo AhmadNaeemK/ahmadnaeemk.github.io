@@ -1,0 +1,28 @@
+---
+import { getSiteContent } from "../../../content/site";
+import { sectionId } from "../../../scene/contract";
+import { THEME } from "../theme-name";
+import "./skills.css";
+
+const { skills } = await getSiteContent();
+---
+
+<section id={sectionId(THEME, "skills")} class="sec">
+  <div class="wrap">
+    <h2 class="h2">
+      Skill tree <span class="h2__sub">Skills</span>
+    </h2>
+    <div class="tree">
+      {skills.map(({ group, items }) => (
+        <div>
+          <h3>{group}</h3>
+          <ul>
+            {items.map((skill) => (
+              <li>{skill}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,35 @@
+---
+import ThemeSwitcher from "../../../components/ThemeSwitcher.astro";
+import { getSiteContent } from "../../../content/site";
+import { NAV_SECTIONS, sectionId } from "../../../scene/contract";
+import { THEME } from "../theme-name";
+
+const { profile } = await getSiteContent();
+---
+
+<header class="top">
+  <div class="top__in">
+    <a class="mark" href={`#${sectionId(THEME, "top")}`}>
+      <span class="mark__px" aria-hidden="true"></span>
+      {profile.name}
+    </a>
+    <nav class="menu" aria-label="Sections">
+      {NAV_SECTIONS.map(({ key, label }) => (
+        <a href={`#${sectionId(THEME, key)}`}>{label}</a>
+      ))}
+    </nav>
+    <ThemeSwitcher current={THEME} />
+    <button
+      class="px-btn px-btn--ghost theme"
+      type="button"
+      data-theme-toggle
+      aria-pressed="false"
+      aria-label="Switch theme"
+    >
+      <span class="theme__icon" aria-hidden="true"></span>
+    </button>
+    <a class="px-btn" href={profile.cv} download data-cv>
+      Download CV
+    </a>
+  </div>
+</header>

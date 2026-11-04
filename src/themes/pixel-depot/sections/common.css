@@ -1,0 +1,32 @@
+/* What every game-menu section shares. */
+[data-rail-theme-root="pixel-depot"] {
+  & .sec {
+    padding-block: 56px;
+  }
+  & .h2 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 14px;
+    margin: 0 0 30px;
+    font: 700 clamp(2rem, 4.5vw, 3rem) / 1 var(--fp);
+  }
+  & .h2__sub {
+    color: var(--muted);
+    font: 700 1rem var(--fb);
+  }
+  & .h2::before {
+    content: "";
+    flex: none;
+    align-self: center;
+    width: 14px;
+    height: 14px;
+    background: var(--red);
+    box-shadow: 4px 4px 0 var(--drop);
+  }
+  & .lede {
+    max-width: 60ch;
+    margin: -14px 0 30px;
+    color: var(--muted);
+  }
+}
