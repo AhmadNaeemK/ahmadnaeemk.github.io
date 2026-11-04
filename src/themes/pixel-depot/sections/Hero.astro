@@ -1,0 +1,94 @@
+---
+import KeepHyphenatedWords from "../../../components/KeepHyphenatedWords.astro";
+import RightNow from "../../../components/RightNow.astro";
+import { getSiteContent } from "../../../content/site";
+import { LIVERY_LABELS, LIVERY_ORDER, SPEEDS } from "../../../rail";
+import { sectionId } from "../../../scene/contract";
+import { THEME } from "../theme-name";
+
+const { profile } = await getSiteContent();
+---
+
+<section class="hero" data-rail-hero tabindex="-1" aria-label="Introduction">
+  <div class="wrap">
+    <div class="screen" data-rail-scene-frame>
+      <div class="screen__view">
+        <canvas
+          class="screen__canvas"
+          data-rail-canvas
+          role="img"
+          aria-label="A pixel-art town where the railway track spells ahmad. A small train runs over a stone bridge and through tunnels, and tiny people get on and off at the stations."
+        ></canvas>
+        <p class="screen__static" data-rail-static>
+          <span class="screen__sign">{profile.handle}</span>
+          <span class="screen__note">
+            The town is asleep. The rest of the site is below.
+          </span>
+        </p>
+      </div>
+      <RightNow />
+      <div
+        class="hud"
+        data-rail-controls
+        role="group"
+        aria-label="Train controls"
+      >
+        <button
+          class="hud__btn"
+          type="button"
+          data-rail-toggle
+          aria-pressed="false"
+        >
+          <span class="hud__icon" aria-hidden="true"></span>
+          <span data-rail-label>Stop the train</span>
+        </button>
+        <div class="hud__speed" role="group" aria-label="Speed">
+          <span aria-hidden="true">Speed</span>
+          {SPEEDS.map((_, index) => (
+            <button
+              type="button"
+              data-rail-speed={index}
+              aria-label={`Speed ${index + 1} of ${SPEEDS.length}`}
+              aria-pressed="false"
+            ></button>
+          ))}
+        </div>
+        <div class="hud__trains" role="group" aria-label="Choose a train">
+          <span aria-hidden="true">Train</span>
+          {LIVERY_ORDER.map((id) => (
+            <button
+              class={`chip chip--${id}`}
+              type="button"
+              data-rail-livery={id}
+              title={LIVERY_LABELS[id]}
+              aria-label={LIVERY_LABELS[id]}
+              aria-pressed="false"
+            ></button>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div class="intro">
+      <div>
+        <h1 class="intro__name">{profile.name}</h1>
+        <p class="intro__role">
+          {profile.role}. <KeepHyphenatedWords text={profile.focus} />.
+        </p>
+        <p class="intro__text">{profile.intro}</p>
+      </div>
+      <div class="intro__cta">
+        <a class="px-btn px-btn--big" href={profile.cv} download data-cv>
+          Download CV
+        </a>
+        <a
+          class="px-btn px-btn--ghost px-btn--big"
+          href={`#${sectionId(THEME, "contact")}`}
+        >
+          Get in touch
+        </a>
+        <p class="intro__where">{profile.location}</p>
+      </div>
+    </div>
+  </div>
+</section>

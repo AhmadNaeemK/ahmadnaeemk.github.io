@@ -1,0 +1,153 @@
+/* The shell's rules for every theme. Theme tokens live under each theme's root. */
+
+/* These cannot move under a theme root. color-scheme on a theme root alone reaches
+   neither the page canvas nor the scrollbars. page-appearance.ts sets
+   --rail-page-canvas to the showing theme's --bg. */
+html {
+  background: var(--rail-page-canvas, Canvas);
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) {
+    color-scheme: dark;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+body {
+  margin: 0;
+}
+/* Keeps scrolled content out from under the notch. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 10;
+  background: var(--rail-page-canvas, Canvas);
+}
+
+/* Visibility hangs off one attribute on <html>, with Interchange as the default
+   for no attribute, no JavaScript and any unknown name. */
+[data-rail-theme-root] {
+  min-height: 100vh;
+}
+/* The extra element outranks a theme's own display on its root, which would
+   otherwise tie, come later and show the theme while it is hidden. */
+html [data-rail-theme-root] {
+  display: none;
+}
+html:not([data-rail-theme="diorama"], [data-rail-theme="pixel-depot"])
+  [data-rail-theme-root="interchange"],
+html[data-rail-theme="diorama"] [data-rail-theme-root="diorama"],
+html[data-rail-theme="pixel-depot"] [data-rail-theme-root="pixel-depot"] {
+  display: block;
+}
+
+/* Holds the canvas parent, the controls and "Right now", and answers the size
+   queries for them, so a theme's hero keeps its height when its scene starts. */
+[data-rail-scene-frame] {
+  container: rail-scene / inline-size;
+  position: relative;
+}
+
+/* The canvas appears only once a scene runs, so no JavaScript and a failed load
+   both land on the static hero. !important so a theme can set its own display on
+   these elements without undoing this. */
+[data-rail-theme-root]:not(
+    [data-scene-state="running"],
+    [data-scene-state="paused"]
+  )
+  [data-rail-canvas],
+[data-scene-state="running"] [data-rail-static],
+[data-scene-state="paused"] [data-rail-static] {
+  display: none !important;
+}
+/* The controls keep their space until a scene runs, unseen and out of the tab
+   order and the accessibility tree. */
+[data-rail-theme-root]:not(
+    [data-scene-state="running"],
+    [data-scene-state="paused"]
+  )
+  [data-rail-controls] {
+  visibility: hidden !important;
+}
+/* No scene is coming, so there is nothing to keep the space for. */
+[data-scene-state="failed"] [data-rail-controls] {
+  display: none !important;
+}
+
+/* These do nothing without JavaScript, so they do not show without it. */
+@media (scripting: none) {
+  [data-theme-toggle],
+  [data-copy],
+  [data-theme-switcher],
+  [data-rail-controls] {
+    display: none !important;
+  }
+}
+
+.now {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.now__label {
+  flex: none;
+  white-space: nowrap;
+}
+.now__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.now__list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  align-items: baseline;
+}
+/* An item too long for the line wraps instead of scrolling the page sideways. */
+.now__k,
+.now__v {
+  overflow-wrap: anywhere;
+}
+/* Where a billboard will be drawn, the line never takes space in the frame, so the
+   board taking over moves nothing. Until then it overlays the frame's bottom edge.
+   On a failure no board is coming and the controls have gone, so it returns to the
+   flow rather than cover the static hero. 600px repeats COMPACT_SCENE_WIDTH. */
+@media (scripting: enabled) {
+  @container rail-scene (width >= 600px) {
+    [data-rail-theme-root]:not([data-scene-state="failed"])
+      [data-rail-scene-frame]
+      > .now {
+      position: absolute !important;
+      inset: auto 0 0;
+      margin: 0;
+      z-index: 1;
+    }
+  }
+}
+/* The billboard is drawn, so the line stays for screen readers only. !important
+   because themes may style .now, and any of these would then show the line. */
+[data-now="board"] .now {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+}

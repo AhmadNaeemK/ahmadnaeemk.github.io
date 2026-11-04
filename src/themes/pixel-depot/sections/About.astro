@@ -1,0 +1,52 @@
+---
+import { Image } from "astro:assets";
+import { getSiteContent } from "../../../content/site";
+import { sectionId } from "../../../scene/contract";
+import { THEME } from "../theme-name";
+import "./about.css";
+
+const { profile } = await getSiteContent();
+const { portraitPixels } = profile;
+---
+
+<section id={sectionId(THEME, "about")} class="sec">
+  <div class="wrap">
+    <h2 class="h2">
+      Player <span class="h2__sub">About</span>
+    </h2>
+    <div class="char">
+      <div class="panel char__card">
+        <div
+          class="portrait"
+          tabindex="0"
+          role="img"
+          aria-label={`${profile.portraitAlt}. Hover to sharpen.`}
+        >
+          <img
+            class="portrait__px"
+            src={portraitPixels.url}
+            alt=""
+            width={portraitPixels.width}
+            height={portraitPixels.height}
+            loading="lazy"
+          />
+          <Image class="portrait__full" src={profile.portrait} alt="" />
+        </div>
+        <p class="char__name">{profile.name}</p>
+        <p class="char__class">{profile.role}</p>
+      </div>
+      <div class="char__text">
+        {profile.about.map((paragraph) => (
+          <p>{paragraph}</p>
+        ))}
+        <aside class="panel item">
+          <span class="item__icon" aria-hidden="true"></span>
+          <div>
+            <p class="item__label">Favourite game</p>
+            <p class="item__name">{profile.favouriteGame}</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>

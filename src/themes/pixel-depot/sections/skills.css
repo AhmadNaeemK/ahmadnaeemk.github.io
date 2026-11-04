@@ -1,0 +1,28 @@
+/* Skill tree: the Skills section. */
+[data-rail-theme-root="pixel-depot"] {
+  & .tree {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: 18px 32px;
+  }
+  & .tree h3 {
+    margin: 0 0 8px;
+    color: var(--teal-ink);
+    font: 700 1rem var(--fb);
+  }
+  & .tree ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  & .tree li {
+    padding: 1px 7px;
+    background: var(--panel);
+    box-shadow: var(--notch-2);
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+}

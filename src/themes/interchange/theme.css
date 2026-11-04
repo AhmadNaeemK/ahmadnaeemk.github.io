@@ -1,0 +1,187 @@
+/* The page frame: base type, the header and buttons. */
+[data-rail-theme-root="interchange"] {
+  /* The header's height with one row and with its nav on a second row, for when no
+     script has measured it into --rail-header-height. */
+  --top-height: 66px;
+
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f);
+  font-size: var(--step0);
+  line-height: 1.6;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+
+  &,
+  & * {
+    box-sizing: border-box;
+  }
+  & a {
+    color: inherit;
+  }
+  & :focus-visible {
+    outline: 3px solid var(--cobalt);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  & main,
+  & main > section {
+    scroll-margin-top: calc(
+      var(--rail-header-height, var(--top-height)) +
+        env(safe-area-inset-top, 0px)
+    );
+  }
+  & .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-left: max(20px, env(safe-area-inset-left, 0px));
+    padding-right: max(20px, env(safe-area-inset-right, 0px));
+  }
+
+  & .top {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 5;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--rule);
+  }
+  & .top__in {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-block: 10px;
+    padding-left: max(20px, env(safe-area-inset-left, 0px));
+    padding-right: max(20px, env(safe-area-inset-right, 0px));
+  }
+  & .mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  & .mark__dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--bg);
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    font-size: 18px;
+    line-height: 1;
+    padding-bottom: 3px;
+  }
+  /* From CSS, because a letter in the markup would be visible text the link's
+     aria-label does not start with, which fails label-content-name-mismatch. */
+  & .mark__dot::before {
+    content: attr(data-letter);
+  }
+  & .nav {
+    display: flex;
+    gap: 22px;
+    margin-left: auto;
+  }
+  & .nav a {
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  & .nav a:hover {
+    color: var(--ink);
+  }
+  & .top__actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  & .icon-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    color: var(--ink);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+  & .icon-btn[aria-pressed="true"] svg circle {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+  }
+  & .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px 7px;
+    border-radius: 999px;
+    border: 2px solid var(--ink);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.95rem;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    font-family: var(--f);
+  }
+  & .btn:hover {
+    background: var(--surface);
+  }
+  & .btn--solid {
+    background: var(--ink);
+    color: var(--bg);
+  }
+  & .btn--solid:hover {
+    background: var(--now-label-bg);
+    border-color: var(--now-label-bg);
+    color: var(--on-line);
+  }
+
+  @media (max-width: 920px) {
+    --top-height: 88px;
+
+    & .top__in {
+      flex-wrap: wrap;
+      row-gap: 6px;
+      padding-bottom: 6px;
+    }
+    & .top__actions {
+      margin-left: auto;
+    }
+    & .mark__name {
+      display: none;
+    }
+    & .nav {
+      order: 3;
+      width: 100%;
+      margin: 0;
+      gap: 18px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+    & .top__actions > .btn {
+      display: none;
+    }
+  }
+  /* All five links fit with nothing left to scroll to. Well above where the real fonts
+     need it, because a wider fallback runs out sooner. */
+  @media (max-width: 380px) {
+    & .nav {
+      justify-content: space-between;
+      gap: 0;
+    }
+    & .nav a {
+      padding-block: 4px;
+      font-size: 0.8125rem;
+    }
+  }
+}

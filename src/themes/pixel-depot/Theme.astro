@@ -1,0 +1,40 @@
+---
+/**
+ * Pixel Depot: a cosy pixel-art town and a game menu around it. Each section reads
+ * its own content through `getSiteContent()`, as `<RightNow />` does, so nothing
+ * passes content down as props.
+ */
+import { getSiteContent } from "../../content/site";
+import { sectionId } from "../../scene/contract";
+import About from "./sections/About.astro";
+import Contact from "./sections/Contact.astro";
+import Header from "./sections/Header.astro";
+import Hero from "./sections/Hero.astro";
+import Projects from "./sections/Projects.astro";
+import Skills from "./sections/Skills.astro";
+import Work from "./sections/Work.astro";
+import { THEME } from "./theme-name";
+import "./tokens.css";
+import "./theme.css";
+import "./hero.css";
+import "./sections/common.css";
+
+const { profile } = await getSiteContent();
+---
+
+<div data-rail-theme-root={THEME}>
+  <Header />
+  <main id={sectionId(THEME, "top")}>
+    <Hero />
+    <About />
+    <Work />
+    <Projects />
+    <Skills />
+    <Contact />
+  </main>
+  <footer class="foot">
+    <div class="wrap">
+      &copy; <span data-year>{new Date().getUTCFullYear()}</span> {profile.name}
+    </div>
+  </footer>
+</div>

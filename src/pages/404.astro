@@ -1,0 +1,93 @@
+---
+import { getSiteContent } from "../content/site";
+import Base from "../layouts/Base.astro";
+import {
+  DEFAULT_THEME,
+  THEME_ATTRIBUTE,
+  THEME_ROOT_ATTRIBUTE,
+} from "../scene/contract";
+import "../themes/diorama/tokens.css";
+import "../themes/interchange/tokens.css";
+import "../themes/pixel-depot/tokens.css";
+
+const { profile } = await getSiteContent();
+
+// Plain inline scripts only: a module import here would load the `page` chunk and
+// the engine (contract section 8). Base's head script has already validated the
+// attribute on <html>. The root's script runs before anything inside it is parsed,
+// so no paint shows the root hidden. With no JavaScript, <html> has no attribute
+// and the root keeps the default theme, which the global CSS shows.
+---
+
+<Base title={`Page not found | ${profile.name}`} noindex>
+  <div class="not-found" data-rail-theme-root={DEFAULT_THEME}>
+    <script is:inline define:vars={{ THEME_ATTRIBUTE, THEME_ROOT_ATTRIBUTE }}>
+      const root = document.currentScript.parentElement;
+      const html = document.documentElement;
+      const theme = html.getAttribute(THEME_ATTRIBUTE);
+      if (theme) root.setAttribute(THEME_ROOT_ATTRIBUTE, theme);
+
+      // Overscroll and the safe area paint outside the root, as page-appearance.ts
+      // explains. This page has no colour toggle, so only the system can change it.
+      function syncPageCanvas() {
+        const canvas = getComputedStyle(root).getPropertyValue("--bg").trim();
+        if (canvas) html.style.setProperty("--rail-page-canvas", canvas);
+      }
+      syncPageCanvas();
+      matchMedia("(prefers-color-scheme: dark)").addEventListener(
+        "change",
+        syncPageCanvas,
+      );
+    </script>
+    <main class="not-found__main">
+      <p class="not-found__code">404</p>
+      <h1 class="not-found__title">Page not found</h1>
+      <p class="not-found__note">
+        The address may be wrong, or the page may have moved. The old blog is no
+        longer here.
+      </p>
+      <a class="not-found__home" href={import.meta.env.BASE_URL}>
+        Back to the home page
+      </a>
+    </main>
+  </div>
+</Base>
+
+<style>
+  .not-found {
+    background: var(--bg);
+    color: var(--ink);
+    /* The contract gives a theme's colours as tokens, but not its fonts. */
+    font-family: system-ui, sans-serif;
+    line-height: 1.5;
+  }
+  .not-found__main {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 100vh;
+    max-width: 36rem;
+    margin-inline: auto;
+    padding: max(1.5rem, env(safe-area-inset-top))
+      max(1.5rem, env(safe-area-inset-right))
+      max(1.5rem, env(safe-area-inset-bottom))
+      max(1.5rem, env(safe-area-inset-left));
+  }
+  .not-found__code,
+  .not-found__note {
+    margin: 0;
+    color: var(--muted);
+  }
+  .not-found__title {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+  .not-found__home {
+    color: inherit;
+    font-weight: 600;
+  }
+</style>

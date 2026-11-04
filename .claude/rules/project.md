@@ -10,37 +10,38 @@ Elsewhere in the workflow, `<test>`, `<lint>`, `<base-branch>`, and similar plac
 
 ## Project
 
-- **What it is:** Personal website and blog, used to learn UI/UX and React with MUI.
+- **What it is:** Personal website and portfolio: a static Astro site with three train-themed presentations.
 - **Repository:** `AhmadNaeemK/ahmadnaeemk.github.io` (public, so never commit secrets or details from other projects)
 
 ## Stack
 
-- **Language:** JavaScript (no TypeScript)
-- **Framework:** React 17, Create React App (`react-scripts` 5)
-- **UI:** MUI v5 + Emotion
-- **State:** Redux Toolkit, `react-redux`
-- **Routing:** `react-router-dom` v6
-- **Other:** `react-p5` for canvas sketches
-- **Test tooling:** Jest (via `react-scripts`), React Testing Library 12, `user-event` 13
-- **Stack add-ons:** `.claude/rules/react.md`
+- **Language:** TypeScript (`strict`)
+- **Framework:** Astro, static output, no UI framework
+- **Runtime:** Node 24, pinned in `.nvmrc` (`nvm use` picks it up; CI reads the same file) and `engines` in `package.json`
+- **Package manager:** npm, with a committed `package-lock.json`
+- **Lint and format:** ESLint flat config (TypeScript and Astro plugins), Prettier (Astro plugin)
+- **Test tooling:** Vitest with v8 coverage for unit tests, Playwright (Chromium and WebKit) for e2e against the built site
+- **Stack add-ons:** none
 
 ## Commands
 
-| Slot             | Command                 | Notes                                                       |
-| ---------------- | ----------------------- | ----------------------------------------------------------- |
-| `<install>`      | `npm ci`                |                                                             |
-| `<dev>`          | `npm start`             | Serves on port 3000                                         |
-| `<test>`         | `CI=true npm test --`   | Append a path or `-t "name"`; `CI=true` stops watch mode    |
-| `<lint>`         | `npx eslint src`        | Uses the `eslintConfig` in `package.json`                   |
-| `<lint-fix>`     | `npx eslint src --fix`  |                                                             |
-| `<typecheck>`    | `none`                  |                                                             |
-| `<format-check>` | `none`                  |                                                             |
-| `<build>`        | `npm run build`         | The only check CI runs on pull requests (Node 16)           |
-| `<e2e>`          | `none`                  |                                                             |
-| `<e2e-setup>`    | `none`                  |                                                             |
+| Slot             | Command                     | Notes                                                                 |
+| ---------------- | --------------------------- | --------------------------------------------------------------------- |
+| `<install>`      | `npm ci`                    |                                                                       |
+| `<dev>`          | `npm run dev`               | Serves on port 4321                                                   |
+| `<test>`         | `npm test --`               | Vitest, single run. Append a path or `-t "name"`. Coverage: `npm run test:coverage` |
+| `<lint>`         | `npm run lint`              | Does not scan `design/`                                               |
+| `<lint-fix>`     | `npm run lint:fix`          |                                                                       |
+| `<typecheck>`    | `npm run typecheck`         | `astro check`; does not cover `design/`                               |
+| `<format-check>` | `npm run format:check`      | Skips `design/` and `.claude/`. Fix with `npm run format`             |
+| `<build>`        | `npm run build`             | Writes the static site to `dist/`                                     |
+| `<e2e>`          | `npm run test:e2e`          | Builds, then serves through `astro preview` on a port derived from the checkout's path (override with `E2E_PORT`). In CI it serves the `dist/` the workflow built |
+| `<e2e-setup>`    | `npm run test:e2e:install`  | Downloads the Chromium and WebKit browsers                            |
 
-- **CI-parity checks** (run before opening a PR): `<lint>`, `<test>`, `<build>`
-- **Pre-commit checks:** no git hooks are installed, so whoever is about to commit runs `<lint>` and targeted `<test>` first.
+- **CI-parity checks** (run before opening a PR): `<lint>`, `<format-check>`, `<typecheck>`, `npm run test:coverage`, `<build>`, `<e2e>`. `.github/workflows/checks.yml` runs them in that order, on every pull request and on pushes to `main`.
+- **Node version:** local commands need Node 24 from `.nvmrc`, so run `nvm use` first.
+- **Background servers:** Astro detaches `npm run dev` and `astro preview` when it detects a coding agent. Stop them with `npx astro dev stop` or `npx astro preview stop`.
+- **Pre-commit checks:** no git hooks are installed, so whoever is about to commit runs `<lint>`, `<format-check>` and targeted `<test>` first.
 
 ## Git and delivery
 
@@ -48,23 +49,27 @@ Elsewhere in the workflow, `<test>`, `<lint>`, `<base-branch>`, and similar plac
 - **Branch naming:** `ahmad/<short-slug>`
 - **Commit style:** Conventional Commits, not enforced by tooling (see `.claude/rules/commit-conventions.md`)
 - **PR template:** `none`
-- **Deploy:** pushing to `main` builds and publishes to GitHub Pages (`.github/workflows/deploy.yml`)
+- **Deploy:** pushing to `main`, or running the `Deployment` workflow by hand, runs `.github/workflows/deploy.yml`, which builds the site with `withastro/action` and publishes it to GitHub Pages through Actions. The custom domain lives in the repository's Pages settings. `docs/cut-over.md` has the smoke check and rollback.
+- **Canonical host:** `https://www.ahmadnaeem.dev`
 
 ## Layout
 
-| Kind of code            | Location                                  |
-| ----------------------- | ----------------------------------------- |
-| Layout shells           | `src/components/layout/`                  |
-| Page content            | `src/components/content/`                 |
-| Canvas sketches         | `src/components/canvas/`                  |
-| Shared helpers          | `src/components/utils/`                   |
-| Redux store             | `src/app/store.js`                        |
-| Redux slices            | `src/features/`                           |
-| Static assets           | `src/components/assets/`, `public/`       |
-| Design explorations     | `design/`                                 |
+| Kind of code                                   | Location          |
+| ---------------------------------------------- | ----------------- |
+| Content collections                            | `src/content/`    |
+| Train simulation (framework-free)              | `src/rail/`       |
+| Scene lifecycle shared by the themes           | `src/scene/`      |
+| Bundling rule for scene chunks                 | `scene-chunks.mjs` |
+| Themes                                         | `src/themes/`     |
+| Shared components                              | `src/components/` |
+| Page layouts                                   | `src/layouts/`    |
+| Routes                                         | `src/pages/`      |
+| Static assets                                  | `public/`         |
+| E2E tests                                      | `tests/e2e/`      |
+| Design prototypes (reference only, not built)  | `design/`         |
 
-- **Test file patterns:** `src/**/*.test.js`, `src/setupTests.js`
-- **Design tokens:** `src/components/assets/themes/`
+- **Test file patterns:** `src/**/*.test.ts`, `tests/e2e/**`
+- **Design tokens:** shared tokens in `src/layouts/`, per-theme tokens in `src/themes/`
 
 ## Integrations
 

@@ -1,0 +1,177 @@
+/* Custom properties and color-scheme only. Values with no dark rule hold in both. */
+[data-rail-theme-root="diorama"] {
+  --sky1: #f6c79b;
+  --sky2: #f5dcd2;
+  --bg: #f4e4de;
+  --paper: #fff7f2;
+  --ink: #33201a;
+  --muted: #75584a;
+  --rule: #e7c9a6;
+  --cream: #fff6ea;
+  --sun: #ffe08a;
+  --moon: #f3e6c8;
+  --darken: #000;
+
+  --brick: #b8442f;
+  /* The fill behind --cream text, kept apart from --brick so dark can hold 4.5:1. */
+  --brick-fill: #b8442f;
+  --mustard: #d39a2b;
+  --moss: #6f7f38;
+  --wood: #8b5a36;
+  --wood2: #6b4228;
+
+  --board: #2d2420;
+  --board-ink: #ffd77a;
+  --board-text: #f4e9d8;
+  --board-soft: #cdbca6;
+  --board-body: #e8dccb;
+  --board-rule: rgb(255 255 255 / 10%);
+
+  --lid-tomato: #a93a25;
+  --lid-plum: #7e3b6f;
+  --lid-marigold: #e3ae45;
+  --lid-teal: #2a7062;
+  --lid-cobalt: #34609f;
+  --lid-ink-marigold: #2b1a12;
+  --lid-stripe: rgb(255 255 255 / 7%);
+  --logo-shadow: rgb(0 0 0 / 18%);
+
+  --fd:
+    "Big Shoulders Display", "Big Shoulders Display Fallback", "Arial Narrow",
+    Impact, sans-serif;
+  --fb: "Figtree", "Figtree Fallback", "Segoe UI", system-ui, sans-serif;
+
+  /* Canvas: the ground. */
+  --grass: #b6b35e;
+  --grass2: #a29f4d;
+  --ballast: #a08b7b;
+  --ballast2: #7f6b5d;
+  --sleeper: #6a4632;
+  --rail: #6e6865;
+  --rail-hi: #d8d0c8;
+  --stone: #c9b49a;
+  --stone2: #a48d74;
+  --shadow: rgb(60 30 10 / 25%);
+  --teal: #2f7f6e;
+  --pond-glint: rgb(255 255 255 / 45%);
+  --tunnel-mouth: #1a1210;
+  --flower-gold: #f2c14e;
+  --flower-coral: #e86a5a;
+  --flower-cream: #fff1d8;
+  --flower-pink: #d98ab8;
+
+  /* Canvas: the scenery. */
+  --tree-olive: #7e8c35;
+  --tree-amber: #c68a2a;
+  --tree-rust: #a9542b;
+  --tree-moss: #8f9a3c;
+  --tree-gold: #d2a13a;
+  --trunk: #6a4632;
+  --house-front: #f2e2c8;
+  --house-side: #dcc7a8;
+  --roof-brick: #b8442f;
+  --roof-plum: #7e3b6f;
+  --roof-cobalt: #34609f;
+  --pane: #3a3f49;
+  --lamp-head: #e9d9b8;
+  --lamp-post: #3b3330;
+  --canopy-post: #4a3a34;
+
+  /* Canvas: the train and what it gives off. */
+  --car-edge: rgb(30 18 12 / 45%);
+  --tender-top: #1d1714;
+  --loco-base: #2a2220;
+  --loco-funnel: #231c1a;
+  --steam: #fffbf4;
+  /* Channels, since the glows fade this colour to nothing. */
+  --glow-rgb: 255, 200, 110;
+
+  /* Canvas: the billboard. */
+  --billboard-face: #1e1612;
+  --billboard-separator: #8c7a66;
+
+  --dd-bg: var(--paper);
+  --dd-fg: var(--ink);
+  --dd-muted: var(--muted);
+  --dd-line: var(--rule);
+
+  color-scheme: light;
+
+  :root[data-theme="dark"] & {
+    --sky1: #1c1628;
+    --sky2: #241b2a;
+    --bg: #1f1823;
+    --paper: #2b2230;
+    --ink: #f5e6d3;
+    --muted: #c3ae9e;
+    --rule: #3d3140;
+    --brick: #e0654a;
+    --brick-fill: #be4a33;
+    --mustard: #f0b848;
+    --moss: #9db05a;
+    --wood: #6b4630;
+    --wood2: #4e321f;
+    --board: #120e14;
+    --lid-tomato: #9e3a28;
+    --lid-plum: #7a3d6c;
+    --lid-teal: #22665a;
+    --lid-cobalt: #2f5891;
+    --grass: #3e4a31;
+    --grass2: #34402a;
+    --ballast: #5d5258;
+    --ballast2: #463d43;
+    --sleeper: #3f2d25;
+    --rail: #8d8a92;
+    --rail-hi: #c9c2d4;
+    --stone: #6e6270;
+    --stone2: #554957;
+    --shadow: rgb(0 0 0 / 35%);
+    --teal: #4fb29c;
+    --house-front: #5b4a44;
+    --house-side: #4a3c38;
+    --pane: #ffc860;
+    --lamp-head: #ffc860;
+    --steam: #9c94a8;
+    color-scheme: dark;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) & {
+      --sky1: #1c1628;
+      --sky2: #241b2a;
+      --bg: #1f1823;
+      --paper: #2b2230;
+      --ink: #f5e6d3;
+      --muted: #c3ae9e;
+      --rule: #3d3140;
+      --brick: #e0654a;
+      --brick-fill: #be4a33;
+      --mustard: #f0b848;
+      --moss: #9db05a;
+      --wood: #6b4630;
+      --wood2: #4e321f;
+      --board: #120e14;
+      --lid-tomato: #9e3a28;
+      --lid-plum: #7a3d6c;
+      --lid-teal: #22665a;
+      --lid-cobalt: #2f5891;
+      --grass: #3e4a31;
+      --grass2: #34402a;
+      --ballast: #5d5258;
+      --ballast2: #463d43;
+      --sleeper: #3f2d25;
+      --rail: #8d8a92;
+      --rail-hi: #c9c2d4;
+      --stone: #6e6270;
+      --stone2: #554957;
+      --shadow: rgb(0 0 0 / 35%);
+      --teal: #4fb29c;
+      --house-front: #5b4a44;
+      --house-side: #4a3c38;
+      --pane: #ffc860;
+      --lamp-head: #ffc860;
+      --steam: #9c94a8;
+      color-scheme: dark;
+    }
+  }
+}

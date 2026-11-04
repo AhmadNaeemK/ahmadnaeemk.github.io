@@ -1,0 +1,49 @@
+---
+import { Image } from "astro:assets";
+import { getSiteContent } from "../../../content/site";
+import { sectionId } from "../../../scene/contract";
+import { THEME } from "../theme-name";
+import "./projects.css";
+
+const { profile, projects } = await getSiteContent();
+---
+
+<section id={sectionId(THEME, "projects")} class="sec">
+  <div class="wrap">
+    <h2 class="h2">
+      Inventory <span class="h2__sub">Projects</span>
+    </h2>
+    <p class="lede">{profile.projectsLede}</p>
+    <div class="inv">
+      {projects.map((project) => (
+        <article class={`panel slot slot--${project.color}`}>
+          <div class="slot__head">
+            <Image
+              class="slot__logo"
+              src={project.logo}
+              alt={`${project.name} logo`}
+            />
+            <div>
+              <h3>{project.name}</h3>
+              <p>{project.blurb}</p>
+            </div>
+          </div>
+          <p class="slot__meta">
+            <span>{project.role}</span>
+            <span>{project.dates}</span>
+          </p>
+          <ul>
+            {project.points.map((point) => (
+              <li>{point}</li>
+            ))}
+          </ul>
+          <p class="slot__tech">
+            {project.tech.map((name) => (
+              <span>{name}</span>
+            ))}
+          </p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

@@ -7,9 +7,18 @@
 
 # testing
 /coverage
+/playwright-report
+/test-results
+/blob-report
 
 # production
-/build
+/dist
+
+# astro
+/.astro
+
+# design prototypes
+/design/train-concepts/dist/
 
 # misc
 .DS_Store

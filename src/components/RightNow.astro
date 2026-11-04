@@ -1,0 +1,21 @@
+---
+/**
+ * The HTML "Right now" line, in one place for every theme. All items show at
+ * once and wrap, so a single item has nothing to cycle and a long one fits.
+ */
+import { getSiteContent } from "../content/site";
+
+const { now } = await getSiteContent();
+---
+
+<div class="now" role="group" aria-label="What I'm into right now">
+  <span class="now__label">Right now</span>
+  <ul class="now__list">
+    {now.map(({ label, value }) => (
+      <li>
+        {label && <span class="now__k">{label}</span>}
+        <span class="now__v">{value}</span>
+      </li>
+    ))}
+  </ul>
+</div>

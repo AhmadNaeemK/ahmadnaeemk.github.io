@@ -1,0 +1,65 @@
+/* What every section below the hero shares. Each wears the colour of its letter's line. */
+[data-rail-theme-root="interchange"] {
+  & .sec {
+    padding-block: 64px;
+    border-top: 1px solid var(--rule);
+  }
+  & .h2 {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: var(--step2);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin: 0 0 28px;
+  }
+  & .bullet {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--on-line);
+    font-size: 22px;
+    font-weight: 900;
+    padding-bottom: 4px;
+    flex: none;
+  }
+  & .line-marigold {
+    --c: var(--marigold);
+    --on-c: var(--on-marigold);
+  }
+  & .line-tomato {
+    --c: var(--tomato);
+    --on-c: var(--on-line);
+  }
+  & .line-teal {
+    --c: var(--teal);
+    --on-c: var(--on-line);
+  }
+  & .line-plum {
+    --c: var(--plum);
+    --on-c: var(--on-line);
+  }
+  & .line-cobalt {
+    --c: var(--cobalt);
+    --on-c: var(--on-line);
+  }
+  & .bullet,
+  & .sign__bullets span {
+    background: var(--c);
+    color: var(--on-c);
+  }
+  & .lede {
+    color: var(--muted);
+    margin: -12px 0 28px;
+    max-width: 60ch;
+  }
+
+  & .foot {
+    border-top: 1px solid var(--rule);
+    padding-block: 22px max(22px, env(safe-area-inset-bottom, 0px));
+    color: var(--muted);
+    font-size: var(--step-1);
+  }
+}

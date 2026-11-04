@@ -1,5 +1,43 @@
-The project is a personal website to learn UI/UX designs and development and also getting familiar with using hooks and functional components of react with MUI.
-I might make some blog posts here too.
+# ahmadnaeem.dev
 
+Personal website and portfolio, published at <https://www.ahmadnaeem.dev>. A static [Astro](https://astro.build) site written in TypeScript, with three train-themed presentations of the same content: Interchange, Diorama and Pixel Depot.
 
-![repo thumb](https://user-images.githubusercontent.com/46021475/156512522-09f8c9e0-ebde-4621-bae5-a3832565424c.png)
+## Setup
+
+The Node version is pinned in `.nvmrc`.
+
+```sh
+nvm use
+npm ci
+npm run test:e2e:install # only needed for the e2e tests
+```
+
+## Commands
+
+| Command                 | What it does                                    |
+| ----------------------- | ----------------------------------------------- |
+| `npm run dev`           | Starts the dev server on port 4321              |
+| `npm run build`         | Builds the static site into `dist/`             |
+| `npm run preview`       | Serves the built site                           |
+| `npm run lint`          | Runs ESLint                                     |
+| `npm run format:check`  | Checks formatting with Prettier                 |
+| `npm run typecheck`     | Runs `astro check`                              |
+| `npm test`              | Runs the Vitest unit tests                      |
+| `npm run test:coverage` | Runs the unit tests with coverage               |
+| `npm run test:e2e`      | Rebuilds, then runs Playwright against the site |
+
+`design/` holds the visual prototypes the site is built from. It is reference material and is not part of the build.
+
+## Deploying
+
+Pushing to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), which builds the site and publishes it to GitHub Pages through Actions. To publish again without a new commit, run the `Deployment` workflow by hand. The custom domain is set in the repository's Pages settings, not in a `CNAME` file.
+
+[`docs/cut-over.md`](docs/cut-over.md) has the smoke check and the rollback.
+
+## Where things are explained
+
+- [`src/content/README.md`](src/content/README.md): the site's content and how to edit it.
+- [`docs/rfcs/theme-contract.md`](docs/rfcs/theme-contract.md): how a theme plugs into the page and the scene runtime.
+- [`docs/rfcs/theme-contract-history.md`](docs/rfcs/theme-contract-history.md): why that contract took its shape.
+- [`scripts/og-image.mjs`](scripts/og-image.mjs): how to regenerate the link-preview image, `public/og-image.png`.
+- [`scripts/favicon.mjs`](scripts/favicon.mjs): how to regenerate `public/favicon.ico` and `public/apple-touch-icon.png` from `public/favicon.svg`.

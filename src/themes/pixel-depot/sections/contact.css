@@ -1,0 +1,66 @@
+/* Save point: the Contact section. */
+[data-rail-theme-root="pixel-depot"] {
+  & .save {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 30px;
+    padding: 30px;
+  }
+  & .save__photo {
+    display: block;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 12px;
+    object-fit: cover;
+    box-shadow: var(--notch-3);
+  }
+  & .save__text {
+    max-width: 50ch;
+    margin: 0;
+    color: var(--muted);
+  }
+  & .save__mail {
+    margin: 10px 0 18px;
+    color: var(--red-ink);
+    font: 700 var(--contact-email-size) / 1.2 var(--fb);
+    overflow-wrap: anywhere;
+  }
+  & .save__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+  & .save__links {
+    display: grid;
+    gap: 14px;
+    align-content: center;
+    margin: 0;
+    padding: 0 0 0 30px;
+    border-left: 4px dotted var(--drop);
+    list-style: none;
+  }
+  & .save__links li {
+    display: flex;
+    flex-direction: column;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+  & .save__links a {
+    font-size: var(--contact-link-size);
+  }
+  & .save__links span {
+    color: var(--muted);
+    font: 700 0.85rem var(--fb);
+  }
+  @media (max-width: 760px) {
+    & .save {
+      grid-template-columns: 1fr;
+      padding: 22px;
+    }
+    & .save__links {
+      padding: 20px 0 0;
+      border-left: 0;
+      border-top: 4px dotted var(--drop);
+    }
+  }
+}

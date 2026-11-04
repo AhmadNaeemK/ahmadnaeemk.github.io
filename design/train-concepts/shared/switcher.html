@@ -1,0 +1,14 @@
+{% if combined %}
+<div class="dd">
+  <button type="button" class="dd__btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="{{ px }}dd-list" aria-label="Design theme: {{ {'a': 'Interchange', 'b': 'Diorama', 'c': 'Pixel Depot'}[cid] }}">
+    <span class="sw-ico sw-ico--{{ cid }}" aria-hidden="true"></span>
+    <span class="dd__v">{{ {'a': 'Interchange', 'b': 'Diorama', 'c': 'Pixel Depot'}[cid] }}</span>
+    <svg class="dd__chev" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <ul class="dd__list" id="{{ px }}dd-list" role="listbox" aria-label="Design theme" hidden>
+    <li role="option" tabindex="-1" data-concept-btn="a" aria-selected="{{ 'true' if cid == 'a' else 'false' }}"><span class="sw-ico sw-ico--a" aria-hidden="true"></span><span><b>Interchange</b><small>Top-down transit map</small></span></li>
+    <li role="option" tabindex="-1" data-concept-btn="b" aria-selected="{{ 'true' if cid == 'b' else 'false' }}"><span class="sw-ico sw-ico--b" aria-hidden="true"></span><span><b>Diorama</b><small>Model railway with day and night</small></span></li>
+    <li role="option" tabindex="-1" data-concept-btn="c" aria-selected="{{ 'true' if cid == 'c' else 'false' }}"><span class="sw-ico sw-ico--c" aria-hidden="true"></span><span><b>Pixel Depot</b><small>Pixel-art town</small></span></li>
+  </ul>
+</div>
+{% endif %}
