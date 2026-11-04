@@ -114,13 +114,15 @@ Task 5 writes `aria-pressed` and `aria-label` on `data-theme-toggle`: pressed me
 
 **Text clock (E18, Q4).** Billboard text rolls on `world.textTime`, never `world.time`, and has no reduced-motion branch anywhere. Text rolls for everyone until a visitor pauses it.
 
-`userStopped` and `textPaused` give three reachable states. A reduced-motion visitor starts in the second, with the train stopped and the text rolling. Their first press pauses the text and does not start the train, so pausing never requires adding motion.
+`userStopped` and `textPaused` give three reachable states. A reduced-motion visitor starts in the second, with the scene still and the text rolling. Their first press pauses the text and does not start the train, so pausing never requires adding motion.
 
-| State                  | `userStopped` | `textPaused` | Train   | Text   | `data-state` | `aria-pressed` | Label           | Press gives |
-| ---------------------- | ------------- | ------------ | ------- | ------ | ------------ | -------------- | --------------- | ----------- |
-| Running (normal start) | false         | false        | Runs    | Rolls  | `go`         | `false`        | Stop the train  | Stopped     |
-| Reduced-motion start   | true          | false        | Stopped | Rolls  | `stop`       | `false`        | Pause the text  | Stopped     |
-| Stopped                | true          | true         | Stopped | Paused | `stop`       | `true`         | Start the train | Running     |
+**What `userStopped` means.** The scene goes still when the train comes to rest, not at the press. A moving train brakes for up to about 2.75 s from the top speed, and everything runs as normal until it stops. From then on the crowd, the steam, any dwell at a station and `world.time` all hold, so a scene that animates from `world.time` freezes with no code of its own. A reduced-motion start is already at rest, so it is still from the first frame. `world.textTime` obeys `textPaused` alone, so a press pauses text at once. If a braking train reaches a station, passengers start getting on and off as usual on that frame, then hold where they are. Starting again resumes exactly where things left off, with no jump. A livery change still applies at once. A livery change at rest leaves any steam already in the air where it is until the train restarts.
+
+| State                  | `userStopped` | `textPaused` | Scene              | Text   | `data-state` | `aria-pressed` | Label           | Press gives |
+| ---------------------- | ------------- | ------------ | ------------------ | ------ | ------------ | -------------- | --------------- | ----------- |
+| Running (normal start) | false         | false        | Runs               | Rolls  | `go`         | `false`        | Stop the train  | Stopped     |
+| Reduced-motion start   | true          | false        | Still              | Rolls  | `stop`       | `false`        | Pause the text  | Stopped     |
+| Stopped                | true          | true         | Still once at rest | Paused | `stop`       | `true`         | Start the train | Running     |
 
 - **`createWorld`:** `startStopped: true` gives the reduced-motion start, and false gives running. The world is never in the reduced-motion start again after leaving it.
 - **Compact widths are the one exception, and it lives in Task 6's binding, not the engine.** When `size.compact` is true on a reduced-motion start, nothing moves, so "Pause the text" would have nothing to pause. The control shows `data-state="stop"`, `aria-pressed="true"` and "Start the train", and a press calls `toggleStop(false)`, giving Running. Wide widths keep the table. If the width changes in this state, the control follows the current width.
@@ -253,3 +255,4 @@ The agent that finds a gap stops work on that seam, reports it, and does not wor
 ### Change log
 
 - 2026-11-04, additive (Task 5): section 5 adds a 10-second limit on the pin, 3 settling frames, and a pin for section links opened fresh. Section 6 corrects the sentence on the stubs' placeholders. Section 5 reads the key at `popstate` on a history step, and section 4 follows the hash once more at start. `popstate` also ends a pin (section 5), and `THEME_HOOKS` adds `themeSwitcher` (section 6).
+- Wave 2, Task 4, breaking (changed meaning), approved by the coordinator: once a `userStopped` train is at rest, the whole scene holds, including the crowd, steam, dwell and `world.time`, where the prototype stopped only the train (section 7). The flags, control bindings and types are unchanged, so no in-flight task pauses.
