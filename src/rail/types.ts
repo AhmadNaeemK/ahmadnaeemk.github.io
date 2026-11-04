@@ -173,7 +173,10 @@ export interface WorldView {
   readonly tunnels: readonly Tunnel[];
   readonly stations: readonly Station[];
 
-  /** Seconds the world has been stepped. Animate from it, not billboard text. */
+  /**
+   * Seconds the scene has run. It stands still once a stopped train is at rest,
+   * so whatever animates from it freezes too. Not for billboard text.
+   */
   readonly time: number;
   /**
    * The clock billboard text rolls on. It stops only when the visitor pauses the
@@ -217,10 +220,17 @@ export interface WorldControls {
 /** The whole engine object. Only the scene runtime ever holds this type. */
 export interface World extends WorldView, WorldControls {
   readonly speedIndex: number;
+  /**
+   * Brakes a moving train. Once it is at rest the whole scene is still: crowd,
+   * steam, dwell and `time`. Only `textTime` has its own flag.
+   */
   readonly userStopped: boolean;
   /** True once the visitor stops things, false once they start them. */
   readonly textPaused: boolean;
-  /** Advances the simulation. Bad frame times are clamped to 0 to 0.05 s. */
+  /**
+   * Advances the simulation, as far as `userStopped` lets it. Bad frame times are
+   * clamped to 0 to 0.05 s.
+   */
   update(dtSeconds: number): void;
 }
 
@@ -228,7 +238,7 @@ export interface CreateWorldOptions {
   readonly seed: number;
   /** An unknown id falls back to `DEFAULT_LIVERY`. */
   readonly livery: string;
-  /** Stops the train but not the text: `textPaused` still starts false. */
+  /** Starts the scene still but not the text: `textPaused` still starts false. */
   readonly startStopped: boolean;
 }
 

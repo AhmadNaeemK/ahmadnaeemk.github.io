@@ -1,20 +1,14 @@
 /**
  * The engine's public entry point. Everything outside `src/rail/` imports from
- * here. Task 4 replaces `./stub` behind these same names and types.
+ * here.
  */
-export {
-  createWorld,
-  marquee,
-  marqueeSegments,
-  nowCycle,
-  sample,
-  SPEEDS,
-  TAU,
-} from "./stub";
+export { marquee, marqueeSegments, nowCycle } from "./billboard";
+export { sample, TAU } from "./geometry";
 export {
   DEFAULT_LIVERY,
   isLiveryId,
   LIVERY_LABELS,
   LIVERY_ORDER,
 } from "./liveries";
+export { createWorld, SPEEDS } from "./world";
 export type * from "./types";
