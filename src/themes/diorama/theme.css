@@ -192,7 +192,8 @@
       gap: 10px;
     }
   }
-  @media (max-width: 345px) {
+  /* Well above where the real fonts need it, because a wider fallback runs out sooner. */
+  @media (max-width: 380px) {
     & .nav {
       justify-content: space-between;
       gap: 0;

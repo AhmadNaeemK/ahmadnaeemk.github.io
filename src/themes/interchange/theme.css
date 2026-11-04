@@ -172,8 +172,9 @@
       display: none;
     }
   }
-  /* All five links fit with nothing left to scroll to. */
-  @media (max-width: 345px) {
+  /* All five links fit with nothing left to scroll to. Well above where the real fonts
+     need it, because a wider fallback runs out sooner. */
+  @media (max-width: 380px) {
     & .nav {
       justify-content: space-between;
       gap: 0;
