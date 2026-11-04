@@ -1,13 +1,48 @@
 /* The shell's rules for every theme. Theme tokens live under each theme's root. */
+
+/* These cannot move under a theme root. color-scheme on a theme root alone reaches
+   neither the page canvas nor the scrollbars. page-appearance.ts sets
+   --rail-page-canvas to the showing theme's --bg. */
+html {
+  background: var(--rail-page-canvas, Canvas);
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) {
+    color-scheme: dark;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
 body {
   margin: 0;
+}
+/* Keeps scrolled content out from under the notch. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 10;
+  background: var(--rail-page-canvas, Canvas);
 }
 
 /* Visibility hangs off one attribute on <html>, with Interchange as the default
    for no attribute, no JavaScript and any unknown name. */
 [data-rail-theme-root] {
-  display: none;
   min-height: 100vh;
+}
+/* The extra element outranks a theme's own display on its root, which would
+   otherwise tie, come later and show the theme while it is hidden. */
+html [data-rail-theme-root] {
+  display: none;
 }
 html:not([data-rail-theme="diorama"], [data-rail-theme="pixel-depot"])
   [data-rail-theme-root="interchange"],
@@ -27,6 +62,15 @@ html[data-rail-theme="pixel-depot"] [data-rail-theme-root="pixel-depot"] {
 [data-scene-state="running"] [data-rail-static],
 [data-scene-state="paused"] [data-rail-static] {
   display: none !important;
+}
+
+/* These do nothing without JavaScript, so they do not show without it. */
+@media (scripting: none) {
+  [data-theme-toggle],
+  [data-copy],
+  [data-theme-switcher] {
+    display: none !important;
+  }
 }
 
 .now {
@@ -49,17 +93,24 @@ html[data-rail-theme="pixel-depot"] [data-rail-theme-root="pixel-depot"] {
 }
 .now__list li {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.4em;
   align-items: baseline;
 }
-/* The billboard is drawn, so the line stays for screen readers only. */
+/* An item too long for the line wraps instead of scrolling the page sideways. */
+.now__k,
+.now__v {
+  overflow-wrap: anywhere;
+}
+/* The billboard is drawn, so the line stays for screen readers only. !important
+   because themes may style .now, and any of these would then show the line. */
 [data-now="board"] .now {
   position: absolute !important;
-  width: 1px;
-  height: 1px;
+  width: 1px !important;
+  height: 1px !important;
   padding: 0 !important;
   border: 0 !important;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
 }

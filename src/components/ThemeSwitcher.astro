@@ -1,8 +1,9 @@
 ---
 /**
  * PLACEHOLDER. Task 10 replaces this with the dropdown behind the same props,
- * so themes keep it without changing their own files. Until Task 5 reads the
- * hash, these links change nothing.
+ * so themes keep it without changing their own files. Keep `data-theme-switcher`
+ * on the outer element: it is where focus lands after a switch, and what hides
+ * without JavaScript.
  */
 import { THEME_NAMES, themeHash, type ThemeName } from "../scene/contract";
 import { THEME_META } from "../themes/registry";
@@ -14,16 +15,37 @@ interface Props {
 const { current } = Astro.props;
 ---
 
-<nav class="theme-switcher" aria-label="Design theme">
+<nav class="theme-switcher" aria-label="Design theme" data-theme-switcher>
   {THEME_NAMES.map((name) => (
     <a
       href={themeHash(name)}
+      data-theme-choice={name}
       aria-current={name === current ? "true" : undefined}
     >
       {THEME_META[name].label}
     </a>
   ))}
 </nav>
+
+<script>
+  import { isThemeName } from "../scene/contract";
+  import { chooseTheme } from "../scene/theme";
+
+  for (const link of document.querySelectorAll<HTMLElement>(
+    "[data-theme-choice]",
+  )) {
+    link.addEventListener("click", (event) => {
+      // A modified click opens a new tab, which is a shared link and not a pick.
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+      }
+      const theme = link.dataset.themeChoice;
+      if (!isThemeName(theme)) return;
+      event.preventDefault();
+      chooseTheme(theme);
+    });
+  }
+</script>
 
 <style>
   .theme-switcher {
