@@ -46,11 +46,10 @@ Elsewhere in the workflow, `<test>`, `<lint>`, `<base-branch>`, and similar plac
 ## Git and delivery
 
 - **`<base-branch>`:** `main`
-- **Rebuild branch:** rebuild work lands on `redesign/astro` through its own PRs, and merges to `main` only at the cut-over.
 - **Branch naming:** `ahmad/<short-slug>`
 - **Commit style:** Conventional Commits, not enforced by tooling (see `.claude/rules/commit-conventions.md`)
 - **PR template:** `none`
-- **Deploy:** pushing to `main` runs `.github/workflows/deploy.yml`, which still builds the old site on Node 16 and publishes `./build` to the `gh-pages` branch, and which needs `public/CNAME` to keep the custom domain. The cut-over replaces that workflow with an Actions deploy and removes `public/CNAME`. Until then, do not merge `redesign/astro` into `main`.
+- **Deploy:** pushing to `main`, or running the `Deployment` workflow by hand, runs `.github/workflows/deploy.yml`, which builds the site with `withastro/action` and publishes it to GitHub Pages through Actions. The custom domain lives in the repository's Pages settings. `docs/cut-over.md` has the smoke check and rollback.
 - **Canonical host:** `https://www.ahmadnaeem.dev`
 
 ## Layout

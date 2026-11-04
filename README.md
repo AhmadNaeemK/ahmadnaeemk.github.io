@@ -1,6 +1,6 @@
 # ahmadnaeem.dev
 
-Personal website and portfolio, published at <https://www.ahmadnaeem.dev>. A static [Astro](https://astro.build) site written in TypeScript.
+Personal website and portfolio, published at <https://www.ahmadnaeem.dev>. A static [Astro](https://astro.build) site written in TypeScript, with three train-themed presentations of the same content: Interchange, Diorama and Pixel Depot.
 
 ## Setup
 
@@ -27,6 +27,12 @@ npm run test:e2e:install # only needed for the e2e tests
 | `npm run test:e2e`      | Rebuilds, then runs Playwright against the site |
 
 `design/` holds the visual prototypes the site is built from. It is reference material and is not part of the build.
+
+## Deploying
+
+Pushing to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), which builds the site and publishes it to GitHub Pages through Actions. To publish again without a new commit, run the `Deployment` workflow by hand. The custom domain is set in the repository's Pages settings, not in a `CNAME` file.
+
+[`docs/cut-over.md`](docs/cut-over.md) has the smoke check and the rollback.
 
 ## Where things are explained
 
