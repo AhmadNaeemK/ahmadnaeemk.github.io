@@ -136,16 +136,10 @@ test.describe("a viewport too short for the list", () => {
       window.scrollBy({ top: 30, behavior: "instant" }),
     );
 
-    // Moved or resized, so the list has been placed again since it was scrolled. A
-    // list held at the viewport's top by a tall header only gets shorter.
+    // Moved, so the list has been placed again since it was scrolled.
     await expect
-      .poll(async () => {
-        const { top, height } = await rectOf(list);
-        return (
-          Math.abs(top - listBefore.top) + Math.abs(height - listBefore.height)
-        );
-      })
-      .toBeGreaterThan(1);
+      .poll(async () => (await rectOf(list)).top)
+      .not.toBeCloseTo(listBefore.top, 0);
     await frames(page);
     expect(await listScroll()).toBe(LIST_SCROLL);
   });

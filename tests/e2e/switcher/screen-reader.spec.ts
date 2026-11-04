@@ -31,7 +31,7 @@ async function expectOneOfEach(page: Page): Promise<void> {
   expect(await idsUsedTwice(page)).toEqual([]);
 }
 
-test.describe("what a screen reader finds (E19)", () => {
+test.describe("what a screen reader finds", () => {
   for (const { from, to } of THEME_PAIRS) {
     test(`${from} to ${to}: announces the new theme from the focused toggle, with one of everything exposed`, async ({
       page,

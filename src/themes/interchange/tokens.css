@@ -51,7 +51,7 @@
     #2e86c1 66%
   );
 
-  --f: "Overpass", "Segoe UI", system-ui, sans-serif;
+  --f: "Overpass", "Overpass Fallback", "Segoe UI", system-ui, sans-serif;
   --step-1: 0.875rem;
   --step0: 1.0625rem;
   --step1: 1.3rem;

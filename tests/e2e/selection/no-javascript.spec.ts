@@ -11,7 +11,7 @@ import { fontStylesheetUrl, test, THEMES, themeRoot } from "./support";
 test.use({ javaScriptEnabled: false });
 
 for (const path of ["/", "/#diorama", "/#b-about"]) {
-  test.describe(`with JavaScript off at ${path} (E1)`, () => {
+  test.describe(`with JavaScript off at ${path}`, () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(path);
     });

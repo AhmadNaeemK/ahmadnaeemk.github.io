@@ -26,6 +26,20 @@ const previewUrl = `http://127.0.0.1:${port}`;
 // `astro preview` otherwise detaches and Playwright reports that it exited early.
 const previewCommand = `npm run preview -- --ignore-lock --host 127.0.0.1 --port ${port}`;
 
+/** They read `dist/` and open no page, so one run with no browser says it all. */
+const BUILT_FILE_SPECS = [
+  "**/conformance/built-css.spec.ts",
+  "**/conformance/favicon.spec.ts",
+  "**/scene/chunk-rule.spec.ts",
+];
+
+/**
+ * A wide fallback at 31 widths is about the header's text wrapping, and a section's
+ * margin follows the header's measured height in any browser. The real-font spec keeps
+ * clearance covered in WebKit.
+ */
+const CHROMIUM_ONLY_SPECS = ["**/conformance/heading-clearance.spec.ts"];
+
 export default defineConfig({
   testDir: "tests/e2e",
   forbidOnly: isCi,
@@ -36,9 +50,18 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
   projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "built-files", testMatch: BUILT_FILE_SPECS },
+    {
+      name: "chromium",
+      testIgnore: BUILT_FILE_SPECS,
+      use: { ...devices["Desktop Chrome"] },
+    },
     // WebKit stands in for iOS Safari, which Chromium cannot catch regressions for.
-    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+    {
+      name: "webkit",
+      testIgnore: [...BUILT_FILE_SPECS, ...CHROMIUM_ONLY_SPECS],
+      use: { ...devices["Desktop Safari"] },
+    },
   ],
   // Local runs rebuild first so they never test a stale dist/. CI serves the
   // dist/ that the workflow's build step already produced.

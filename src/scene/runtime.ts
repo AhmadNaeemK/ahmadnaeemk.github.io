@@ -60,6 +60,7 @@ export function startSceneRuntime(): void {
   let lastStepTime: number | null = null;
   let sizeChanged = false;
   let repaintPending = false;
+  let drawnWorld = "";
 
   const controls = createTrainControls({
     world,
@@ -76,22 +77,32 @@ export function startSceneRuntime(): void {
   });
 
   /**
-   * The one rule for running (E10). It is worked out from all three facts each
+   * The one rule for running. It is worked out from all three facts each
    * time, because a stored flag is what let the prototype's tab refocus overwrite
    * the off-screen state.
    */
   const isRunning = () =>
     showing?.size != null && canvasWatch.isOnScreen() && !document.hidden;
 
-  /** Every wake goes through here, so there can never be a second loop (E11). */
+  /** Every wake goes through here, so there can never be a second loop. */
   function scheduleFrame(): void {
     if (frameRequest === 0) frameRequest = requestAnimationFrame(frame);
   }
 
   function wake(): void {
     lastStepTime = null;
+    // A browser can drop a canvas it did not show, and a still scene would not redraw.
+    drawnWorld = "";
     scheduleFrame();
   }
+
+  /**
+   * Everything a scene may animate from. Once this stops changing, as with a stopped
+   * train at rest and its text paused, the last draw stands. A scene costs up to
+   * 100 ms a frame on a software canvas, so a still page should not pay for it.
+   */
+  const worldDrawnFrom = () =>
+    `${world.time} ${world.textTime} ${world.liveryId}`;
 
   const setState = (theme: ThemeName, state: SceneState) =>
     themeDom[theme].root?.setAttribute(SCENE_STATE_ATTRIBUTE, state);
@@ -152,7 +163,9 @@ export function startSceneRuntime(): void {
 
   function drawIfSized(entry: LoadedScene): void {
     repaintPending = false;
-    if (entry.size) entry.scene.draw();
+    if (!entry.size) return;
+    entry.scene.draw();
+    drawnWorld = worldDrawnFrom();
   }
 
   /** Same task as the selection, so no blank frame shows before the first tick. */
@@ -213,7 +226,7 @@ export function startSceneRuntime(): void {
     frameRequest = 0;
     withShowingScene((entry) => {
       resizeIfChanged(entry);
-      tellSceneAboutFonts(entry);
+      if (tellSceneAboutFonts(entry)) repaintPending = true;
     });
 
     const running = isRunning();
@@ -226,7 +239,9 @@ export function startSceneRuntime(): void {
       lastStepTime = null;
     }
     // Off-screen, a repaint keeps the next view of the canvas from being blank.
-    if (running || repaintPending) withShowingScene(drawIfSized);
+    if (repaintPending || (running && worldDrawnFrom() !== drawnWorld)) {
+      withShowingScene(drawIfSized);
+    }
     if (isRunning()) scheduleFrame();
   }
 
@@ -264,6 +279,7 @@ export function startSceneRuntime(): void {
       controls.pressStop,
     );
     bindHeroKeys(elements.hero, () => showing?.theme === theme, controls);
+    elements.canvas.addEventListener("contextrestored", wake);
   }
 
   new MutationObserver(reactToHtmlAttributes).observe(html, {

@@ -5,7 +5,7 @@ import { sectionId } from "../../../scene/contract";
 import { THEME } from "../theme-name";
 import "./projects.css";
 
-const { projects } = await getSiteContent();
+const { profile, projects } = await getSiteContent();
 ---
 
 <section id={sectionId(THEME, "projects")} class="sec">
@@ -13,7 +13,7 @@ const { projects } = await getSiteContent();
     <h2 class="h2">
       Inventory <span class="h2__sub">Projects</span>
     </h2>
-    <p class="lede">Products I built at Arbisoft for US startups.</p>
+    <p class="lede">{profile.projectsLede}</p>
     <div class="inv">
       {projects.map((project) => (
         <article class={`panel slot slot--${project.color}`}>

@@ -27,3 +27,11 @@ npm run test:e2e:install # only needed for the e2e tests
 | `npm run test:e2e`      | Rebuilds, then runs Playwright against the site |
 
 `design/` holds the visual prototypes the site is built from. It is reference material and is not part of the build.
+
+## Where things are explained
+
+- [`src/content/README.md`](src/content/README.md): the site's content and how to edit it.
+- [`docs/rfcs/theme-contract.md`](docs/rfcs/theme-contract.md): how a theme plugs into the page and the scene runtime.
+- [`docs/rfcs/theme-contract-history.md`](docs/rfcs/theme-contract-history.md): why that contract took its shape.
+- [`scripts/og-image.mjs`](scripts/og-image.mjs): how to regenerate the link-preview image, `public/og-image.png`.
+- [`scripts/favicon.mjs`](scripts/favicon.mjs): how to regenerate `public/favicon.ico` and `public/apple-touch-icon.png` from `public/favicon.svg`.

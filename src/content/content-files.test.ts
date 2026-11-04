@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ImageFunction } from "astro:content";
@@ -6,6 +6,7 @@ import type { LoaderContext } from "astro/loaders";
 import { z } from "astro/zod";
 import { describe, expect, it } from "vitest";
 import { assembleSiteContent, type RawCollections } from "./assemble";
+import { parseNowFile, parseNowText } from "./now-text";
 import {
   createProfileSchema,
   createProjectSchema,
@@ -16,7 +17,7 @@ import {
 } from "./schemas";
 import { strictFile } from "./strict-file-loader";
 
-// Runs the YAML actually in this folder through the real loader and schemas, so a
+// Runs the files actually in this folder through the real loader and schemas, so a
 // bad content edit fails `npm test` too. It deliberately pins no content values,
 // which change freely. In Astro 7.4.5 the real image helper is a sync transform
 // that returns a placeholder resolved later, so this stand-in proves nothing about
@@ -52,6 +53,11 @@ const COLLECTION_SCHEMAS: Record<keyof RawCollections, z.ZodType> = {
   now: nowSchema,
 };
 
+const contentLoader = (collection: keyof RawCollections) =>
+  collection === "now"
+    ? strictFile("src/content/now.txt", parseNowFile)
+    : strictFile(`src/content/${collection}.yaml`);
+
 async function loadCollection(collection: keyof RawCollections) {
   const entries: { id: string; data: unknown }[] = [];
   const noOp = () => {};
@@ -76,9 +82,7 @@ async function loadCollection(collection: keyof RawCollections) {
       },
     },
   };
-  await strictFile(`src/content/${collection}.yaml`).load(
-    context as unknown as LoaderContext,
-  );
+  await contentLoader(collection).load(context as unknown as LoaderContext);
   return entries;
 }
 
@@ -107,7 +111,16 @@ describe("the content files in src/content", () => {
     await expect(loadRealContent()).resolves.toBeDefined();
   });
 
-  it("link to a CV PDF that ships in public/, which a build would not notice (E24)", async () => {
+  it("carry every item of now.txt into site content, in file order", async () => {
+    const nowFile = new URL("now.txt", CONTENT_FOLDER);
+    const itemsInFile = parseNowText(readFileSync(nowFile, "utf8"));
+
+    const { now } = await loadRealContent();
+
+    expect(now).toEqual(itemsInFile);
+  });
+
+  it("link to a CV PDF that ships in public/, which a build would not notice", async () => {
     const { profile } = await loadRealContent();
     const cvFile = new URL(`public${profile.cv}`, PROJECT_ROOT);
 

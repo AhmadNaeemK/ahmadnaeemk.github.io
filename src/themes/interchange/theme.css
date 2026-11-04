@@ -1,8 +1,7 @@
 /* The page frame: base type, the header and buttons. */
 [data-rail-theme-root="interchange"] {
-  /* The header's height with one row and with its nav on a second row. Section
-     links land just below it. A section's own padding covers the extra row fallback
-     fonts can add just above 920 px. */
+  /* The header's height with one row and with its nav on a second row, for when no
+     script has measured it into --rail-header-height. */
   --top-height: 66px;
 
   background: var(--bg);
@@ -28,7 +27,10 @@
   }
   & main,
   & main > section {
-    scroll-margin-top: calc(var(--top-height) + env(safe-area-inset-top, 0px));
+    scroll-margin-top: calc(
+      var(--rail-header-height, var(--top-height)) +
+        env(safe-area-inset-top, 0px)
+    );
   }
   & .wrap {
     max-width: 1180px;
@@ -145,9 +147,7 @@
   }
 
   @media (max-width: 920px) {
-    /* 88 px is the second row. The rest is only for the rows the placeholder switcher
-       adds on a phone, so go back to 88 px with Task 10's closed dropdown. */
-    --top-height: 96px;
+    --top-height: 88px;
 
     & .top__in {
       flex-wrap: wrap;
@@ -170,6 +170,18 @@
     }
     & .top__actions > .btn {
       display: none;
+    }
+  }
+  /* All five links fit with nothing left to scroll to. Well above where the real fonts
+     need it, because a wider fallback runs out sooner. */
+  @media (max-width: 380px) {
+    & .nav {
+      justify-content: space-between;
+      gap: 0;
+    }
+    & .nav a {
+      padding-block: 4px;
+      font-size: 0.8125rem;
     }
   }
 }

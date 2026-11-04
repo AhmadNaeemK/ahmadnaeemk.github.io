@@ -132,7 +132,7 @@ test.describe("touch dragging", () => {
     );
   });
 
-  test("a touch drag starting on the canvas scrolls the page and presses nothing (E17)", async ({
+  test("a touch drag starting on the canvas scrolls the page and presses nothing", async ({
     page,
     context,
   }) => {

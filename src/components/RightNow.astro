@@ -4,22 +4,16 @@
  * once and wrap, so a single item has nothing to cycle and a long one fits.
  */
 import { getSiteContent } from "../content/site";
-import type { NowItem } from "../scene/contract";
 
-interface Props {
-  /** Stubs only, for their placeholders. Real themes render this with no props. */
-  items?: readonly NowItem[];
-}
-
-const items = Astro.props.items ?? (await getSiteContent()).now;
+const { now } = await getSiteContent();
 ---
 
 <div class="now" role="group" aria-label="What I'm into right now">
   <span class="now__label">Right now</span>
   <ul class="now__list">
-    {items.map(({ label, value }) => (
+    {now.map(({ label, value }) => (
       <li>
-        <span class="now__k">{label}</span>
+        {label && <span class="now__k">{label}</span>}
         <span class="now__v">{value}</span>
       </li>
     ))}

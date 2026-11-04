@@ -89,6 +89,10 @@ export const createProfileSchema = (image: ImageFunction) =>
       .regex(/^\/[^/]+\.pdf$/, 'must be a root path like "/cv.pdf"'),
     intro: text,
     about: textList,
+    favouriteGame: text,
+    projectsLede: text,
+    contactLead: text,
+    contactNote: text,
     facts: nonEmptyList(z.strictObject({ value: text, label: text })),
     portrait: requiredImage(image),
     portraitAlt: text,
@@ -140,6 +144,6 @@ export const skillGroupSchema = z.strictObject({
 
 export const nowSchema = z.strictObject({
   items: z
-    .array(z.strictObject({ label: text, value: text }))
+    .array(z.strictObject({ label: text.optional(), value: text }))
     .min(1, '"Right now" needs at least one item'),
 });

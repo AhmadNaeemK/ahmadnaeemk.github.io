@@ -3,8 +3,8 @@ import type { TrainControls } from "./controls";
 
 /**
  * Nothing here calls `preventDefault` on a pointer or touch event, captures the
- * pointer or sets `touch-action`, because a drag on the canvas scrolls the page
- * (E17). A tap arrives as `click`.
+ * pointer or sets `touch-action`, because a drag on the canvas scrolls the page.
+ * A tap arrives as `click`.
  */
 export function bindCanvasInput(
   canvas: HTMLCanvasElement,

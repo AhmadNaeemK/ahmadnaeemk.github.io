@@ -8,7 +8,7 @@
   & .tree h3 {
     margin: 0 0 8px;
     color: var(--teal-ink);
-    font: 700 1rem var(--fp);
+    font: 700 1rem var(--fb);
   }
   & .tree ul {
     display: flex;

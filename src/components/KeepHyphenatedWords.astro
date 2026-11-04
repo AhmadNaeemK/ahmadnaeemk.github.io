@@ -1,0 +1,19 @@
+---
+/**
+ * Text whose hyphenated words stay on one line, so a role never breaks as
+ * "Full-/stack" on a phone. The wrapper leaves the text itself untouched, unlike a
+ * non-breaking hyphen, which web fonts may lack and which copies as another character.
+ */
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+const HYPHENATED_WORD = /(\S+-\S+)/;
+---
+
+{text
+  .split(HYPHENATED_WORD)
+  .map((part, index) =>
+    index % 2 === 1 ? <span style="white-space: nowrap">{part}</span> : part,
+  )}

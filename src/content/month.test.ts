@@ -80,7 +80,7 @@ describe("dateLabels", () => {
   });
 });
 
-describe("timezone independence (E22)", () => {
+describe("timezone independence", () => {
   const originalZone = process.env.TZ;
 
   // Node re-reads the zone when TZ is assigned, as long as tests run in a process

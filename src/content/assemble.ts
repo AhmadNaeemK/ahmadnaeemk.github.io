@@ -43,16 +43,26 @@ export interface ExactPixelImage {
 
 type Dated<Data> = Data & DateLabels & { id: string };
 
+export interface ContactLink {
+  name: string;
+  href: string;
+  label: string;
+}
+
 export interface SiteContent {
   profile: Omit<ProfileData, "portraitPixels"> & {
     portraitPixels: ExactPixelImage;
   };
+  contactLinks: ContactLink[];
   experience: Dated<ExperienceData>[];
   education: Dated<EducationData>[];
   projects: Dated<ProjectData>[];
   skills: (SkillGroupData & { id: string })[];
   now: NowItem[];
 }
+
+const contentFileName = (collection: string) =>
+  collection === "now" ? "now.txt" : `${collection}.yaml`;
 
 /** Fails the build when a collection has no entries, which a schema cannot see. */
 function requireEntries<Data>(
@@ -61,7 +71,7 @@ function requireEntries<Data>(
 ): Entry<Data>[] {
   if (entries.length === 0) {
     throw new Error(
-      `Content collection "${collection}" is empty. Add an entry to src/content/${collection}.yaml.`,
+      `Content collection "${collection}" is empty. Add an entry to src/content/${contentFileName(collection)}.`,
     );
   }
   return entries;
@@ -124,6 +134,14 @@ export function assembleSiteContent(raw: RawCollections): SiteContent {
       ...profile,
       portraitPixels: toExactPixelImage(profile.portraitPixels),
     },
+    contactLinks: [
+      {
+        name: "LinkedIn",
+        href: profile.linkedin,
+        label: profile.linkedinLabel,
+      },
+      { name: "GitHub", href: profile.github, label: profile.githubLabel },
+    ],
     experience: inDisplayOrder("experience", raw.experience).map(withDates),
     education: inDisplayOrder("education", raw.education).map(withDates),
     projects: inDisplayOrder("projects", raw.projects).map(withDates),

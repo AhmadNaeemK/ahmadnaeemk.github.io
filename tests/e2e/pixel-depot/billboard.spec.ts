@@ -1,9 +1,11 @@
 import type { Page } from "@playwright/test";
+import type { NowItem } from "../../../src/scene/contract";
 import {
   expect,
   expectToggle,
   instrumentScenes,
   isNowLineShowing,
+  nowItemsHtml,
   nowMode,
   openScenePage,
   REDUCED_START_TOGGLE,
@@ -17,7 +19,6 @@ import {
 } from "../scene/helpers";
 import {
   columnsWith,
-  nowItemsHtml,
   readBillboardBand,
   samePixels,
   THEME,
@@ -25,23 +26,26 @@ import {
   waitForVisibleRoll,
 } from "./support";
 
-type NowItems = readonly (readonly [string, string])[];
-
-const SHORT_ITEM: NowItems = [["Reading", "Dune"]];
-const TWO_ITEMS: NowItems = [
-  ["Playing", "Spider-Man"],
-  ["Building", "this site"],
+const SHORT_ITEM: readonly NowItem[] = [{ label: "Reading", value: "Dune" }];
+const TWO_ITEMS: readonly NowItem[] = [
+  { label: "Playing", value: "Spider-Man" },
+  { label: "Building", value: "this site" },
 ];
-const LONG_ITEM: NowItems = [
-  [
-    "Reading",
-    "a very long single item about something that keeps on going and going, and then goes on a good while longer, well past the width of any board",
-  ],
+const TWO_PLAIN_ITEMS: readonly NowItem[] = [
+  { value: "Back at 12:30" },
+  { value: "https://x.com" },
+];
+const LONG_ITEM: readonly NowItem[] = [
+  {
+    label: "Reading",
+    value:
+      "a very long single item about something that keeps on going and going, and then goes on a good while longer, well past the width of any board",
+  },
 ];
 
 async function openWithItems(
   page: Page,
-  items: NowItems,
+  items: readonly NowItem[],
   {
     reducedMotion = false,
     width = 1280,
@@ -62,7 +66,7 @@ async function expectBandToChange(page: Page): Promise<void> {
     .toBe(false);
 }
 
-test.describe("the billboard at full width (E21)", () => {
+test.describe("the billboard at full width", () => {
   for (const reducedMotion of [false, true]) {
     const motion = reducedMotion ? "under reduced motion" : "in normal motion";
 
@@ -104,9 +108,29 @@ test.describe("the billboard at full width (E21)", () => {
     });
   }
 
-  test("two items roll", async ({ page }) => {
+  test("two items roll, showing their labels", async ({ page }) => {
     await openWithItems(page, TWO_ITEMS);
+    const keyColour = await tokenColour(page, "--scene-board-key");
+    await expect
+      .poll(async () => columnsWith(await readBillboardBand(page), keyColour))
+      .not.toBeNull();
     await expectBandToChange(page);
+  });
+
+  test("plain items roll with no label text on the board", async ({ page }) => {
+    await openWithItems(page, TWO_PLAIN_ITEMS);
+    const keyColour = await tokenColour(page, "--scene-board-key");
+    const valueColour = await tokenColour(page, "--scene-board-value");
+
+    const first = await readBillboardBand(page);
+    expect(columnsWith(first, valueColour)).not.toBeNull();
+    expect(columnsWith(first, keyColour)).toBeNull();
+
+    await waitForVisibleRoll(page);
+    await waitFrames(page, 3);
+    const rolled = await readBillboardBand(page);
+    expect(samePixels(first, rolled)).toBe(false);
+    expect(columnsWith(rolled, keyColour)).toBeNull();
   });
 
   test("a single item too long for the board rolls", async ({ page }) => {

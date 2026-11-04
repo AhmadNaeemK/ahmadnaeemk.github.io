@@ -91,6 +91,10 @@ const validProfile = (): RawEntry => ({
   cv: "/cv.pdf",
   intro: "I build products.",
   about: ["A paragraph."],
+  favouriteGame: "Sekiro",
+  projectsLede: "Products I built.",
+  contactLead: "Email me first.",
+  contactNote: "Email is fastest.",
   facts: [{ value: "5+", label: "years" }],
   portrait: "./assets/photos/portrait.jpg",
   portraitAlt: "Ahmad smiling",
@@ -397,7 +401,7 @@ describe("profile schema", () => {
   });
 });
 
-describe('"Right now" schema (E21)', () => {
+describe('"Right now" schema', () => {
   it("rejects an empty list, saying it needs an item", async () => {
     expect(await problemsIn(nowSchema, { items: [] })).toEqual([
       { field: "items", message: '"Right now" needs at least one item' },
@@ -408,6 +412,12 @@ describe('"Right now" schema (E21)', () => {
     const singleItem = { items: [{ label: "Playing", value: "Sekiro" }] };
 
     expect(await problemsIn(nowSchema, singleItem)).toEqual([]);
+  });
+
+  it("accepts an item with no label", async () => {
+    const plainItem = { items: [{ value: "Back at 12:30" }] };
+
+    expect(await problemsIn(nowSchema, plainItem)).toEqual([]);
   });
 
   it("rejects an item with an empty value, naming its position", async () => {

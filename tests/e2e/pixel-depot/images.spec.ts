@@ -7,7 +7,7 @@ import { THEME } from "./support";
 const PORTRAIT_FILE = resolve("src/content/assets/photos/portrait-px.png");
 const PORTRAIT_REQUEST = /portrait-px/;
 
-test.describe("the pixel portrait (E23)", () => {
+test.describe("the pixel portrait", () => {
   test("is the file itself in a plain lazy img", async ({ page }) => {
     await page.goto(`/${themeHash(THEME)}`);
     const portrait = root(page, THEME).locator('img[src*="portrait-px"]');

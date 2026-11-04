@@ -44,6 +44,10 @@ const profileEntry = (id = "ahmad") => ({
     cv: "/cv.pdf",
     intro: "I build products.",
     about: ["A paragraph."],
+    favouriteGame: "Sekiro",
+    projectsLede: "Products I built.",
+    contactLead: "Email me first.",
+    contactNote: "Email is fastest.",
     facts: [{ value: "5+", label: "years" }],
     portrait: image(),
     portraitAlt: "Ahmad smiling",
@@ -128,6 +132,25 @@ const rawCollections = (
 });
 
 describe("assembleSiteContent", () => {
+  describe("contact links", () => {
+    it("gives every theme the same links, each with its own address and label", () => {
+      const { contactLinks } = assembleSiteContent(rawCollections());
+
+      expect(contactLinks).toEqual([
+        {
+          name: "LinkedIn",
+          href: "https://www.linkedin.com/in/example",
+          label: "linkedin.com/in/example",
+        },
+        {
+          name: "GitHub",
+          href: "https://github.com/example",
+          label: "github.com/example",
+        },
+      ]);
+    });
+  });
+
   describe("the shape themes read", () => {
     it("adds an id and date labels to each experience entry, keeping its fields", () => {
       const { experience } = assembleSiteContent(rawCollections());
@@ -201,7 +224,7 @@ describe("assembleSiteContent", () => {
     });
   });
 
-  describe("pixel portrait (E23)", () => {
+  describe("pixel portrait", () => {
     it.each(["jpg", "webp", "avif"] as const)(
       "rejects %s, naming the format, because it would not keep exact pixels",
       (format) => {
@@ -238,18 +261,18 @@ describe("assembleSiteContent", () => {
   });
 
   describe("empty collections", () => {
-    it.each<CollectionName>([
-      "profile",
-      "experience",
-      "education",
-      "projects",
-      "skills",
-      "now",
-    ])("fails on an empty %s, pointing at the file to edit", (collection) => {
+    it.each<[CollectionName, string]>([
+      ["profile", "src/content/profile.yaml"],
+      ["experience", "src/content/experience.yaml"],
+      ["education", "src/content/education.yaml"],
+      ["projects", "src/content/projects.yaml"],
+      ["skills", "src/content/skills.yaml"],
+      ["now", "src/content/now.txt"],
+    ])("fails on an empty %s, pointing at %s", (collection, filePath) => {
       expect(() =>
         assembleSiteContent(rawCollections({ [collection]: [] })),
       ).toThrow(
-        `Content collection "${collection}" is empty. Add an entry to src/content/${collection}.yaml.`,
+        `Content collection "${collection}" is empty. Add an entry to ${filePath}.`,
       );
     });
   });

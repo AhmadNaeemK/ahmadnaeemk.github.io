@@ -141,13 +141,13 @@ for (const [device, viewport] of [
       ).toHaveAttribute("href", profile.cv);
     });
 
-    test('"Right now" carries the items in now.yaml, in order', async ({
+    test('"Right now" carries the items in now.txt, in order', async ({
       page,
     }) => {
       const { now } = await content;
       const line = hero(page, THEME).locator(".now");
       await expect(line.locator(RIGHT_NOW_PARTS.label)).toHaveText(
-        now.map(({ label }) => label),
+        now.flatMap(({ label }) => label ?? []),
       );
       await expect(line.locator(RIGHT_NOW_PARTS.value)).toHaveText(
         now.map(({ value }) => value),
@@ -159,7 +159,7 @@ for (const [device, viewport] of [
 test.describe("at full width", () => {
   test.use({ viewport: DESKTOP });
 
-  test("the billboard rolls the same items as now.yaml", async ({ page }) => {
+  test("the billboard rolls the same items as now.txt", async ({ page }) => {
     await logCanvasTexts(page);
     await openScenePage(page);
     const { now } = await content;
@@ -168,9 +168,10 @@ test.describe("at full width", () => {
       .poll(async () => (await lastBoardTexts(page)).length)
       .toBeGreaterThan(0);
     const drawn = (await lastBoardTexts(page)).map(({ text }) => text.trim());
-    for (const { label, value } of now) {
-      expect(drawn).toContain(label);
-      expect(drawn).toContain(value);
+    for (const text of now.flatMap(({ label, value }) =>
+      label ? [label, value] : [value],
+    )) {
+      expect(drawn).toContain(text);
     }
   });
 });

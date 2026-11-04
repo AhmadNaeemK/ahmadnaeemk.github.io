@@ -16,7 +16,7 @@ import "./skills.css";
 import "./contact.css";
 
 const theme: ThemeName = "interchange";
-const { profile, experience, education, projects, skills } =
+const { profile, contactLinks, experience, education, projects, skills } =
   await getSiteContent();
 const [aboutLine, workLine, projectsLine, skillsLine, contactLine] = LINES;
 const [city] = profile.location.split(",");
@@ -172,7 +172,7 @@ const CONTACT_PHOTO_RENDER_PX = 144;
           </span>
           Projects
         </h2>
-        <p class="lede">Products I built at Arbisoft for US startups.</p>
+        <p class="lede">{profile.projectsLede}</p>
         <div class="routes">
           {projects.map((project) => (
             <article class={`route line-${project.color}`}>
@@ -238,10 +238,7 @@ const CONTACT_PHOTO_RENDER_PX = 144;
           </span>
           Contact
         </h2>
-        <p class="contact__lead">
-          The fastest way to reach me is email. I'm happy to talk about a
-          product, a role, or a good story.
-        </p>
+        <p class="contact__lead">{profile.contactLead}</p>
         <div class="contact__mail">
           <Image
             class="contact__photo"
@@ -258,18 +255,14 @@ const CONTACT_PHOTO_RENDER_PX = 144;
           </button>
         </div>
         <ul class="contact__links">
-          <li>
-            <a href={profile.linkedin} target="_blank" rel="noopener">
-              LinkedIn
-            </a>
-            <span>{profile.linkedinLabel}</span>
-          </li>
-          <li>
-            <a href={profile.github} target="_blank" rel="noopener">
-              GitHub
-            </a>
-            <span>{profile.githubLabel}</span>
-          </li>
+          {contactLinks.map(({ name, href, label }) => (
+            <li>
+              <a href={href} target="_blank" rel="noopener">
+                {name}
+              </a>
+              <span>{label}</span>
+            </li>
+          ))}
         </ul>
       </div>
     </section>

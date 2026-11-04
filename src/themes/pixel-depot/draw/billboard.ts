@@ -129,17 +129,17 @@ export interface Billboard {
 
 export function createBillboard(nowItems: readonly NowItem[]): Billboard {
   const items = nowItems.map(({ label, value }) => ({
-    key: toBoardText(label),
+    key: label && toBoardText(label),
     value: toBoardText(value),
   }));
   const runsOf = ({
     key,
     value,
   }: {
-    key: string;
+    key: string | undefined;
     value: string;
   }): TextRun[] => [
-    { text: `${key} `, tone: "boardKey" },
+    ...(key ? [{ text: `${key} `, tone: "boardKey" } as const] : []),
     { text: value, tone: "boardValue" },
   ];
   const stillRuns = items.flatMap(runsOf);
@@ -151,13 +151,20 @@ export function createBillboard(nowItems: readonly NowItem[]): Billboard {
   const loopWidth = runsWidth(rollingRuns);
 
   const labelWidth = textWidth(LABEL) + LABEL_PADDING;
-  const keyColumn = Math.max(0, ...items.map(({ key }) => textWidth(key)));
+  const keyWidth = Math.max(
+    0,
+    ...items.map(({ key }) => (key ? textWidth(key) : 0)),
+  );
   const valueColumn = Math.max(
     0,
     ...items.map(({ value }) => textWidth(value)),
   );
   const fullWidth =
-    labelWidth + TEXT_GAP + keyColumn + COLUMN_GAP + valueColumn + TEXT_GAP;
+    labelWidth +
+    TEXT_GAP +
+    (keyWidth > 0 ? keyWidth + COLUMN_GAP : 0) +
+    valueColumn +
+    TEXT_GAP;
 
   function boxFor({ view }: Stage): BoardBox {
     const usable = view.bufferWidth - 2 * CANVAS_MARGIN - SHADOW_OFFSET;

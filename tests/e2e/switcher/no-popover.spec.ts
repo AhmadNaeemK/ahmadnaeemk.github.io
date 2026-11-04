@@ -113,7 +113,10 @@ async function expectListOutOfHeaderFlow(
   theme: ThemeName,
 ): Promise<void> {
   const root = themeRoot(page, theme);
-  const header = root.locator("header");
+  // The page's header: a theme's content can have headers of its own.
+  const header = root
+    .locator("header")
+    .filter({ has: page.locator(THEME_HOOKS.themeSwitcher) });
   const list = root.locator(`${THEME_HOOKS.themeSwitcher} ul`);
   const withList = await rectOf(header);
 

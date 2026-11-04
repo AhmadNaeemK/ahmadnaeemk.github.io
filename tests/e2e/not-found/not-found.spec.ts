@@ -63,7 +63,7 @@ async function expectCanvasMatchesBg(page: Page): Promise<void> {
   expect(pageCanvas).toBe(bg);
 }
 
-test.describe("an address with no page (E26)", () => {
+test.describe("an address with no page", () => {
   for (const path of NOT_FOUND_PATHS) {
     test(`${path} answers 404 with the whole page, assets included`, async ({
       page,

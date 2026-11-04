@@ -53,7 +53,7 @@ function expectLoggedFailure(problems: PageProblems): void {
   problems.sceneErrors.length = 0;
 }
 
-test.describe("a failed import (E12)", () => {
+test.describe("a failed import", () => {
   test("an aborted chunk shows the static hero and the HTML line, and coming back retries", async ({
     page,
     problems,

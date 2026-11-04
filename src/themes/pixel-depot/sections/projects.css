@@ -39,7 +39,7 @@
   }
   & .slot h3 {
     margin: 0;
-    font: 700 1.4rem/1.1 var(--fp);
+    font: 700 1.3rem/1.1 var(--fb);
   }
   & .slot__head p {
     margin: 2px 0 0;
@@ -78,6 +78,6 @@
   & .slot__tech span {
     padding: 1px 7px;
     background: var(--bg2);
-    font: 400 0.85rem var(--fp);
+    font: 700 0.8rem var(--fb);
   }
 }

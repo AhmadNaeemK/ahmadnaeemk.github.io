@@ -29,7 +29,7 @@ import {
 const WIDE_VIEWPORT = { width: 1280, height: 720 };
 const COMPACT_VIEWPORT = { width: 500, height: 720 };
 
-test.describe("pausing (E10)", () => {
+test.describe("pausing", () => {
   test("a refocused tab leaves an off-screen scene paused, and scrolling back still resumes and pauses it", async ({
     page,
   }) => {
@@ -188,7 +188,7 @@ test.describe("resizing", () => {
   });
 });
 
-test.describe("zero width (E13)", () => {
+test.describe("zero width", () => {
   const ZERO_WIDTH_SCENE =
     ":has(> [data-rail-canvas]) { width: 0 !important; }";
 
@@ -238,7 +238,7 @@ test.describe("zero width (E13)", () => {
   });
 });
 
-test.describe("crossing the phone breakpoint (E14)", () => {
+test.describe("crossing the phone breakpoint", () => {
   test("an off-screen resize flips which Right now shows, in both directions, without restarting the loop", async ({
     page,
   }) => {

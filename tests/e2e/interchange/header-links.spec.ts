@@ -13,13 +13,6 @@ const SECTION_ID = /^#a-[a-z]+$/;
 const PIXEL_FRACTIONS = 0.5;
 const VIEWPORT_HEIGHT = 800;
 
-/**
- * The placeholder switcher wraps the header past the height the theme's
- * `scroll-margin-top` allows for, at 921 px and at phone widths. Task 10 replaces it
- * with a closed dropdown, and should then remove this and its two uses, so that the
- * real header is what these specs measure.
- */
-const PLACEHOLDER_SWITCHER_OFF = `${THEME_HOOKS.themeSwitcher} { display: none !important; }`;
 const NARROWEST = 320;
 
 async function siteMark(page: Page) {
@@ -48,7 +41,6 @@ for (const width of [1280, 921, 920, 390]) {
       page,
     }) => {
       await openScenePage(page);
-      await page.addStyleTag({ content: PLACEHOLDER_SWITCHER_OFF });
       const themeRoot = root(page, THEME);
       await page.evaluate(() =>
         window.scrollTo({
@@ -111,9 +103,6 @@ for (const viewport of [
       page,
     }) => {
       await openScenePage(page);
-      if (viewport.width === NARROWEST) {
-        await page.addStyleTag({ content: PLACEHOLDER_SWITCHER_OFF });
-      }
       const themeRoot = root(page, THEME);
       const nav = themeRoot.getByRole("navigation", { name: "Sections" });
       const header = themeRoot.locator("header").first();

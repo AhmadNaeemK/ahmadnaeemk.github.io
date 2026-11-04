@@ -19,7 +19,7 @@ const ITEM_CASES = [
   { name: "a single unbroken item", label: UNBROKEN, value: UNBROKEN },
 ];
 
-/** Stubs and real content differ, so the edge cases are written into the page. */
+/** Real content has none of these edge cases, so they are written into the page. */
 function setNowItem(
   page: Page,
   theme: ThemeName,
@@ -53,7 +53,7 @@ function itemFitsViewport(page: Page, theme: ThemeName): Promise<boolean> {
 test.describe.configure({ mode: "parallel" });
 
 for (const theme of THEMES) {
-  test.describe(`the HTML line in ${theme} (E21)`, () => {
+  test.describe(`the HTML line in ${theme}`, () => {
     test("fits every item at phone width", async ({ page }) => {
       await page.setViewportSize({ width: 320, height: 640 });
       await page.goto(`/${themeHash(theme)}`);
