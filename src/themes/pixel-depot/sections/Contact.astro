@@ -1,0 +1,48 @@
+---
+import { Image } from "astro:assets";
+import { getSiteContent } from "../../../content/site";
+import { sectionId } from "../../../scene/contract";
+import { THEME } from "../theme-name";
+import "./contact.css";
+
+const { profile } = await getSiteContent();
+---
+
+<section id={sectionId(THEME, "contact")} class="sec">
+  <div class="wrap">
+    <h2 class="h2">
+      Save point <span class="h2__sub">Contact</span>
+    </h2>
+    <div class="panel save">
+      <div>
+        <Image class="save__photo" src={profile.contactPhoto} alt="" />
+        <p class="save__text">
+          Email is the fastest way to reach me. Happy to talk about a product, a
+          role, or a good story.
+        </p>
+        <p class="save__mail" data-copy-target>
+          {profile.email}
+        </p>
+        <div class="save__cta">
+          <button class="px-btn" type="button" data-copy={profile.email}>
+            <span data-copy-label>Copy email</span>
+          </button>
+        </div>
+      </div>
+      <ul class="save__links">
+        <li>
+          <span>LinkedIn</span>
+          <a href={profile.linkedin} target="_blank" rel="noopener">
+            {profile.linkedinLabel}
+          </a>
+        </li>
+        <li>
+          <span>GitHub</span>
+          <a href={profile.github} target="_blank" rel="noopener">
+            {profile.githubLabel}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

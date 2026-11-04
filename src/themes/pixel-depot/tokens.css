@@ -1,41 +1,210 @@
-/* STUB, replaced with the theme. Custom properties and color-scheme only. */
+/* Pixel Depot's tokens: the page's, then the scene's, which the canvas reads through
+   readToken and which must stay six-digit hex for it to paint them. */
 [data-rail-theme-root="pixel-depot"] {
-  --bg: #e9dfc2;
-  --surface: #f6efd9;
-  --ink: #2b1d1a;
-  --muted: #5c4a38;
-  --rule: #c7b27a;
-  --ground: #f6efd9;
-  --track: #5e5a62;
-  --train: #e0452b;
-  --board: #2b1d1a;
-  --board-ink: #ffc94a;
-  --dd-bg: var(--surface);
+  --bg: #f3d7a6;
+  --bg2: #ebc88f;
+  --panel: #fff1d6;
+  --ink: #3b2420;
+  --muted: #7a5646;
+  --line: #4a2f27;
+  --drop: #c99a5e;
+  --red: #c8463c;
+  --gold: #e9a92f;
+  --teal: #2f8a86;
+  --plum: #7a4a82;
+  --sky: #4f86c9;
+  --red-ink: #a3342a;
+  --teal-ink: #1e6662;
+  /* Darker than --red, which cream text cannot be read on (axe color-contrast). */
+  --red-fill: #c5453b;
+  /* Darker than --muted, which is too light on --bg2 (axe color-contrast). */
+  --now-key: #724f40;
+  --on-red: #fff6e4;
+  --on-gold: #3b2420;
+  --press-shadow: rgb(0 0 0 / 22%);
+
+  --fp: "Pixelify Sans", "Courier New", monospace;
+  --fb: "Atkinson Hyperlegible", "Verdana", system-ui, sans-serif;
+
+  --dd-bg: var(--panel);
   --dd-fg: var(--ink);
   --dd-muted: var(--muted);
-  --dd-line: var(--rule);
+  --dd-line: var(--line);
+
+  /* The livery swatches, one per data-rail-livery button. */
+  --chip-metro: linear-gradient(#f1e9dc 0 60%, #d4502f 60%);
+  --chip-bullet: linear-gradient(#faf7f0 0 55%, #2f5fa8 55%);
+  --chip-steam: linear-gradient(90deg, #2f4a3a 0 45%, #8a5a3c 45%);
+  --chip-heritage: linear-gradient(90deg, #b3262e 0 45%, #8e1f2c 45%);
+  --chip-toy: linear-gradient(
+    90deg,
+    #e0452b 0 33%,
+    #f4c430 33% 66%,
+    #2e86c1 66%
+  );
+
+  /* The billboard and the parts of a train no livery colours. */
+  --scene-board: #1e1612;
+  --scene-board-label: #c8463c;
+  --scene-board-label-ink: #fff6e4;
+  --scene-board-key: #c9b79a;
+  --scene-board-value: #ffc94a;
+  --scene-board-separator: #8c7a66;
+  --scene-stack: #231c1a;
+  --scene-skirt: #2a2220;
+  --scene-coal: #1d1714;
+  --scene-coal-lump: #4a423c;
+  --scene-lamp-glow: #28200a;
+  --scene-headlight-glow: #2e2810;
+
+  --scene-grass: #96b258;
+  --scene-grass-dark: #86a24c;
+  --scene-grass-light: #a9c268;
+  --scene-water: #4fa3b0;
+  --scene-water-light: #8cd3d6;
+  --scene-ballast: #b49a80;
+  --scene-ballast-dark: #9c8268;
+  --scene-sleeper: #7a4e32;
+  --scene-rail: #5e5a62;
+  --scene-stone: #d4c3a5;
+  --scene-stone-dark: #a89478;
+  --scene-plank: #c99a62;
+  --scene-plank-dark: #b78850;
+  --scene-seam: #8a6040;
+  --scene-edge: #f2c230;
+  --scene-hill: #6e9244;
+  --scene-hill-dark: #5a7c38;
+  --scene-mouth: #1e1612;
+  --scene-shoulder: #c7b27a;
+  --scene-outline: #2b1d1a;
+  --scene-glass: #2f3a4a;
+  --scene-smoke: #fff8ee;
+  --scene-lamp: #f6e7c0;
+  --scene-roof-1: #c8463c;
+  --scene-roof-2: #7a4a82;
+  --scene-roof-3: #4f86c9;
+  --scene-tree-1: #7e9c3a;
+  --scene-tree-2: #c68a2a;
+  --scene-tree-3: #b0552c;
+  --scene-tree-4: #93a83e;
+  --scene-tree-5: #d9a43a;
+  --scene-flower-1: #f2c14e;
+  --scene-flower-2: #e8665a;
+  --scene-flower-3: #fff3da;
+  --scene-flower-4: #d98ab8;
+
   color-scheme: light;
 
   :root[data-theme="dark"] & {
-    --bg: #1b1a2b;
-    --surface: #27263a;
-    --ink: #f2ead3;
-    --muted: #c4bca8;
-    --rule: #4a4860;
-    --ground: #27263a;
-    --track: #8e8aa0;
+    --bg: #1d1830;
+    --bg2: #241e3b;
+    --panel: #2d2647;
+    --ink: #f6e7c8;
+    --muted: #bfafcb;
+    --line: #0e0b18;
+    --drop: #0e0b18;
+    --red: #e2604f;
+    --gold: #ffc94a;
+    --teal: #46b7ae;
+    --plum: #b27bc0;
+    --sky: #78a8ec;
+    --red-ink: #f07d6c;
+    --teal-ink: #5cc9bf;
+    --now-key: #bfafcb;
+
+    --scene-grass: #3c5a3e;
+    --scene-grass-dark: #334e36;
+    --scene-grass-light: #46664a;
+    --scene-water: #2c5d78;
+    --scene-water-light: #4d86a0;
+    --scene-ballast: #5e5666;
+    --scene-ballast-dark: #4c4554;
+    --scene-sleeper: #3e2c2a;
+    --scene-rail: #8e8aa0;
+    --scene-stone: #6b6480;
+    --scene-stone-dark: #544e66;
+    --scene-plank: #6e5246;
+    --scene-plank-dark: #5e443a;
+    --scene-seam: #3e2c26;
+    --scene-edge: #e0b040;
+    --scene-hill: #2e4632;
+    --scene-hill-dark: #263b2a;
+    --scene-mouth: #0a0810;
+    --scene-shoulder: #4e5a40;
+    --scene-outline: #0e0b18;
+    --scene-glass: #ffd86b;
+    --scene-smoke: #a8a2b8;
+    --scene-lamp: #ffd86b;
+    --scene-roof-1: #7e3a3a;
+    --scene-roof-2: #563a62;
+    --scene-roof-3: #3a5482;
+    --scene-tree-1: #46602e;
+    --scene-tree-2: #7a5a2a;
+    --scene-tree-3: #6e3a26;
+    --scene-tree-4: #55642e;
+    --scene-tree-5: #806430;
+    --scene-flower-1: #8e7a3a;
+    --scene-flower-2: #7a4a48;
+    --scene-flower-3: #8a8690;
+    --scene-flower-4: #7a5a70;
+
     color-scheme: dark;
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) & {
-      --bg: #1b1a2b;
-      --surface: #27263a;
-      --ink: #f2ead3;
-      --muted: #c4bca8;
-      --rule: #4a4860;
-      --ground: #27263a;
-      --track: #8e8aa0;
+      --bg: #1d1830;
+      --bg2: #241e3b;
+      --panel: #2d2647;
+      --ink: #f6e7c8;
+      --muted: #bfafcb;
+      --line: #0e0b18;
+      --drop: #0e0b18;
+      --red: #e2604f;
+      --gold: #ffc94a;
+      --teal: #46b7ae;
+      --plum: #b27bc0;
+      --sky: #78a8ec;
+      --red-ink: #f07d6c;
+      --teal-ink: #5cc9bf;
+      --now-key: #bfafcb;
+
+      --scene-grass: #3c5a3e;
+      --scene-grass-dark: #334e36;
+      --scene-grass-light: #46664a;
+      --scene-water: #2c5d78;
+      --scene-water-light: #4d86a0;
+      --scene-ballast: #5e5666;
+      --scene-ballast-dark: #4c4554;
+      --scene-sleeper: #3e2c2a;
+      --scene-rail: #8e8aa0;
+      --scene-stone: #6b6480;
+      --scene-stone-dark: #544e66;
+      --scene-plank: #6e5246;
+      --scene-plank-dark: #5e443a;
+      --scene-seam: #3e2c26;
+      --scene-edge: #e0b040;
+      --scene-hill: #2e4632;
+      --scene-hill-dark: #263b2a;
+      --scene-mouth: #0a0810;
+      --scene-shoulder: #4e5a40;
+      --scene-outline: #0e0b18;
+      --scene-glass: #ffd86b;
+      --scene-smoke: #a8a2b8;
+      --scene-lamp: #ffd86b;
+      --scene-roof-1: #7e3a3a;
+      --scene-roof-2: #563a62;
+      --scene-roof-3: #3a5482;
+      --scene-tree-1: #46602e;
+      --scene-tree-2: #7a5a2a;
+      --scene-tree-3: #6e3a26;
+      --scene-tree-4: #55642e;
+      --scene-tree-5: #806430;
+      --scene-flower-1: #8e7a3a;
+      --scene-flower-2: #7a4a48;
+      --scene-flower-3: #8a8690;
+      --scene-flower-4: #7a5a70;
+
       color-scheme: dark;
     }
   }
