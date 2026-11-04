@@ -34,6 +34,8 @@ Names come from `design/train-concepts/concepts/combined.html` (line 21). Use `T
 - **No attribute, no JavaScript or an unknown name all show Interchange** (E1, E2), in the CSS and in `resolveThemeName()`, which takes bare values only.
 - **Hashes go through `themeFromHash(location.hash)`.** It returns the theme named by a theme hash (`#diorama`) or a section hash (`#b-about`), so a reload keeps the theme (E5) and a shared section link selects its theme (E6). It returns null when the hash names no theme. Task 5 follows the hash once more when its module starts, in case a link was clicked before the module ran.
 - **The no-flash head script gets `THEME_BY_HASH` at build time through `define:vars`.** That script must be inline and synchronous, so it cannot import `src/scene/contract.ts`. `THEME_BY_HASH` is a plain table of every theme and section hash, and `themeFromHash` is a lookup on it.
+- **A hash naming no theme falls back to the saved or default theme.** So a link to `#main` flips a theme that was chosen by link. Every in-page link points at a section id from `sectionId()`, including a skip link, which targets `sectionId(theme, "top")`. Any other id in a theme also carries its prefix, because all three themes share one page, but a link to it would still flip the theme.
+- **One source for shared reads.** `showingTheme()`, `themeRootElement()` and `effectiveColorScheme()` in `src/scene/contract.ts` are the only reads of the selected theme, a theme's root and the scheme in effect, so do not write copies. On another page, importing them carries the cost in section 8's "Other pages". Storage guards and the inline head script stay separate on purpose: a theme module has a session fallback and the head script cannot import.
 - **Storage keys** are in `STORAGE_KEYS`: `rail-selected-theme`, `rail-color-scheme`, `rail-livery`. They replace the prototype's `rail-concept` and its confusingly named `rail-theme`. Every access is guarded (E3).
 
 ## 5. Sections
@@ -53,8 +55,8 @@ The contract owns the header link labels (`NAV_SECTIONS`: About, Work, Projects,
 
 **Staying there on a theme's first show.** Two things keep the section in place while the incoming theme settles:
 
-- **Reservation.** The incoming theme's hero must already hold the scene's height (section 6) and its lazy images must have `width` and `height`.
-- **Re-pinning.** Reservation cannot cover everything: controls appear, the HTML line leaves the flow on `board`, and fonts swap late. So after step 4, Task 5 repeats step 3 with the same key whenever the incoming root's `data-scene-state` changes (a `MutationObserver` runs this before the next paint) and whenever `loadedFontFaceCount()`, sampled each frame, goes up. The pin ends at the visitor's first wheel, touch move, pointer press or key press of any kind, at any `hashchange` or `popstate` (a step between entries with the same hash fires only `popstate`), at the next switch, and 10 seconds after it started, so it does not sample fonts forever with no input. It never ends on a `scroll` event, since its own scrolls fire those too.
+- **Reservation.** A theme's whole `data-rail-hero` holds its height when the scene starts, on a switch and on a plain first load, by following section 6. Its lazy images must have `width` and `height`.
+- **Re-pinning.** Reservation cannot cover late font swaps or a failed load. So after step 4, Task 5 repeats step 3 with the same key whenever the incoming root's `data-scene-state` changes (a `MutationObserver` runs this before the next paint) and whenever `loadedFontFaceCount()`, sampled each frame, goes up. The pin ends at the visitor's first wheel, touch move, pointer press or key press of any kind, at any `hashchange` or `popstate` (a step between entries with the same hash fires only `popstate`), at the next switch, and 10 seconds after it started, so it does not sample fonts forever with no input. It never ends on a `scroll` event, since its own scrolls fire those too.
 - **Settling.** For the first 3 frames of a pin, Task 5 repeats step 3 unconditionally. A smooth scroll from a section link survives the switch's instant scroll in Chromium and carries the page away from the section, and it cannot be stopped synchronously before step 1. One frame was enough in every run; the other two are margin.
 - **Section links on load.** A section link opened fresh (navigation type `navigate`) is a first show too, so Task 5 pins that section from page start, under the same rules. A reload or a history step is not pinned, because the browser restores the visitor's own scroll position.
 
@@ -74,13 +76,21 @@ A theme lives in `src/themes/<name>/` and has four fixed entry points. `src/them
 **The static part must:**
 
 - Have `data-rail-theme-root="<name>"` on its outermost element, and all six section ids.
-- Have one element with `data-rail-hero` and `tabindex="-1"` holding the canvas, controls and "Right now".
-- Have one `<canvas data-rail-canvas role="img" aria-label="…">`, whose parent is a block element with no horizontal padding that does not take its width from the canvas. The runtime reads that parent's `clientWidth`. Before any scene loads (section 5), the parent reserves the height the scene will draw at, compact and full, with `aspect-ratio`. It switches between the two with a container query at `COMPACT_SCENE_WIDTH` (600 px, repeated by hand because CSS cannot import it). `container-type: inline-size` goes on the canvas parent's parent, and the canvas parent fills that element's content box, so the query measures exactly what the runtime reads. Not the hero and not the viewport: a padded hero or a max-width wrapper makes those wider than the scene, and the CSS would reserve full height while the scene draws compact.
-- Have one `data-rail-static` element inside that parent: what shows when no scene runs (no JavaScript, or a failed load). It fills the reserved box.
-- Put its controls in one `data-rail-controls` element, using the prototype's hooks: `data-rail-toggle` with a `data-rail-label` inside, `data-rail-speed="<index>"` for each of `SPEEDS`, and `data-rail-livery="<id>"` for each of `LIVERY_ORDER`, named by `LIVERY_LABELS`. Task 6 binds them and writes their state (below).
-- Render `src/components/RightNow.astro` inside the hero. Theme CSS may style its `.now`, `.now__label`, `.now__k` and `.now__v` classes.
-- Render `src/components/ThemeSwitcher.astro` with `current="<name>"` in its header. Task 10 replaces the placeholder behind the same props, and keeps `data-theme-switcher` (`THEME_HOOKS.themeSwitcher`) on its outer element: focus lands inside it after a switch, and it hides with no JavaScript.
+- Have one element with `data-rail-hero` and `tabindex="-1"`, holding one `data-rail-scene-frame` element at any depth. The frame holds the canvas parent, the controls below it, and `<RightNow />` as a direct child. Only `.now` is bound by selector (`[data-rail-scene-frame] > .now`), so the others may nest. The controls must sit below the canvas parent: at full width the line overlays the frame's bottom edge while the scene loads, so without a controls slot there it lands on the static hero. `src/layouts/global.css` makes the frame a size container named `rail-scene` and the line's positioning parent, so a theme sets neither `position` nor its own `container-type` on it.
+- Have one `<canvas data-rail-canvas role="img" aria-label="…">`, with `display: block`, whose parent is a block element, not a flex container, with no horizontal padding that fills the frame's content box. A flex parent would shrink the static hero, so a canvas narrower than its parent centres with `margin-inline: auto`. The runtime reads that parent's `clientWidth`, so the frame's size queries measure exactly the same width. Before any scene loads, the parent reserves the height the scene will draw at, compact and full, with `aspect-ratio` and a container query at `COMPACT_SCENE_WIDTH` (600 px, repeated by hand because CSS cannot import it). Never a viewport query: a padded hero or a max-width wrapper makes the viewport wider than the scene, and the CSS would reserve full height while the scene draws compact. A canvas that snaps to whole pixels, as Pixel Depot's does (Task 9), can outgrow that reservation by up to its pixel size, so its parent also sets `overflow: hidden`.
+- Have one `data-rail-static` element inside that parent: what shows when no scene runs (no JavaScript, or a failed load). It fills the reserved box and must fit it without clipping at 320 px, where the box is about 90 px tall. A taller one grows the parent and moves the hero when the scene starts, and `overflow: hidden` on the parent would cut its text off while passing every check, so shorten the content instead.
+- Put its controls in one `data-rail-controls` element in the frame, using the prototype's hooks: `data-rail-toggle` with a `data-rail-label` inside, `data-rail-speed="<index>"` for each of `SPEEDS`, and `data-rail-livery="<id>"` for each of `LIVERY_ORDER`, named by `LIVERY_LABELS`. Task 6 binds them and writes their state (below). Task 6 rewrites the toggle's label, so the label holds the width of the widest of its three strings in the theme's own font, or a press can rewrap the controls and move the page. Which string is widest depends on the font, and an icon and gap sit beside the label, so size the label and not the toggle: `[data-rail-label] { display: inline-block; min-inline-size: 15ch; }` does this for all three themes. It makes the toggle about 45 to 50 px wider than the prototype's on Interchange and Diorama, and about 24 px on Pixel Depot; accept that when comparing with the prototype.
+- Render `<RightNow />` from `src/components/RightNow.astro` as a direct child of the frame, with no props: it reads `getSiteContent()` itself, and its `items` prop is only for the stubs. Theme CSS may style its `.now`, `.now__label`, `.now__k` and `.now__v` classes, but not its position: at full width the line is out of the flow from the start, overlaying the frame's bottom edge until the billboard takes over, and it returns to the flow on `failed`.
+- Render `src/components/ThemeSwitcher.astro` with `current="<name>"` in its header. Task 10 replaces the placeholder behind the same props, and keeps `data-theme-switcher` (`THEME_HOOKS.themeSwitcher`) on its outer element: after a switch, focus goes to its `[aria-current="true"]` element, or otherwise its first `a` or `button`, so one of those must be focusable while the switcher is closed. It also hides with no JavaScript.
 - Use the page-helper hooks that Task 5 binds: `data-theme-toggle`, `data-copy` with `data-copy-label`, `data-copy-target`, `data-cv`, `data-year`.
+
+**Porting the prototypes' heroes.** Check the ratios against each `render.js` if a view changes.
+
+| Theme       | Frame     | Canvas parent                                                                         | Reserved ratio, full and compact |
+| ----------- | --------- | ------------------------------------------------------------------------------------- | -------------------------------- |
+| Interchange | `.map`    | A new wrapper around the canvas                                                       | `768 / 300`, `768 / 262`         |
+| Diorama     | `.layout` | A new wrapper around the canvas                                                       | `820 / 282`, `820 / 262`         |
+| Pixel Depot | `.screen` | `.screen__view`, changed from flex to block, with `margin-inline: auto` on the canvas | `768 / 302`, `768 / 264`         |
 
 **Control state.** Task 6 writes these attributes, on every theme's controls so a hidden theme is right when shown, and theme CSS styles from them. The prototype stylesheets use `[data-state="stop"]` on the toggle and `[aria-pressed="true"]` on speed and livery buttons.
 
@@ -94,7 +104,25 @@ Task 5 writes `aria-pressed` and `aria-label` on `data-theme-toggle`: pressed me
 
 **Content.** All content comes from `getSiteContent()` in `src/content/site.ts`, called in `Theme.astro`'s frontmatter. Do not call `getCollection` directly: the integrity checks for empty collections, `order` and the PNG portrait run only through that call. Nothing passes content down as props, so the page never changes when a theme does.
 
-**Images.** Use `loading="lazy"`, so a hidden theme's images do not load, with `width` and `height`, so they cannot move the page when they arrive. `profile.portraitPixels` comes back as plain `{ url, width, height }`: render it with a plain `<img>` and `image-rendering: pixelated`, and never through Astro's `<Image>`, which would resize or re-encode it (E23).
+**Images.** Every image must load lazily, so a hidden theme's images do not load, and have `width` and `height`, so they cannot move the page when they arrive.
+
+| Content                  | Render with                                                                                                                                                                             | `alt`                                                                         |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `profile.portrait`       | `<Image src={profile.portrait} alt={…} />` from `astro:assets`                                                                                                                          | `profile.portraitAlt`, or `""` beside a text alternative, as in the prototype |
+| `profile.contactPhoto`   | `<Image>`                                                                                                                                                                               | `""`, decorative beside the contact details                                   |
+| A project's `logo`       | `<Image>`                                                                                                                                                                               | `` `${project.name} logo` ``                                                  |
+| `profile.portraitPixels` | A plain `<img>` with `src={portraitPixels.url}`, its `width` and `height`, `loading="lazy"` and `image-rendering: pixelated`. Never `<Image>`, which would resize or re-encode it (E23) | As the prototype                                                              |
+
+`<Image>` sets `loading="lazy"` and the image's own `width` and `height` by default. Size it in CSS.
+
+**Conformance suite.** `tests/e2e/conformance/themes.spec.ts`, run with `npx playwright test tests/e2e/conformance`, which builds first. Theme tasks must keep it green and cannot edit it: a change goes through section 12. For every theme it checks:
+
+- **In light and dark at 320, 390, 768, 1280 and 1920 px:** exactly one "Right now" shown, no sideways scrolling, the `<html>` `color-scheme`, no serious axe violations, all six sections reachable and no page errors.
+- **The hero when the scene starts:** the whole `data-rail-hero` holds its height at 320, 390, 620, 640, 768, 1280 and 1920 px, with and without reduced motion, and the toggle's label cannot rewrap the controls at 320 px.
+- **Before the scene runs:** the controls are hidden and out of reach.
+- **After a failure at 1280 and 1920 px:** the static hero's text stays clear of "Right now".
+- **Tokens and headers:** the `--dd-*` tokens are set on all four colour routes (light, dark by the system, dark by a pick, light by a pick on a dark system), and a switched-to section's heading clears any pinned header on desktop and phone.
+- **Also:** a saved scheme beats the system's, one "Right now" survives a resize across widths, and no theme's CSS reaches outside its root.
 
 **The stubs** still use placeholder "Right now" items, although `getSiteContent()` is now on the branch, until Tasks 7 to 9 replace them.
 
@@ -156,35 +184,38 @@ Task 5 writes `aria-pressed` and `aria-label` on `data-theme-toggle`: pressed me
 
 **`data-scene-state` on the theme root** is written by the runtime only. Absent means never started.
 
-| Value                 | Meaning                          | What shows                          |
-| --------------------- | -------------------------------- | ----------------------------------- |
-| absent or `loading`   | No scene yet                     | Static hero, no canvas, no controls |
-| `running` or `paused` | Scene loaded                     | Canvas and controls, no static hero |
-| `failed`              | Import or any scene method threw | Static hero, no canvas, no controls |
+| Value                                | Meaning                          | What shows                                                                                                                                                                 |
+| ------------------------------------ | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| absent, with no JavaScript           | No scene is coming               | Static hero and "Right now" in the flow. Controls take no space. No canvas                                                                                                 |
+| absent with JavaScript, or `loading` | No scene yet                     | Static hero and "Right now". Controls keep their space, unseen and out of the tab order and accessibility tree. No canvas                                                  |
+| `running` or `paused`                | Scene loaded                     | Canvas and controls, no static hero                                                                                                                                        |
+| `failed`                             | Import or any scene method threw | Static hero and "Right now" in the flow. Controls leave the flow. No canvas. The hero changes once, by about the line's height minus the controls' slot, only on a failure |
+
+At full width before a scene runs, "Right now" overlays the frame's bottom edge, over the empty controls slot. With the prototypes' CSS and fonts and today's content, it rises above that slot onto the static hero's bottom by 23 px on Interchange at a 600 px frame and 12 px on Pixel Depot at 600 to 640 px. A longer "Right now" item rises further. That is accepted, because it lasts only while the scene loads. If the `page` chunk itself fails, it stays that way, with an empty controls slot.
 
 `paused` means loaded but not selected. A selected theme whose canvas is off-screen or whose tab is hidden stays `running`, and only its loop stops ticking, so scrolling never rewrites this attribute.
 
 **Failure (E12).** A rejected import or a throw from any scene method counts as a failed load. The runtime logs it, forgets the scene and sets `failed`, so the static hero and HTML line show, and other themes stay selectable. Selecting another theme and coming back retries in place, with the same URL. A throw from `world.update` is an engine bug, not a failed load: it stays an uncaught error, the theme stays `running` with its canvas frozen, and the next wake (scroll, refocus or switch) tries again.
 
-| What failed                                                    | What happens                                                                                                    | What recovers it                                                                          |
-| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| A scene method threw                                           | `failed`                                                                                                        | Coming back                                                                               |
-| A scene chunk's request failed, on first load or later         | `failed`, each time while still offline                                                                         | Coming back once the network returns, or a reload                                         |
-| A scene chunk returned 404 on first load                       | `failed`                                                                                                        | A reload                                                                                  |
-| A scene chunk no longer exists, on a page from before a deploy | `failed` for every theme not yet loaded, and retries keep failing. Themes already loaded keep working           | Only a reload, and **nothing tells the visitor to reload**: they just see the static hero |
-| A scene chunk is slow or stalled                               | `loading` with the static hero, and no timeout. Other themes stay selectable, and a late arrival starts nothing | Its arrival while selected, or coming back                                                |
-| The `page` chunk failed on first load                          | No runtime: the selected theme's static hero, with no state attribute                                           | A reload                                                                                  |
+| What failed                                                    | What happens                                                                                                                                                               | What recovers it                                                                          |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| A scene method threw                                           | `failed`                                                                                                                                                                   | Coming back                                                                               |
+| A scene chunk's request failed, on first load or later         | `failed`, each time while still offline                                                                                                                                    | Coming back once the network returns, or a reload                                         |
+| A scene chunk returned 404 on first load                       | `failed`                                                                                                                                                                   | Coming back once the chunk returns, or a reload                                           |
+| A scene chunk no longer exists, on a page from before a deploy | `failed` for every theme not yet loaded, and retries keep failing. Themes already loaded keep working                                                                      | Only a reload, and **nothing tells the visitor to reload**: they just see the static hero |
+| A scene chunk is slow or stalled                               | `loading` with the static hero, and no timeout. Other themes stay selectable, and a late arrival starts nothing. While the request stays hung, coming back stays `loading` | Its arrival while selected, or coming back after it arrives                               |
+| The `page` chunk failed on first load                          | No runtime: the selected theme's static hero, with no state attribute                                                                                                      | A reload                                                                                  |
 
 Those results come from real sockets in Chromium and Playwright's WebKit, on the real engine. Safari itself was not run.
 
-**Chunk rule (`scene-chunks.mjs`).** A scene chunk may statically import only the `page` chunk, which holds the `import()` calls and loads with the page. The build shapes chunks this way for Tasks 7 to 9, but it does not reject a scene's own `import()` or CSS import. `tests/e2e/scene/chunk-rule.spec.ts` catches those.
+**Chunk rule (`scene-chunks.mjs`).** A scene chunk may statically import only the `page` chunk, which holds the `import()` calls and loads with the page. The build shapes chunks this way for Tasks 7 to 9, but it does not reject a scene's own `import()` or CSS import. `tests/e2e/scene/chunk-rule.spec.ts` catches an `import()` and a large CSS import. Astro inlines a tiny CSS import, which passes that spec, so the rule itself is: no CSS import in `scene.ts`. `src/scene/scene-css-imports.test.ts` scans the source for it.
 
 - **Why.** In WebKit, a shared chunk that loads on demand and fails leaves every scene that imports it failed, with no recovery in place. If a scene chunk has any such dependency, Vite also adds a `modulepreload` link for that scene, and after a failure WebKit stops fetching it. The spike's retry succeeded only because its chunks had no dependencies.
 - **What themes get.** Code only one scene reaches stays in that scene's chunk. Code two scenes share moves to `page` with no action needed, so it loads on every first visit. Keep large code private to a scene.
 - **What themes must not do.** Do not work around this: no `import()` and no CSS import in `scene.ts` or its helpers, no chunking settings of your own, and no retry or refresh logic in a theme.
 - **Other pages.** An entry script's own body stays out of `page`, so importing `page` never starts the runtime. But every module an entry script imports goes to `page`, even one private to that script. So a script on another page with one imported helper loads all of `page`, including the engine, and the helper joins the home page's chunk. Tasks 11 and 12 should avoid module imports in other pages' scripts, or accept that cost.
 
-**`data-now` on the hero** has one rule, in the runtime, for all three themes: `board` when a scene is loaded and `size.compact` is false, otherwise `html`. Absent (no JavaScript) behaves like `html`. Motion preferences play no part. `src/layouts/global.css` visually hides the HTML line on `board`, and screen readers keep it.
+**`data-now` on the hero** has one rule, in the runtime, for all three themes: `board` when a scene is loaded and `size.compact` is false, otherwise `html`. Absent (no JavaScript) behaves like `html`. Motion preferences play no part. `src/layouts/global.css` visually hides the HTML line on `board`, and screen readers keep it. At compact widths the line is in the flow before and after the scene starts. At full width it is out of the flow before and after, so neither case moves the hero. On `failed` it is in the flow at every width, as with no JavaScript.
 
 ## 9. Tokens, CSS and fonts
 
@@ -195,6 +226,7 @@ Those results come from real sockets in Chromium and Playwright's WebKit, on the
 - **Each theme sets `--dd-bg`, `--dd-fg`, `--dd-muted` and `--dd-line`,** which the switcher reads.
 - **Shared tokens and global CSS** live in `src/layouts/`. All themes' CSS loads on every visit (C8) and counts toward the budget.
 - **Canvas colours come from tokens,** not literals, so a scheme change reaches them.
+- **Porting a prototype's `style.css`.** Drop what `src/layouts/global.css` owns: `html { scroll-behavior }` with its reduced-motion rule, `body::before`, and the rules from `shared/now.css`. `shared/switcher.css` belongs to Task 10. Keep the rest under the theme root: `:root` custom properties and `color-scheme` go to `tokens.css`, `body` type and colour rules go on the root itself, `* { box-sizing }` becomes the root and `& *`, and `a { color: inherit }` becomes `& a`. Viewport media queries may stay for page layout, but the scene's reserved height uses the container query in section 6.
 - **Fonts.** Each theme names one Google Fonts stylesheet in `meta.fontStylesheet`, and Task 5 requests it only when that theme is shown. Self-host only a font with no Google match. Canvas text must stay legible with fallback fonts (E15).
 
 ## 10. Engine API
@@ -216,6 +248,13 @@ Those results come from real sockets in Chromium and Playwright's WebKit, on the
 
 - **`marqueeSegments` drops its last argument.** It is `0` at both call sites and no definition of it exists anywhere in the repo.
 - **The theme tasks pass `world.textTime`** where the prototypes pass `world.time`.
+
+**What a straight port trips on under `strict`:**
+
+- **`world.pointAt` can return null,** underground. Stations are above ground, so a port guards it with `if (!point) continue;`.
+- **`Platform` is a union.** Narrow on `platform.type` before reading `x` or `cx`.
+- **`coach`, `coach2` and `coachRoof` are optional in `LiveryColors`.** Fall back as the prototype does with `||`: `colors.coach ?? colors.body`, `colors.coach2 ?? colors.body` and `colors.coachRoof ?? colors.roof`.
+- **Sampled points are readonly,** and `hitTrain` cannot be replaced. Use `{ ...p, z }` and `Scene.hitTrain`.
 
 **Where every prototype helper goes:**
 
@@ -241,7 +280,6 @@ Those results come from real sockets in Chromium and Playwright's WebKit, on the
 
 | Stub                                                                 | Replaced by |
 | -------------------------------------------------------------------- | ----------- |
-| `src/rail/stub.ts`                                                   | Task 4      |
 | `src/themes/interchange/{Theme.astro,scene.ts,tokens.css,theme.css}` | Task 7      |
 | `src/themes/diorama/{Theme.astro,scene.ts,tokens.css,theme.css}`     | Task 8      |
 | `src/themes/pixel-depot/{Theme.astro,scene.ts,tokens.css,theme.css}` | Task 9      |
@@ -260,7 +298,7 @@ The measurements are in the description of the PR that added this document.
 3. **`textTime` and `textPaused` were added,** with `startStopped` kept separate from them. Verification later added the first-press rule. See section 7.
 4. **`Scene.resize` gets the parent's width.** Interchange and Diorama measure the canvas and Pixel Depot its parent. They matched at both widths, except that Pixel Depot's canvas rounds down to whole pixels (1,122 against 1,124), so only the parent is a safe common measure.
 
-**What it could not prove:** no-flash and no-JavaScript in Astro, chunk splitting and page weight on real themes. Tasks 5, 6 and 13 cover those. The skeleton in this PR does show no-JavaScript, lazy chunks and last-selection-wins on stubs. Fonts were blocked throughout, so E15 ran on fallback fonts only. Interchange and Diorama measure text every frame, so they should pick up a late font, but that was not run.
+**What it could not prove:** page weight on real themes, which Task 13 measures. Fonts were blocked throughout the spike, so E15 ran on fallback fonts only.
 
 ## 12. Changing this contract
 
@@ -274,6 +312,10 @@ The agent that finds a gap stops work on that seam, reports it, and does not wor
 ### Change log
 
 - Wave 2, Task 4, breaking (changed meaning), approved by the coordinator: once a `userStopped` train is at rest, the whole scene holds, including the crowd, steam, dwell and `world.time`, where the prototype stopped only the train (section 7). The flags, control bindings and types are unchanged, so no in-flight task pauses.
-- 2026-11-04, additive (Task 5): section 5 adds a 10-second limit on the pin, 3 settling frames, and a pin for section links opened fresh. Section 6 corrects the sentence on the stubs' placeholders. Section 5 reads the key at `popstate` on a history step, and section 4 follows the hash once more at start. `popstate` also ends a pin (section 5), and `THEME_HOOKS` adds `themeSwitcher` (section 6).
-- **Additive (Task 6):** off-screen, a size or colour change gets one `draw` without stepping the world (section 8). Also recorded in section 8: a scene must expect `resize` on show with an unchanged size, and what a throw from `world.update` does.
-- **Additive (Task 6):** the chunk rule in section 8. Scene chunks statically import only the `page` chunk, and themes must not work around it.
+- Wave 2, Task 5, additive: section 5 adds a 10-second limit on the pin, 3 settling frames, and a pin for section links opened fresh. Section 6 corrects the sentence on the stubs' placeholders. Section 5 reads the key at `popstate` on a history step, and section 4 follows the hash once more at start. `popstate` also ends a pin (section 5), and `THEME_HOOKS` adds `themeSwitcher` (section 6).
+- Wave 2, Task 6, additive: off-screen, a size or colour change gets one `draw` without stepping the world (section 8). Also recorded in section 8: a scene must expect `resize` on show with an unchanged size, and what a throw from `world.update` does.
+- Wave 2, Task 6, additive: the chunk rule in section 8. Scene chunks statically import only the `page` chunk, and themes must not work around it.
+- Wave 3 base, additive: `showingTheme()`, `themeRootElement()` and `effectiveColorScheme()` move into `src/scene/contract.ts` (section 4). Sections 4, 6, 9 and 10 add what a theme builder needs: in-page links, image rendering, the conformance suite, what to drop when porting CSS, and type errors in a straight port.
+- Wave 3 base, breaking in form, approved by the coordinator, with no theme yet affected because Tasks 7 to 9 have not started: a theme's hero holds its height when its scene starts. `data-rail-scene-frame` (`THEME_HOOKS.sceneFrame`) replaces a theme's own `container-type`, holds the controls and `<RightNow />`, and is set up by `src/layouts/global.css`. Controls keep their space with `visibility: hidden` until a scene runs, and at full width "Right now" stays out of the flow from the start (sections 5, 6 and 8).
+- Wave 3 base, additive: `src/scene/scene-css-imports.test.ts` scans for CSS imports in `scene.ts`, and section 6 lists everything the conformance suite checks and maps the prototypes' heroes.
+- Wave 3 base, breaking in form, approved by the coordinator, with no theme yet affected because Tasks 7 to 9 have not started: on `failed`, "Right now" returns to the flow, replacing the rule that a static hero keeps its last 3 rem clear (section 8). The label holds its widest string with `15ch` on `data-rail-label`, replacing the rule on the toggle's width. The static hero must fit its box at 320 px (section 6).

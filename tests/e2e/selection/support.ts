@@ -34,6 +34,15 @@ export const THEME_PAIRS = THEMES.flatMap((from) =>
 
 const FONT_HOSTS = /^https:\/\/fonts\.(googleapis|gstatic)\.com\//;
 
+/**
+ * WebKit logs this when the page's own `rel="preconnect"` finds no network, which
+ * is how these runs keep the fonts away, and more often under load. A route cannot
+ * reach a preconnect. Only this message is dropped: a font stylesheet that fails, or
+ * a preconnect to any other host, still counts.
+ */
+const BLOCKED_FONT_PRECONNECT =
+  /^Failed to preconnect to https:\/\/fonts\.(googleapis|gstatic)\.com\/\. Error: /;
+
 export const test = base.extend<{
   /** Every font stylesheet the page asked for, in order. */
   fontRequests: string[];
@@ -65,7 +74,10 @@ export const test = base.extend<{
       const watch = (page: Page) => {
         page.on("pageerror", (error) => problems.push(`uncaught: ${error}`));
         page.on("console", (message) => {
-          if (message.type() === "error") {
+          if (
+            message.type() === "error" &&
+            !BLOCKED_FONT_PRECONNECT.test(message.text())
+          ) {
             problems.push(`console: ${message.text()}`);
           }
         });

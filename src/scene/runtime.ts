@@ -6,13 +6,13 @@ import { createWorld } from "../rail";
 import { SCENE_LOADERS } from "../themes/registry";
 import {
   COLOR_SCHEME_ATTRIBUTE,
+  effectiveColorScheme,
   NOW_ATTRIBUTE,
-  resolveThemeName,
   SCENE_STATE_ATTRIBUTE,
+  showingTheme,
   THEME_ATTRIBUTE,
   THEME_NAMES,
   type CanvasPoint,
-  type ColorScheme,
   type NowMode,
   type SceneSize,
   type SceneState,
@@ -37,17 +37,10 @@ import { createWorldView } from "./world-view";
 export function startSceneRuntime(): void {
   const html = document.documentElement;
   const systemDark = matchMedia("(prefers-color-scheme: dark)");
-  const selectedTheme = () =>
-    resolveThemeName(html.getAttribute(THEME_ATTRIBUTE));
-  const colorScheme = (): ColorScheme => {
-    const picked = html.getAttribute(COLOR_SCHEME_ATTRIBUTE);
-    if (picked === "light" || picked === "dark") return picked;
-    return systemDark.matches ? "dark" : "light";
-  };
 
   const world = createWorld(
     worldStartOptions({
-      firstTheme: selectedTheme(),
+      firstTheme: showingTheme(),
       savedLivery: readSavedLivery(),
       reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches,
     }),
@@ -150,7 +143,7 @@ export function startSceneRuntime(): void {
   }
 
   function applyColors(entry: LoadedScene): void {
-    const scheme = colorScheme();
+    const scheme = effectiveColorScheme();
     if (entry.appliedScheme === scheme) return;
     entry.appliedScheme = scheme;
     entry.scene.applyColorScheme(scheme);
@@ -243,7 +236,7 @@ export function startSceneRuntime(): void {
   }
 
   function reactToHtmlAttributes(): void {
-    const theme = selectedTheme();
+    const theme = showingTheme();
     if (theme !== selected) void select(theme);
     else reactToColors();
   }
@@ -291,5 +284,5 @@ export function startSceneRuntime(): void {
     wake();
   });
 
-  void select(selectedTheme());
+  void select(showingTheme());
 }

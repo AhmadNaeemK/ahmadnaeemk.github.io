@@ -8,16 +8,16 @@ import {
   DEFAULT_THEME,
   isThemeName,
   loadedFontFaceCount,
-  resolveThemeName,
   SCENE_STATE_ATTRIBUTE,
   SECTION_KEYS,
   sectionId,
+  showingTheme,
   STORAGE_KEYS,
   THEME_ATTRIBUTE,
   THEME_HOOKS,
-  THEME_ROOT_ATTRIBUTE,
   themeFromHash,
   themeHash,
+  themeRootElement,
   type SectionKey,
   type ThemeName,
 } from "./contract";
@@ -112,16 +112,6 @@ function saveTheme(theme: ThemeName): void {
   }
 }
 
-function showingTheme(): ThemeName {
-  return resolveThemeName(
-    document.documentElement.getAttribute(THEME_ATTRIBUTE),
-  );
-}
-
-function themeRoot(theme: ThemeName): HTMLElement | null {
-  return document.querySelector(`[${THEME_ROOT_ATTRIBUTE}="${theme}"]`);
-}
-
 function sectionElement(theme: ThemeName, key: SectionKey): HTMLElement | null {
   return document.getElementById(sectionId(theme, key));
 }
@@ -166,7 +156,7 @@ function pinSection(theme: ThemeName, key: SectionKey): void {
 
   // A MutationObserver runs before the next paint, so the shift never shows.
   const stateObserver = new MutationObserver(repin);
-  const root = themeRoot(theme);
+  const root = themeRootElement(theme);
   if (root) {
     stateObserver.observe(root, {
       attributes: true,
@@ -234,7 +224,9 @@ function switchTheme(
 
 /** Focus would otherwise fall to the body once the old theme hides (E19). */
 function focusThemeSwitcher(theme: ThemeName): void {
-  const switcher = themeRoot(theme)?.querySelector(THEME_HOOKS.themeSwitcher);
+  const switcher = themeRootElement(theme)?.querySelector(
+    THEME_HOOKS.themeSwitcher,
+  );
   const target =
     switcher?.querySelector<HTMLElement>('[aria-current="true"]') ??
     switcher?.querySelector<HTMLElement>("a, button");
@@ -275,7 +267,7 @@ function followHash(): void {
   const outgoing = showingTheme();
   if (incoming === outgoing) return;
 
-  const hadFocus = themeRoot(outgoing)?.contains(document.activeElement);
+  const hadFocus = themeRootElement(outgoing)?.contains(document.activeElement);
   switchTheme(incoming, sectionKeyFromHash(location.hash) ?? keyBeforeStep);
   if (hadFocus) focusThemeSwitcher(incoming);
 }

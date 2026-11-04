@@ -1,7 +1,7 @@
 import {
   RIGHT_NOW_PARTS,
   THEME_HOOKS,
-  THEME_ROOT_ATTRIBUTE,
+  themeRootElement,
   type NowItem,
   type ThemeName,
 } from "./contract";
@@ -21,9 +21,7 @@ export interface ThemeDom {
 }
 
 export function findThemeDom(theme: ThemeName): ThemeDom {
-  const root = document.querySelector<HTMLElement>(
-    `[${THEME_ROOT_ATTRIBUTE}="${theme}"]`,
-  );
+  const root = themeRootElement(theme);
   const hero = root?.querySelector<HTMLElement>(THEME_HOOKS.hero);
   const canvas = root?.querySelector<HTMLCanvasElement>(THEME_HOOKS.canvas);
   const sizer = canvas?.parentElement;

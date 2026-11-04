@@ -1,10 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  COLOR_SCHEME_ATTRIBUTE,
+  DEFAULT_THEME,
+  effectiveColorScheme,
   isThemeName,
   NAV_SECTIONS,
   resolveThemeName,
   SECTION_KEYS,
   sectionId,
+  showingTheme,
+  THEME_ATTRIBUTE,
   THEME_BY_HASH,
   themeFromHash,
   THEME_NAMES,
@@ -172,6 +177,89 @@ describe("NAV_SECTIONS", () => {
   it("links every section except top, in page order", () => {
     expect(NAV_SECTIONS.map(({ key }) => key)).toEqual(
       SECTION_KEYS.filter((key) => key !== "top"),
+    );
+  });
+});
+
+describe("the reads of <html>", () => {
+  /** What can sit in an attribute: anything a script or a stale page wrote there. */
+  const HOSTILE_ATTRIBUTES = [
+    "",
+    "constructor",
+    "__proto__",
+    "toString",
+    "DARK",
+    " dark ",
+    "a-about",
+  ];
+
+  function stubHtml(
+    attributes: Record<string, string>,
+    systemIsDark = false,
+  ): void {
+    vi.stubGlobal("document", {
+      documentElement: {
+        getAttribute: (name: string) =>
+          Object.hasOwn(attributes, name) ? attributes[name] : null,
+      },
+    });
+    vi.stubGlobal("matchMedia", () => ({ matches: systemIsDark }));
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  describe("showingTheme", () => {
+    it.each(THEME_NAMES)("reads %s", (theme) => {
+      stubHtml({ [THEME_ATTRIBUTE]: theme });
+      expect(showingTheme()).toBe(theme);
+    });
+
+    it("is the default theme with the attribute missing", () => {
+      stubHtml({});
+      expect(showingTheme()).toBe(DEFAULT_THEME);
+    });
+
+    it.each(HOSTILE_ATTRIBUTES)("is the default theme for %j", (value) => {
+      stubHtml({ [THEME_ATTRIBUTE]: value });
+      expect(showingTheme()).toBe(DEFAULT_THEME);
+    });
+  });
+
+  describe("effectiveColorScheme", () => {
+    it.each([
+      { picked: "light", systemIsDark: true },
+      { picked: "dark", systemIsDark: false },
+      { picked: "light", systemIsDark: false },
+      { picked: "dark", systemIsDark: true },
+    ] as const)(
+      "is the pick, $picked, with the system dark: $systemIsDark",
+      ({ picked, systemIsDark }) => {
+        stubHtml({ [COLOR_SCHEME_ATTRIBUTE]: picked }, systemIsDark);
+        expect(effectiveColorScheme()).toBe(picked);
+      },
+    );
+
+    it.each([
+      { systemIsDark: true, expected: "dark" },
+      { systemIsDark: false, expected: "light" },
+    ])(
+      "follows the system with no pick: dark $systemIsDark gives $expected",
+      ({ systemIsDark, expected }) => {
+        stubHtml({}, systemIsDark);
+        expect(effectiveColorScheme()).toBe(expected);
+      },
+    );
+
+    it.each(HOSTILE_ATTRIBUTES)(
+      "treats %j as no pick, and follows the system",
+      (value) => {
+        stubHtml({ [COLOR_SCHEME_ATTRIBUTE]: value }, true);
+        expect(effectiveColorScheme()).toBe("dark");
+        stubHtml({ [COLOR_SCHEME_ATTRIBUTE]: value }, false);
+        expect(effectiveColorScheme()).toBe("light");
+      },
     );
   });
 });

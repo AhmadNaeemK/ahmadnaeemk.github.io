@@ -41,7 +41,7 @@ const stubNow: NowItem[] = [
 
   <main id={sectionId(theme, "top")}>
     <section data-rail-hero tabindex="-1" aria-label="Introduction">
-      <div class="scene-frame">
+      <div data-rail-scene-frame>
         <div class="scene">
           <canvas
             data-rail-canvas
@@ -50,32 +50,32 @@ const stubNow: NowItem[] = [
           ></canvas>
           <p data-rail-static>Interchange stub: the static hero.</p>
         </div>
-      </div>
-      <div data-rail-controls role="group" aria-label="Train controls">
-        <button type="button" data-rail-toggle aria-pressed="false">
-          <span data-rail-label>Stop the train</span>
-        </button>
-        <div role="group" aria-label="Speed">
-          {SPEEDS.map((_, index) => (
-            <button
-              type="button"
-              data-rail-speed={index}
-              aria-label={`Speed ${index + 1} of ${SPEEDS.length}`}
-              aria-pressed="false"
-            >
-              {index + 1}
-            </button>
-          ))}
+        <div data-rail-controls role="group" aria-label="Train controls">
+          <button type="button" data-rail-toggle aria-pressed="false">
+            <span data-rail-label>Stop the train</span>
+          </button>
+          <div role="group" aria-label="Speed">
+            {SPEEDS.map((_, index) => (
+              <button
+                type="button"
+                data-rail-speed={index}
+                aria-label={`Speed ${index + 1} of ${SPEEDS.length}`}
+                aria-pressed="false"
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
+          <div role="group" aria-label="Choose a train">
+            {LIVERY_ORDER.map((id) => (
+              <button type="button" data-rail-livery={id} aria-pressed="false">
+                {LIVERY_LABELS[id]}
+              </button>
+            ))}
+          </div>
         </div>
-        <div role="group" aria-label="Choose a train">
-          {LIVERY_ORDER.map((id) => (
-            <button type="button" data-rail-livery={id} aria-pressed="false">
-              {LIVERY_LABELS[id]}
-            </button>
-          ))}
-        </div>
+        <RightNow items={stubNow} />
       </div>
-      <RightNow items={stubNow} />
       <h1>Ahmad Naeem</h1>
     </section>
 

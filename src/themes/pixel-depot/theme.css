@@ -4,13 +4,10 @@
   color: var(--ink);
   font-family: ui-monospace, monospace;
 
-  /* Reserves the scene's height before it loads. 600px repeats COMPACT_SCENE_WIDTH.
-     The query sits on the canvas parent's parent, whose content box the parent
-     fills, so it measures what the scene measures. */
-  & .scene-frame {
-    container-type: inline-size;
-  }
+  /* Reserves the scene's height before it loads. 600px repeats COMPACT_SCENE_WIDTH. */
+  /* The canvas snaps to whole buffer pixels, which no aspect-ratio can follow. */
   & .scene {
+    overflow: hidden;
     aspect-ratio: 768 / 302;
     @container (width < 600px) {
       aspect-ratio: 768 / 264;
@@ -29,6 +26,11 @@
     border: 1px solid var(--muted);
     font: inherit;
     padding: 4px 8px;
+  }
+  /* Holds the widest of its three strings, so writing it cannot rewrap the controls. */
+  & [data-rail-label] {
+    display: inline-block;
+    min-inline-size: 15ch;
   }
   & .top {
     display: flex;
@@ -55,6 +57,7 @@
   }
   & canvas {
     display: block;
+    margin-inline: auto;
     image-rendering: pixelated;
   }
   & .now {
