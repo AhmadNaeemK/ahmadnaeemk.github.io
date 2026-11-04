@@ -1,0 +1,70 @@
+/* About: the text and the station sign. */
+[data-rail-theme-root="interchange"] {
+  & .about {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 56px;
+  }
+  & .about__text p {
+    max-width: 62ch;
+    margin: 0 0 1.1em;
+  }
+  & .about__text p:last-child {
+    font-weight: 700;
+  }
+  & .sign {
+    margin: 0;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: 18px;
+    overflow: hidden;
+    max-width: 360px;
+  }
+  & .sign__lines {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    height: 12px;
+  }
+  & .sign__lines i {
+    background: var(--c);
+  }
+  & .sign__photo {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  & .sign__name {
+    margin: 18px 24px 0;
+    font-size: 2.3rem;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+  }
+  & .sign__sub {
+    margin: 6px 24px 0;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  & .sign__bullets {
+    display: flex;
+    gap: 6px;
+    margin: 18px 24px 24px;
+  }
+  & .sign__bullets span {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    padding-bottom: 3px;
+  }
+  @media (max-width: 860px) {
+    & .about {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+  }
+}

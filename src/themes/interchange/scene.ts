@@ -1,15 +1,22 @@
-/** STUB, replaced by Task 7. A top-down view: canvas maps linearly to world. */
-import { marqueeSegments, sample, TAU } from "../../rail";
-import type { MarqueeSegment } from "../../rail";
+/** Interchange's scene: a transit map seen from above, so canvas maps linearly to world. */
+import type { Car, Person } from "../../rail";
 import type { CreateScene, SceneSize } from "../../scene/contract";
+import { createBillboard } from "./draw-billboard";
+import {
+  drawBridge,
+  drawGrid,
+  drawLetters,
+  drawPlatforms,
+  drawPortals,
+  drawStationMarks,
+  drawUnderground,
+} from "./draw-map";
+import { drawCars, drawPeople, drawPuffs } from "./draw-train";
+import { COMPACT_VIEW, FULL_VIEW, VIEW_WIDTH, VIEW_X0 } from "./map-view";
+import { readSceneTokens, type Paint } from "./scene-tokens";
 
-const VIEW_X0 = -24;
-const VIEW_WIDTH = 768;
-const FULL_VIEW = { y0: -66, height: 300 };
-const COMPACT_VIEW = { y0: -28, height: 262 };
-const BILLBOARD = { x: 120, y: -58, width: 480, height: 34 };
-const BILLBOARD_FONT = "700 13px system-ui, sans-serif";
-const BILLBOARD_SPEED = 26;
+/** At or above this height a car is on the bridge, so it draws over it. */
+const ON_BRIDGE_Z = 0.5;
 
 export const createScene: CreateScene = ({
   canvas,
@@ -17,43 +24,37 @@ export const createScene: CreateScene = ({
   nowItems,
   readToken,
 }) => {
-  const context = canvas.getContext("2d");
-  if (!context) throw new Error("No 2D canvas context.");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("No 2D canvas context.");
+
+  const billboard = createBillboard(nowItems);
+  const groundStations = world.stations.filter(({ elevated }) => !elevated);
+  const raisedStations = world.stations.filter(({ elevated }) => elevated);
 
   let view = FULL_VIEW;
   let compact = false;
   let cssScale = 1;
   let pixelScale = 1;
-  let colors = { track: "", train: "", board: "", boardInk: "" };
+  let paint: Paint | null = null;
 
-  const billboardTexts = nowItems.map(
-    ({ label, value }) => `${label}: ${value}     `,
-  );
+  // Refilled each frame rather than rebuilt, since this runs at the frame rate.
+  const groundCars: Car[] = [];
+  const bridgeCars: Car[] = [];
+  const groundPeople: Person[] = [];
+  const raisedPeople: Person[] = [];
 
-  function drawBillboard(ctx: CanvasRenderingContext2D): void {
-    ctx.fillStyle = colors.board;
-    ctx.fillRect(BILLBOARD.x, BILLBOARD.y, BILLBOARD.width, BILLBOARD.height);
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(BILLBOARD.x, BILLBOARD.y, BILLBOARD.width, BILLBOARD.height);
-    ctx.clip();
-    ctx.textBaseline = "middle";
-    marqueeSegments(
-      ctx,
-      billboardTexts.map((text): MarqueeSegment => ({
-        text,
-        font: BILLBOARD_FONT,
-        color: colors.boardInk,
-      })),
-      {
-        x: BILLBOARD.x,
-        baseline: BILLBOARD.y + BILLBOARD.height / 2,
-        width: BILLBOARD.width,
-        time: world.textTime,
-        speed: BILLBOARD_SPEED,
-      },
-    );
-    ctx.restore();
+  function sortMoversByLevel(): void {
+    groundCars.length = 0;
+    bridgeCars.length = 0;
+    for (const car of world.cars) {
+      if (!car.hidden)
+        (car.z < ON_BRIDGE_Z ? groundCars : bridgeCars).push(car);
+    }
+    groundPeople.length = 0;
+    raisedPeople.length = 0;
+    for (const person of world.people) {
+      (person.station.elevated ? raisedPeople : groundPeople).push(person);
+    }
   }
 
   return {
@@ -68,7 +69,8 @@ export const createScene: CreateScene = ({
       canvas.style.height = `${view.height * cssScale}px`;
     },
     draw() {
-      context.setTransform(
+      if (!paint) return;
+      ctx.setTransform(
         pixelScale,
         0,
         0,
@@ -76,23 +78,26 @@ export const createScene: CreateScene = ({
         -VIEW_X0 * pixelScale,
         -view.y0 * pixelScale,
       );
-      context.clearRect(VIEW_X0, view.y0, VIEW_WIDTH, view.height);
-      context.fillStyle = colors.track;
-      for (const segment of world.letters.flatMap(({ parts }) => parts)) {
-        for (const { x, y } of sample(segment, 6)) {
-          context.beginPath();
-          context.arc(x, y, 2, 0, TAU);
-          context.fill();
-        }
-      }
-      context.fillStyle = colors.train;
-      for (const car of world.cars) {
-        if (car.hidden) continue;
-        context.beginPath();
-        context.arc(car.x, car.y, 8, 0, TAU);
-        context.fill();
-      }
-      if (!compact && nowItems.length > 0) drawBillboard(context);
+      ctx.clearRect(VIEW_X0, view.y0, VIEW_WIDTH, view.height);
+      // A resize resets these, so they are set here and not left from a past frame.
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      sortMoversByLevel();
+      drawGrid(paint);
+      drawUnderground(paint);
+      drawPlatforms(paint, groundStations);
+      drawLetters(paint);
+      drawPortals(paint);
+      drawStationMarks(paint);
+      drawPeople(paint, groundPeople);
+      drawCars(paint, groundCars);
+      if (!compact) billboard.draw(paint, world.textTime);
+      drawBridge(paint);
+      drawPlatforms(paint, raisedStations);
+      drawPeople(paint, raisedPeople);
+      drawCars(paint, bridgeCars);
+      drawPuffs(paint);
     },
     hitTrain({ x, y }, radius) {
       return world.hitTrain(
@@ -101,16 +106,11 @@ export const createScene: CreateScene = ({
         radius,
       );
     },
-    applyColorScheme() {
-      colors = {
-        track: readToken("--track"),
-        train: readToken("--train"),
-        board: readToken("--board"),
-        boardInk: readToken("--board-ink"),
-      };
+    applyColorScheme(scheme) {
+      paint = { ctx, world, tokens: readSceneTokens(readToken, scheme) };
     },
     onFontsReady() {
-      // Measured every frame, so nothing is cached to drop.
+      billboard.dropMeasurements();
     },
   };
 };
