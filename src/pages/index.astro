@@ -1,20 +1,27 @@
 ---
+import { getSiteContent } from "../content/site";
 import Base from "../layouts/Base.astro";
 import Diorama from "../themes/diorama/Theme.astro";
 import Interchange from "../themes/interchange/Theme.astro";
 import PixelDepot from "../themes/pixel-depot/Theme.astro";
 
-const siteTitle = "Ahmad Naeem";
+const { profile } = await getSiteContent();
 ---
 
-<Base title={siteTitle}>
+<Base title={profile.name}>
   <Interchange />
   <Diorama />
   <PixelDepot />
 </Base>
 
 <script>
+  import { startPageAppearance } from "../layouts/page-appearance";
+  import { startPageHelpers } from "../layouts/page-helpers";
   import { startSceneRuntime } from "../scene/runtime";
+  import { startThemeSelection } from "../scene/theme";
 
+  startThemeSelection();
+  startPageAppearance();
+  startPageHelpers();
   startSceneRuntime();
 </script>

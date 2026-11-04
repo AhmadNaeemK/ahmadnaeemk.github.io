@@ -17,7 +17,7 @@
     "typecheck": "astro check",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test --pass-with-no-tests",
+    "test:e2e": "playwright test",
     "test:e2e:install": "playwright install chromium webkit"
   },
   "dependencies": {
