@@ -48,6 +48,9 @@ const ogImageUrl = new URL("/og-image.png", Astro.site);
       <link rel="canonical" href={canonicalUrl} />
     )}
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={profile.name} />
     <meta property="og:title" content={title} />
