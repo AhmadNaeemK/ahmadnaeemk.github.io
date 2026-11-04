@@ -58,7 +58,7 @@ async function steppedForwardToDiorama(page: Page): Promise<void> {
 
 test.describe.configure({ mode: "parallel" });
 
-test.describe("back and forward across theme hashes (E7)", () => {
+test.describe("back and forward across theme hashes", () => {
   const STARTS: { open: string; key: SectionKey }[] = [
     { open: "/#interchange", key: "work" },
     { open: "/#interchange", key: "skills" },

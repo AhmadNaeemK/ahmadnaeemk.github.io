@@ -107,7 +107,7 @@ describe("the content files in src/content", () => {
     await expect(loadRealContent()).resolves.toBeDefined();
   });
 
-  it("link to a CV PDF that ships in public/, which a build would not notice (E24)", async () => {
+  it("link to a CV PDF that ships in public/, which a build would not notice", async () => {
     const { profile } = await loadRealContent();
     const cvFile = new URL(`public${profile.cv}`, PROJECT_ROOT);
 

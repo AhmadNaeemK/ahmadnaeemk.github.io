@@ -17,7 +17,7 @@ const LONG_VALUE =
 const NOW_ITEM_MARKUP = `<li><span class="now__k">Reading</span> <span class="now__v">${LONG_VALUE}</span></li>`;
 
 for (const theme of THEME_NAMES) {
-  test.describe(`${theme} with a single long Right now item (E21)`, () => {
+  test.describe(`${theme} with a single long Right now item`, () => {
     test.beforeEach(async ({ page }) => {
       await rewriteThemeHtml(page, theme, (html) =>
         html.replace(NOW_LIST, `$1${NOW_ITEM_MARKUP}$2`),

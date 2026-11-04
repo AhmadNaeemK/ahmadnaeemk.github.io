@@ -9,10 +9,12 @@ import {
   type ThemeName,
 } from "../../../src/scene/contract";
 import {
+  currentHash,
   expectSceneNotStarted,
   expectSectionAtTop,
   expectShowing,
   frames,
+  goToHash,
   HERO_GROWS_WHEN_SCENE_STARTS,
   holdSceneChunks,
   LOADABLE_FONT_URL,
@@ -25,6 +27,7 @@ import {
   switcherChoice,
   tallSectionsCss,
   test,
+  themeRoot,
   watchForEvent,
   pastPinSettling,
 } from "./support";
@@ -33,20 +36,38 @@ const FROM: ThemeName = "interchange";
 const TO: ThemeName = "diorama";
 const KEY: SectionKey = "projects";
 const OFF_TARGET = 300;
+const LATE_FONT = "test-late-font";
 
 test.describe.configure({ mode: "parallel" });
 
-/** A switch that has finished, with the pin still holding. */
-async function switchedAndSettled(page: Page): Promise<void> {
+const pageClockNow = (page: Page): Promise<number> =>
+  page.evaluate(() => Date.now());
+
+/**
+ * A switch that has finished, with the pin still holding. Returns the page clock
+ * just after the switch's click, which the pin cannot have started later than.
+ */
+async function switchedAndSettled(page: Page): Promise<number> {
   await serveWithCss(page, tallSectionsCss());
   await page.goto(`/${themeHash(FROM)}`);
   await sceneSettled(page, FROM);
   await scrollToSection(page, FROM, KEY);
   await pickThemeInPlace(page, TO);
+  const switchedBy = await pageClockNow(page);
   await expectShowing(page, TO);
   await sceneSettled(page, TO);
   await pastPinSettling(page);
   await expectSectionAtTop(page, TO, KEY);
+  return switchedBy;
+}
+
+/** Counts from the switch, as an installed clock keeps moving with real time too. */
+async function fastForwardPastSwitch(
+  page: Page,
+  { switchedBy, msAfterSwitch }: { switchedBy: number; msAfterSwitch: number },
+): Promise<void> {
+  const elapsedMs = (await pageClockNow(page)) - switchedBy;
+  await page.clock.fastForward(Math.max(0, msAfterSwitch - elapsedMs));
 }
 
 /** Moves away the way a visitor's scroll would, and lets its scroll event fire. */
@@ -95,6 +116,34 @@ async function expectPinEnded(page: Page): Promise<void> {
     1,
   );
 }
+
+/** The section's `scrollY` at rest: only a layout change moves this, never a scroll. */
+const restingScrollY = async (page: Page): Promise<number> =>
+  (await sectionOffset(page, TO, KEY)) +
+  (await page.evaluate(() => window.scrollY));
+
+/** Adds a block above the section. */
+function insertAboveSection(page: Page, css: string): Promise<void> {
+  return page.evaluate(
+    ({ id, cssText }) => {
+      const block = document.createElement("div");
+      block.style.cssText = cssText;
+      block.innerHTML = '<span style="display: inline-block"></span>';
+      document.getElementById(id)?.before(block);
+    },
+    { id: sectionId(TO, KEY), cssText: css },
+  );
+}
+
+const loadLateFont = (page: Page): Promise<void> =>
+  page.evaluate(
+    async ({ family, url }) => {
+      const face = new FontFace(family, `url(${url})`);
+      document.fonts.add(face);
+      await face.load();
+    },
+    { family: LATE_FONT, url: LOADABLE_FONT_URL },
+  );
 
 test.describe("what ends a pin", () => {
   test("a scroll event does not, since the pin's own scrolls fire it too", async ({
@@ -211,17 +260,27 @@ test.describe("what ends a pin", () => {
 });
 
 test.describe("the time limit on a pin", () => {
-  test("it holds up to 10 seconds with no input, and not beyond", async ({
+  // Well past settling, and with seconds to spare for a slow machine's checks.
+  const HELD_CHECK_MS = 6_000;
+  const PIN_TIME_LIMIT_MS = 10_000;
+
+  test("it holds well past settling with no input, and ends at 10 seconds", async ({
     page,
   }) => {
     await page.clock.install();
-    await switchedAndSettled(page);
+    const switchedBy = await switchedAndSettled(page);
 
-    await page.clock.fastForward(9_000);
+    await fastForwardPastSwitch(page, {
+      switchedBy,
+      msAfterSwitch: HELD_CHECK_MS,
+    });
     await scrollOffTarget(page);
     await expectPinHeld(page);
 
-    await page.clock.fastForward(2_000);
+    await fastForwardPastSwitch(page, {
+      switchedBy,
+      msAfterSwitch: PIN_TIME_LIMIT_MS,
+    });
     await scrollOffTarget(page);
     await expectPinEnded(page);
   });
@@ -252,16 +311,35 @@ test.describe("what a pin answers", () => {
     await expectSectionAtTop(page, TO, KEY);
   });
 
-  test("a font arriving late", async ({ page }) => {
+  test("a font arriving late that moves the section", async ({ page }) => {
+    await switchedAndSettled(page);
+    // Its one line is as tall as its first font says, and the fallback's is taller.
+    await insertAboveSection(page, `font: 400px/normal "${LATE_FONT}", serif`);
+    await frames(page);
+    await expectSectionAtTop(page, TO, KEY);
+    const before = await restingScrollY(page);
+
+    await loadLateFont(page);
+    await frames(page, 3);
+
+    // Otherwise the font moved nothing, and this tested nothing.
+    expect(Math.abs((await restingScrollY(page)) - before)).toBeGreaterThan(10);
+    await expectSectionAtTop(page, TO, KEY);
+  });
+
+  test("not a font that moves nothing", async ({ page }) => {
     await switchedAndSettled(page);
     await scrollOffTarget(page);
-    await page.evaluate(async (url) => {
-      const face = new FontFace("test-late-font", `url(${url})`);
-      document.fonts.add(face);
-      await face.load();
-    }, LOADABLE_FONT_URL);
+    const before = await sectionOffset(page, TO, KEY);
+
+    await loadLateFont(page);
     await frames(page, 3);
-    await expectSectionAtTop(page, TO, KEY);
+
+    expect(
+      Math.abs((await sectionOffset(page, TO, KEY)) - before),
+    ).toBeLessThan(1);
+    // Still running, so it chose not to scroll.
+    await expectPinHeld(page);
   });
 });
 
@@ -295,6 +373,47 @@ test.describe("a fresh section link", () => {
     await page.keyboard.press("Shift", { delay: 120 });
     await scrollOffTarget(page);
     await expectPinEnded(page);
+  });
+});
+
+test.describe("a section link opened in a new tab", () => {
+  test("leaves no pin for a later history step onto its hash", async ({
+    page,
+    context,
+  }) => {
+    const SHIFT = 240;
+    context.on("page", (opened) => void opened.close());
+    await serveWithCss(page, tallSectionsCss());
+    await page.goto(`/${themeHash(TO)}`);
+    await sceneSettled(page, TO);
+    const linkedHash = `#${sectionId(TO, KEY)}`;
+    const hereHash = `#${sectionId(TO, "contact")}`;
+    await goToHash(page, linkedHash);
+    await goToHash(page, hereHash);
+    await scrollAtRest(page);
+
+    const clicked = await watchForEvent(page, "click");
+    await themeRoot(page, TO)
+      .getByRole("navigation", { name: "Sections" })
+      .getByRole("link", { name: "Projects", exact: true })
+      .click({ modifiers: ["ControlOrMeta"] });
+    await clicked();
+    expect(await currentHash(page)).toBe(hereHash);
+
+    const stepped = await watchForEvent(page, "hashchange");
+    await page.evaluate(() => history.back());
+    await stepped();
+    expect(await currentHash(page)).toBe(linkedHash);
+    await scrollAtRest(page);
+
+    // A pin would scroll the page after the section. Without one, it stays moved.
+    const before = await sectionOffset(page, TO, KEY);
+    await insertAboveSection(page, `height: ${SHIFT}px`);
+    await frames(page, 4);
+    await scrollAtRest(page);
+    expect(
+      Math.abs((await sectionOffset(page, TO, KEY)) - before - SHIFT),
+    ).toBeLessThan(2);
   });
 });
 

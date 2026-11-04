@@ -43,10 +43,17 @@ export interface ExactPixelImage {
 
 type Dated<Data> = Data & DateLabels & { id: string };
 
+export interface ContactLink {
+  name: string;
+  href: string;
+  label: string;
+}
+
 export interface SiteContent {
   profile: Omit<ProfileData, "portraitPixels"> & {
     portraitPixels: ExactPixelImage;
   };
+  contactLinks: ContactLink[];
   experience: Dated<ExperienceData>[];
   education: Dated<EducationData>[];
   projects: Dated<ProjectData>[];
@@ -124,6 +131,14 @@ export function assembleSiteContent(raw: RawCollections): SiteContent {
       ...profile,
       portraitPixels: toExactPixelImage(profile.portraitPixels),
     },
+    contactLinks: [
+      {
+        name: "LinkedIn",
+        href: profile.linkedin,
+        label: profile.linkedinLabel,
+      },
+      { name: "GitHub", href: profile.github, label: profile.githubLabel },
+    ],
     experience: inDisplayOrder("experience", raw.experience).map(withDates),
     education: inDisplayOrder("education", raw.education).map(withDates),
     projects: inDisplayOrder("projects", raw.projects).map(withDates),

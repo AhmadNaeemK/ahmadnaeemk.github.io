@@ -42,9 +42,15 @@ export const THEME_HOOKS = {
   copyTarget: "[data-copy-target]",
   cvLink: "[data-cv]",
   year: "[data-year]",
-  /** On `ThemeSwitcher.astro`'s outer element, whatever Task 10 renders inside. */
+  /** On `ThemeSwitcher.astro`'s outer element, whatever it renders inside. */
   themeSwitcher: "[data-theme-switcher]",
 } as const;
+
+/**
+ * On the showing theme's root: the height of its header, measured by
+ * `src/scene/theme.ts`. A theme's `scroll-margin-top` reads it, with a fallback.
+ */
+export const HEADER_HEIGHT_PROPERTY = "--rail-header-height";
 
 /** Selectors for what `RightNow.astro` renders, so no theme writes these. */
 export const RIGHT_NOW_PARTS = {

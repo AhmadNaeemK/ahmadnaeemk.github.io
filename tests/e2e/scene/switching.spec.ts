@@ -37,7 +37,7 @@ import {
   worldClockRate,
 } from "./helpers";
 
-test.describe("quick switching (E11)", () => {
+test.describe("quick switching", () => {
   async function openWithInterchangeLoaded(page: Page) {
     const chunks = await holdSceneChunks(page);
     await openScenePage(page, { waitForRunning: false });

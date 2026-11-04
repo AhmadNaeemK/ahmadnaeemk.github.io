@@ -60,7 +60,7 @@ test.describe("a colour scheme change", () => {
 test.describe("a stopped train", () => {
   test.describe.configure({ timeout: 60_000 });
 
-  test("once at rest, the whole canvas holds, steam and crowd included", async ({
+  test("once at rest, the whole canvas holds with no more draws, steam and crowd included", async ({
     page,
   }) => {
     await open(page);
@@ -78,13 +78,13 @@ test.describe("a stopped train", () => {
     const draws = await drawCount(page, THEME);
     await waitFrames(page, 30);
 
-    expect(await drawCount(page, THEME)).toBeGreaterThan(draws);
+    expect(await drawCount(page, THEME)).toBe(draws);
     expect(await canvasFingerprint(page, THEME)).toBe(held);
     expect(await worldClocks(page)).toEqual(clocks);
   });
 });
 
-test.describe("a reduced-motion start at full width (E18)", () => {
+test.describe("a reduced-motion start at full width", () => {
   test("rolls the text while the scene stays still", async ({ page }) => {
     await rewriteThemeHtml(
       page,

@@ -181,7 +181,7 @@
     margin: 8px 4px 0;
     padding: 6px 10px;
     background: var(--bg2);
-    font: 500 0.9rem var(--fp);
+    font: 700 0.9rem var(--fb);
     text-align: left;
   }
   & .now__list {
@@ -216,7 +216,8 @@
     font: 700 1.2rem var(--fb);
   }
   & .intro__text {
-    max-width: 52ch;
+    /* Not ch: the fallback font's 0 is narrower, which would wrap a line sooner. */
+    max-width: 33.7em;
     margin: 10px 0 0;
     font-size: 1.15rem;
   }

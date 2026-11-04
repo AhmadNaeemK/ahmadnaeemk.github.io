@@ -22,7 +22,7 @@
   & .save__mail {
     margin: 10px 0 18px;
     color: var(--red-ink);
-    font: 700 clamp(1.5rem, 4vw, 2.6rem) / 1.1 var(--fp);
+    font: 700 var(--contact-email-size) / 1.2 var(--fb);
     overflow-wrap: anywhere;
   }
   & .save__cta {
@@ -44,6 +44,9 @@
     flex-direction: column;
     font-weight: 700;
     overflow-wrap: anywhere;
+  }
+  & .save__links a {
+    font-size: var(--contact-link-size);
   }
   & .save__links span {
     color: var(--muted);

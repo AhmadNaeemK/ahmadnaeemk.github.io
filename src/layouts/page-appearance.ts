@@ -89,7 +89,7 @@ export function startPageAppearance(): void {
     attributeFilter: [THEME_ATTRIBUTE, COLOR_SCHEME_ATTRIBUTE],
   });
   systemDark.addEventListener("change", sync);
-  // The system scheme can change while a page sits frozen in the bfcache (E8).
+  // The system scheme can change while a page sits frozen in the bfcache.
   window.addEventListener("pageshow", (event) => {
     if (event.persisted) sync();
   });

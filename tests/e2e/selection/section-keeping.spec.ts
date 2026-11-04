@@ -20,7 +20,6 @@ import {
   switcherChoice,
   tallSectionsCss,
   test,
-  THEME_PAIRS,
   THEMES,
   themeRoot,
   pastPinSettling,
@@ -43,6 +42,12 @@ async function readingSection(
   if (key !== "top") await scrollToSection(page, from, key);
 }
 
+/** Every theme leaves and arrives once. Nothing in a switch depends on the pair. */
+const THEME_CYCLE = THEMES.map((from, index) => ({
+  from,
+  to: THEMES[(index + 1) % THEMES.length],
+}));
+
 for (const [name, viewport] of [
   ["desktop", DESKTOP],
   ["phone", PHONE],
@@ -54,8 +59,8 @@ for (const [name, viewport] of [
       await serveWithCss(page, tallSectionsCss());
     });
 
-    for (const { from, to } of THEME_PAIRS) {
-      test(`${from} to ${to} keeps every section (E30)`, async ({ page }) => {
+    for (const { from, to } of THEME_CYCLE) {
+      test(`${from} to ${to} keeps every section`, async ({ page }) => {
         for (const key of SECTION_KEYS) {
           await test.step(key, async () => {
             await readingSection(page, from, key);
@@ -153,7 +158,7 @@ test.describe("at the bottom of the page", () => {
   });
 });
 
-test.describe("switching quickly (E11)", () => {
+test.describe("switching quickly", () => {
   test("the last choice wins and the section holds", async ({ page }) => {
     await serveWithCss(page, tallSectionsCss());
     await readingSection(page, "interchange", "projects");

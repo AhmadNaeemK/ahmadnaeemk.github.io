@@ -16,8 +16,8 @@ function startOptions(
   });
 }
 
-// Q12 is still open, so these read WORLD_START instead of repeating its values:
-// the code comment makes that constant the only thing to change on the decision.
+// These read WORLD_START instead of repeating its values, so that constant stays the
+// only thing to change if the starting world is ever decided differently.
 describe("worldStartOptions", () => {
   describe("livery", () => {
     it.each(THEME_NAMES)(
@@ -79,8 +79,8 @@ describe("worldStartOptions", () => {
   });
 });
 
-// Goes through the public engine entry point, so it keeps guarding this seam
-// when Task 4 replaces the stub behind it.
+// Goes through the public engine entry point, so it guards this seam however the
+// engine is arranged behind it.
 describe("the world those options start", () => {
   it("has the saved livery's train laid out before the first step, for draw(0)", () => {
     for (const savedLivery of LIVERY_ORDER) {

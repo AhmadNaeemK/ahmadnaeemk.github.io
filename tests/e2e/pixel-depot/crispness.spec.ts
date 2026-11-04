@@ -65,7 +65,7 @@ const waitTwoFrames = (page: Page): Promise<void> =>
   );
 
 for (const deviceScaleFactor of [1, 2]) {
-  test.describe(`the canvas at a device pixel ratio of ${deviceScaleFactor} (E23)`, () => {
+  test.describe(`the canvas at a device pixel ratio of ${deviceScaleFactor}`, () => {
     test.use({ deviceScaleFactor });
     test.describe.configure({ timeout: 90_000 });
 

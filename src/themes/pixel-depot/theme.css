@@ -1,5 +1,8 @@
-/* Pixel Depot: a pixel face for headings and UI, a very readable face for running
-   text, and panels with notched pixel borders. Every rule sits under this root. */
+/* Pixel Depot: a pixel face for the name, section headings and game labels, a very
+   readable face for everything else, and panels with notched pixel borders. Pixelify
+   Sans's capital C reads as O and its G as Q ("Oontact", "Qumdrop"), so text from
+   content and any label with those letters stays out of it. Every rule sits under
+   this root. */
 [data-rail-theme-root="pixel-depot"] {
   --notch-2:
     0 -2px 0 0 var(--line), 0 2px 0 0 var(--line), -2px 0 0 0 var(--line),
@@ -10,8 +13,8 @@
   --notch-4:
     0 -4px 0 0 var(--line), 0 4px 0 0 var(--line), -4px 0 0 0 var(--line),
     4px 0 0 0 var(--line);
-  /* The pinned header's height, which a section link has to land below. A section's
-     own padding covers the extra row fallback fonts can add at 422 to 432 px. */
+  /* The pinned header's height, which a section link has to land below, for when no
+     script has measured it into --rail-header-height. */
   --top-height: 72px;
   --safe-top: env(safe-area-inset-top, 0px);
   --gutter-left: max(18px, env(safe-area-inset-left, 0px));
@@ -31,9 +34,6 @@
   @media (max-width: 1120px) {
     --top-height: 104px;
   }
-  @media (max-width: 339px) {
-    --top-height: 146px;
-  }
 
   & * {
     box-sizing: border-box;
@@ -47,7 +47,9 @@
   }
   & main,
   & .sec {
-    scroll-margin-top: calc(var(--safe-top) + var(--top-height));
+    scroll-margin-top: calc(
+      var(--safe-top) + var(--rail-header-height, var(--top-height))
+    );
   }
   & .wrap {
     max-width: 1180px;
@@ -75,7 +77,7 @@
     box-shadow:
       var(--notch-3),
       inset 0 -4px 0 0 var(--press-shadow);
-    font: 500 1rem var(--fp);
+    font: 700 1rem var(--fb);
     text-decoration: none;
     cursor: pointer;
   }
@@ -141,7 +143,7 @@
   & .menu a {
     position: relative;
     padding: 4px 8px 4px 18px;
-    font: 500 1rem var(--fp);
+    font: 700 1rem var(--fb);
     text-decoration: none;
   }
   & .menu a::before {
@@ -210,6 +212,33 @@
     }
     & .top__in > .px-btn:not(.theme) {
       display: none;
+    }
+  }
+  /* All five links fit with nothing left to scroll to, so they drop the room kept
+     for the hover marker. */
+  @media (max-width: 459px) {
+    & .menu {
+      justify-content: space-between;
+      gap: 0;
+    }
+    & .menu a {
+      padding: 6px 4px;
+      font-size: 0.875rem;
+    }
+    & .menu a::before {
+      display: none;
+    }
+  }
+  /* Room for a wider fallback font at the narrowest phones. */
+  @media (max-width: 340px) {
+    & .menu a {
+      font-size: 0.8125rem;
+    }
+  }
+  /* The mark, the switcher and the toggle share a row. */
+  @media (max-width: 359px) {
+    & .top__in {
+      gap: 10px;
     }
   }
 

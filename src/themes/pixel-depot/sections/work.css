@@ -18,7 +18,7 @@
   }
   & .quest h3 {
     margin: 0;
-    font: 700 1.35rem/1.2 var(--fp);
+    font: 700 1.25rem/1.2 var(--fb);
   }
   & .quest h3 span {
     color: var(--muted);
@@ -38,7 +38,7 @@
     margin: 0;
     padding: 4px 10px;
     background: var(--bg2);
-    font: 500 0.9rem var(--fp);
+    font: 700 0.85rem var(--fb);
   }
   & .quest--active .quest__state {
     background: var(--gold);

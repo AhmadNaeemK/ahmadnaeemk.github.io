@@ -25,7 +25,7 @@ import {
 
 test.describe.configure({ mode: "parallel" });
 
-test.describe("a link is not a pick (E4)", () => {
+test.describe("a link is not a pick", () => {
   test("opening a theme link shows it and leaves the saved choice", async ({
     page,
   }) => {
@@ -76,7 +76,7 @@ test.describe("a link is not a pick (E4)", () => {
   });
 });
 
-test.describe("section links (E5, E6)", () => {
+test.describe("section links", () => {
   test.beforeEach(async ({ page }) => {
     await serveWithCss(page, tallSectionsCss());
   });
@@ -205,7 +205,7 @@ test.describe("what a switch does to the hash", () => {
   });
 });
 
-test.describe("back and forward (E7)", () => {
+test.describe("back and forward", () => {
   test("the theme follows the hash both ways", async ({ page }) => {
     await page.goto("/#interchange");
     await goToHash(page, "#diorama");

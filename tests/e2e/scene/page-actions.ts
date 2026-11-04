@@ -97,7 +97,7 @@ export const expectState = (
 export const stateOf = (page: Page, theme: ThemeName) =>
   root(page, theme).getAttribute(SCENE_STATE_ATTRIBUTE);
 
-/** Task 5 owns selection, and the runtime only observes this attribute. */
+/** Selection is not under test here, and the runtime only observes this attribute. */
 export const selectTheme = (page: Page, theme: ThemeName): Promise<void> =>
   page.evaluate(
     ([attribute, name]) =>

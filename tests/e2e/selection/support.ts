@@ -1,7 +1,7 @@
 /**
  * What the selection and conformance specs share. Everything here reads the
- * contract's attributes or what a visitor can see, so the specs keep passing when
- * real themes, the real engine and the real runtime replace the stubs.
+ * contract's attributes or what a visitor can see, so the specs hold for any theme
+ * that keeps to the contract.
  */
 import {
   test as base,
@@ -163,8 +163,8 @@ function eachSectionSelector(theme: ThemeName, keys: readonly SectionKey[]) {
 const BELOW_TOP = SECTION_KEYS.filter((key) => key !== "top");
 
 /**
- * Stub pages are too short for a section to reach the viewport top. Scroll
- * anchoring is off because it can mask a broken pin in Chromium.
+ * Sections too short to reach the viewport top would hide where a scroll landed.
+ * Scroll anchoring is off because it can mask a broken pin in Chromium.
  */
 export function tallSectionsCss(
   keys: readonly SectionKey[] = BELOW_TOP,
@@ -284,6 +284,34 @@ export function sectionOffset(
       return window.scrollY === 0 ? Math.max(offset, 0) : offset;
     },
     sectionId(theme, key),
+  );
+}
+
+const SECTIONS_WITH_HEADINGS = SECTION_KEYS.filter((key) => key !== "top");
+
+/** One line for each heading under the header, once each section is scrolled to. */
+export function headingsUnderHeader(
+  page: Page,
+  theme: ThemeName,
+): Promise<string[]> {
+  return page.evaluate(
+    ({ header, sectionIds }) =>
+      sectionIds.flatMap((id) => {
+        const section = document.getElementById(id) as HTMLElement;
+        section.scrollIntoView({ block: "start", behavior: "instant" });
+        const headerBottom = (
+          document.querySelector(header) as HTMLElement
+        ).getBoundingClientRect().bottom;
+        const headingTop = (
+          section.querySelector("h2") as HTMLElement
+        ).getBoundingClientRect().top;
+        const overlap = headerBottom - headingTop;
+        return overlap > 0 ? [`${id}, by ${overlap.toFixed(1)} px`] : [];
+      }),
+    {
+      header: `[data-rail-theme-root="${theme}"] header:has(${THEME_HOOKS.themeSwitcher})`,
+      sectionIds: SECTIONS_WITH_HEADINGS.map((key) => sectionId(theme, key)),
+    },
   );
 }
 

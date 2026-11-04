@@ -1,6 +1,6 @@
 import { STORAGE_KEYS } from "./contract";
 
-/** Storage can throw in a private window, so both directions are guarded (E3). */
+/** Storage can throw in a private window, so both directions are guarded. */
 export function readSavedLivery(): string | null {
   try {
     return localStorage.getItem(STORAGE_KEYS.livery);

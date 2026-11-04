@@ -108,9 +108,11 @@ test.describe("where the billboard goes", () => {
 test.describe("what the board rolls", () => {
   test.use({ viewport: DESKTOP });
 
-  /** Where the first rolled segment was drawn: it moves only as the text rolls. */
+  /**
+   * Where the first rolled segment was last drawn: it moves only as the text rolls.
+   * The log is not cleared first, because a paused scene draws nothing more to fill it.
+   */
   const rollPosition = async (page: Page) => {
-    await clearCanvasTexts(page);
     await expect
       .poll(async () => (await lastBoardTexts(page)).length)
       .toBeGreaterThan(1);
