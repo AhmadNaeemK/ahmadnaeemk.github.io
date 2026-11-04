@@ -26,7 +26,8 @@ interface ViewportPoint {
 /**
  * Sends real touches through DevTools, so the browser's own gesture recognition
  * and `touch-action` handling decide whether the page scrolls. Not
- * `Input.synthesizeScrollGesture`, which scrolled nothing on Linux in CI (PR #15).
+ * `Input.synthesizeScrollGesture`, which on Linux in CI (PR #15) sent no touchmove
+ * and scrolled nothing, on the canvas or on plain content.
  */
 async function dragUp(
   page: Page,
