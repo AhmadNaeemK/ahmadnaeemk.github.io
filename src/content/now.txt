@@ -2,4 +2,5 @@
 # To show a small label before the text, write "Playing: Sekiro", with a space after the colon and at most 30 characters before it.
 # Each line can be up to 200 characters. Lines starting with # and blank lines are ignored.
 Playing: Marvel's Spider-Man Remastered
-Building: this train-themed portfolio
+Building: A realistic city transport simulator
+Reading: 1984 by George Orwell
